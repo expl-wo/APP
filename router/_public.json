@@ -1,0 +1,27 @@
+{
+	"pages": [{
+		"path": "pages/login/login",
+		"style": {
+			"navigationBarTitleText": "登录",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/user/message",
+		"style": {
+			"navigationBarTitleText": "消息",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/user/user",
+		"style": {
+			"navigationBarTitleText": "我的",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}]
+}

@@ -1,0 +1,163 @@
+{
+	"pages": [{
+		"path": "pages/equip/index",
+		"style": {
+			"navigationBarTitleText": "设备管理",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipCheck/index",
+		"style": {
+			"navigationBarTitleText": "设备点检",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipCheck/dailyCheck",
+		"style": {
+			"navigationBarTitleText": "日常点检",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipCheck/specialityCheck",
+		"style": {
+			"navigationBarTitleText": "专业点检",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipCheck/checkItem",
+		"style": {
+			"navigationBarTitleText": "点检项",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipMaintenance/index",
+		"style": {
+			"navigationBarTitleText": "设备保养",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipMaintenance/maintenanceTask",
+		"style": {
+			"navigationBarTitleText": "保养任务",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipMaintenance/maintenanceOperation",
+		"style": {
+			"navigationBarTitleText": "保养操作",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipMaintenance/maintenanceApply",
+		"style": {
+			"navigationBarTitleText": "保养验收",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}
+	
+	
+	
+	,{
+		"path": "pages/equip/equipRepair/index",
+		"style": {
+			"navigationBarTitleText": "设备维修",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/reportManager/index",
+		"style": {
+			"navigationBarTitleText": "报修管理",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/reportManager/equipReport",
+		"style": {
+			"navigationBarTitleText": "设备报修",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/reportManager/orderReport",
+		"style": {
+			"navigationBarTitleText": "维修预约",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/reportManager/ensure",
+		"style": {
+			"navigationBarTitleText": "维修确认",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/repairManager/index",
+		"style": {
+			"navigationBarTitleText": "维修管理",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/repairManager/response",
+		"style": {
+			"navigationBarTitleText": "维修响应",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/equip/equipRepair/repairManager/operation",
+		"style": {
+			"navigationBarTitleText": "维修操作",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},
+	
+	{
+		"path": "pages/equip/equipIntegrityAppraisal/IntegrityAppraisalTask",
+		"style": {
+			"navigationBarTitleText": "鉴定任务",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},
+	{
+		"path": "pages/equip/equipIntegrityAppraisal/IntegrityOperation",
+		"style": {
+			"navigationBarTitleText": "鉴定操作",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}
+	]
+}

@@ -1,0 +1,39 @@
+.mt_10 {
+	margin-top: 10px;
+}
+
+.mb_10{
+	margin-bottom: 10px;
+}
+
+
+.mt_-2 {
+	margin-top: -2px;
+}
+
+.mr_20 {
+	margin-right: 20px;
+}
+
+.mr_40 {
+	margin-right:40px;
+}
+
+.mr_60 {
+	margin-right:60px;
+}
+
+.ml_20 {
+	margin-left: 20px;
+}
+
+.bold-font{
+	font-weight: bold;
+}
+
+
+.xui-required::before {
+	content: '*';
+	color: red;
+	margin-right: 2upx;
+}

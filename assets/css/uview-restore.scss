@@ -1,0 +1,175 @@
+// uni  uview样式重载
+.xui-form.u-form {
+	/* .u-form-item__body__left__content__label {
+		font-size: 26upx;
+	}
+	.uni-input-input {
+		font-size: 26upx;
+	} */
+}
+
+.u-page {
+	padding: 0;
+
+	&__item {
+		&__title {
+			color: $u-tips-color;
+			background-color: $u-bg-color;
+			padding: 15px;
+			font-size: 15px;
+
+			&__slot-title {
+				color: $u-primary;
+				font-size: 14px;
+			}
+		}
+
+		&__slot-icon {
+			width: 17px;
+			height: 17px;
+		}
+	}
+}
+
+.u-form .u-form-item__body .u-form-item__body__left__content__label {
+	font-size: 13px;
+}
+
+uni-button {
+	margin: 0;
+}
+
+
+.login-box{
+	.uni-input-input,
+	.uni-input-placeholder {
+		font-size: 9upx;
+	}
+}
+
+.u-tabbar .u-tabbar__content .u-tabbar__content__item-wrapper {
+	height: 80upx;
+}
+
+.u-form-item.form-item-required {
+	.u-form-item__body__left__content__label::before {
+		content: '*';
+		color: red;
+		margin-right: 2upx;
+	}
+}
+
+uni-view, uni-text {
+    box-sizing: border-box;
+}
+
+
+.width-auto{
+	.u-button{
+		width: auto!important;
+	}
+}
+
+.xui-check-header{
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+.margin-left-auto{
+	margin-left: auto;
+}
+
+.margin-right-auto{
+	margin-right: auto;
+}
+
+@for $i from 0 through 60 {  // 遍历数组
+  .#{'mb-'+ $i*5} {
+    margin-bottom: $i*5rpx;  // 获取指定键值
+  }
+}
+
+@for $i from 0 through 60 {  // 遍历数组
+  .#{'mt-'+ $i*5} {
+    margin-top: $i*5rpx;  // 获取指定键值
+  }
+}
+
+@for $i from 0 through 60 {  // 遍历数组
+  .#{'ml-'+ $i*5} {
+    margin-left: $i*5rpx;  // 获取指定键值
+  }
+}
+
+@for $i from 0 through 60 {  // 遍历数组
+  .#{'mr-'+ $i*5} {
+    margin-right: $i*5rpx;  // 获取指定键值
+  }
+}
+
+uni-button[type=success] {
+    color: #fff;
+    background-color: #5ac725;
+}
+
+uni-button[type=yellow] {
+    color: #fff;
+    background-color: #f9ae3d;
+}
+
+.xui-reset {
+	.uicon-arrow-down-fill {
+		font-size: 13rpx !important;
+	}
+
+	.u-input__right-icon__clear {
+		.uicon-close-circle-fill {
+			font-size: 12rpx !important;
+		}
+	}
+	.u-btn.bu_W {
+		width: 50rpx;
+	}
+}
+
+$fontSize: 9rpx;
+$normalHeight: 20rpx;
+$borderColor: rgb(228, 231, 237);
+
+@mixin reset-base {
+	.u-form-item,
+	.u-radio__label,
+	.u-checkbox__label,
+	.u-input__input {
+		font-size: $fontSize;
+		line-height: $normalHeight;
+	}
+}
+
+
+.check-table,.xui-check-header{
+	@include reset-base;
+	.u-radio__icon-wrap{
+		width: 24px!important;
+		height: 24px!important;
+	}
+	.u-radio+.u-radio{
+		margin-left: 6px;
+	}
+	
+	.u-text__value{
+		font-size: 16px!important;
+	}
+	
+	.u-text{
+		justify-content: center!important;
+	}
+}
+
+
+.flex-default{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

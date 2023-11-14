@@ -1,0 +1,229 @@
+@import './_public/bem-mixins';
+@import './_public/var.scss';
+@import './uview-restore.scss';
+
+.main-wrapper-fixed{
+	height: calc(100vh - 44px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.x-content-table {
+	width: 100%;
+	.x-content-td {
+		width: 50%;
+	}
+}
+
+.x-item-wrapper .x-content-wrapper .u-cell__body{
+	color: #000
+}
+
+.normal-font-size{
+	font-size: $xui-common-font-size;
+}
+
+// // 登录页容器
+// .xui-logo-wrapper{
+// 	height: 100vh;
+// 	.xui-logo{
+// 		position: relative;
+// 		height: 100vh;
+// 		background: #FFF url('@/assets/imgs/logo/wms_login_bac.png') no-repeat;
+// 		// #ifdef APP-PLUS
+// 		background-size: 100% auto;
+// 		background-position:left;
+// 		background-origin:content-box;
+// 		// #endif
+// 		// #ifdef H5
+// 		background-size: 100% auto;
+// 		// background-size: contain;
+// 		// #endif
+// 		.xui-logo-header-label{
+// 			width: 600upx;
+// 			height: 46upx;
+// 			left: 40upx;
+// 			top: 140upx;
+// 			position: absolute;
+// 			background: url('@/assets/imgs/logo/wms_login_logo.png') no-repeat;
+// 			background-size: contain;
+// 		}
+		
+// 		.xui-logo-content-wrapper{
+// 		    position: relative;
+// 		    top: 400upx;
+// 		    padding: 50upx 60upx 60upx;
+			
+// 			.xui-logo-content-header-wrapper{
+// 				display: flex;
+// 				justify-content: space-between;
+// 				align-items: flex-start;
+// 				font-size: 30upx;
+// 				margin-bottom: 20upx;
+// 			}
+			
+// 			.xui-logo-other-wrapper{
+// 				display: flex;
+// 				align-items: center;
+// 				justify-content: space-between;
+// 				color: #3c9cff;
+// 				font-size: 28upx;
+// 				margin-top: 30upx;
+// 				margin-bottom: 40upx;
+// 			}
+// 			.version-select-text{
+// 				flex:0 0 auto;;
+// 			}
+			
+// 			.xui-logo-version-select{
+// 				display: flex;
+// 				align-items: center;
+// 				justify-content: center;
+// 				margin-right: 16upx;
+// 			}
+// 		}
+// 	}
+	
+// 	.version-select-text {
+// 		flex: 0 0 auto;
+// 	}
+	
+// 	.xui-logo-version-select {
+// 		display: flex;
+// 		align-items: center;
+// 		justify-content: center;
+// 		margin-right: 16upx;
+// 	}
+// }
+
+.photo-text{
+	padding: 0 10px;
+	text-decoration: underline;
+	&.is-primary{
+		color: $xui-primary-color;
+	}
+}
+
+
+.xui-empty-content {
+	padding-top: 40upx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	.xui-empty-img {
+		width: 400upx;
+		height: 280upx;
+		background: url(@/assets/imgs/no-data/no-data.png) no-repeat;
+		background-size: cover;
+		background-position: center;
+	}
+}
+
+.my-product-list{
+	left: 10px;
+	top: 5px;
+}
+
+.inline-block{
+	display: inline-block;
+}
+
+.this-time-deal {
+	top: 25px;
+	left: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	.finish-btn{
+		margin-left: 20px;
+	}
+}
+
+// 登录页容器
+.xui-logo-wrapper {
+	height: 100vh;
+	.xui-logo {
+		position: relative;
+		height: 100vh;
+		background: #fff url('@/assets/imgs/logo/wms_login_bac.png') no-repeat;
+		background-size: 100% auto;
+		// #ifdef APP-PLUS
+		background-position: left;
+		background-origin: content-box;
+		// #endif
+		.xui-logo-header-label {
+			width: 600upx;
+			height: 46upx;
+			left: 40upx;
+			top: 140upx;
+			position: absolute;
+			background: url('@/assets/imgs/logo/wms_login_logo.png') no-repeat;
+			background-size: contain;
+		}
+
+		.xui-logo-content-wrapper {
+			position: relative;
+			top: 400upx;
+			padding: 50upx 60upx 60upx;
+
+			.xui-logo-content-header-wrapper {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				font-size: 30upx;
+				margin-bottom: 20upx;
+			}
+
+			.xui-logo-other-wrapper {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				color: #3c9cff;
+				font-size: 28upx;
+				margin-top: 30upx;
+				margin-bottom: 40upx;
+			}
+			.version-select-text {
+				flex: 0 0 auto;
+			}
+
+			.xui-logo-version-select {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-right: 16upx;
+			}
+		}
+	}
+}
+
+
+/* 图片旋转动画样式 */
+@keyframes box-ani {
+	from {transform: rotate(0)}
+	to {transform: rotate(360deg)}
+}
+.mcStart{
+	height: 19px;
+	width: 19px;
+	display: flex;
+	flex-direction: row;			
+	position: absolute;
+	z-index: 99;
+	// top: 50%;
+	// left: 50%;	
+	animation: box-ani 2s  linear; /*旋转动画*/
+}
+.mcStop{
+	height: 19px;
+	width: 19px;
+	display: flex;
+	flex-direction: row;			
+	position: absolute;
+	z-index: 99;
+	// top: 50%;
+	// left: 50%;		
+}
+
+

@@ -1,0 +1,13 @@
+@import '../_public/bem-mixins';
+
+@include b(logo) {
+	@include e(sysname) {
+		width: 300px;
+		height: 23px;
+		left: 20px;
+		top: 100px;
+		position: absolute;
+		font-size: 17px;
+		color: #fff;
+	}
+}

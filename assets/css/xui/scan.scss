@@ -1,0 +1,37 @@
+@import '../_public/bem-mixins';
+@import '../_public/var';
+
+
+@include b(scan) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	
+	@include e(icon) {
+		background-image: url(@/assets/imgs/icon/wms_icon_scan.png);
+		width: 24px;
+		height: 24px;
+		margin-left: 8px;
+		margin-right: 8px;
+		background-size: contain;
+	}
+	
+	@include m(large){
+		width: 75px;
+		height: 75px;
+	}
+	
+	@include  m(small){
+		width: 25px;
+		height: 25px;
+	}
+	
+	@include e(label) {
+		padding-top: 2px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+		font-size: $xui-common-font-size;
+	}
+}

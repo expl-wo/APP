@@ -1,0 +1,11 @@
+{
+	"pages": [{
+		"path": "pages/andon/index",
+		"style": {
+			"navigationBarTitleText": "安灯",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}]
+}

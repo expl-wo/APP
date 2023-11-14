@@ -1,0 +1,47 @@
+@import '../_public/bem-mixins';
+
+@include b(icon) {
+	width: 50upx;
+	height: 50upx;
+	background-size: contain;
+	&.xui-icon-wms_empty_container {
+		background-image: url(@/assets/imgs/icon/wms_empty_container.png);
+	}
+	&.xui-icon-wms_switch_container {
+		background-image: url(@/assets/imgs/icon/wms_switch_container.png);
+	}
+}
+
+.icon-receipt{
+	background-image: url(@/assets/imgs/receipt.png);
+}
+
+.icon-sealing{
+	background-image: url(@/assets/imgs/sealing.png);
+}
+
+.icon-check{
+	background-image: url(@/assets/imgs/check.png);
+}
+
+.icon-packing{
+	background-image: url(@/assets/imgs/packing.png);
+}
+
+.icon-photo {
+	width: 60upx;
+	height: 60upx;
+	background-image: url('@/assets/imgs/icon/photo.png');
+	background-repeat: no-repeat;
+	background-origin: border-box;
+	background-size: contain;
+	margin-right: 32upx;
+}
+
+.icon-paste{
+	background-image: url(@/assets/imgs/paste.png);
+}
+
+.icon-exchange{
+	background-image: url(@/assets/imgs/exchange.png);
+}

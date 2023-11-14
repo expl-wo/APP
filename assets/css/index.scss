@@ -1,0 +1,565 @@
+$fontSize: 9rpx;
+$normalHeight: 20rpx;
+$borderColor: rgb(228, 231, 237);
+
+.xui-reset{
+	.uicon-arrow-down-fill{
+		font-size: 13rpx!important;
+	}
+	
+	.u-input__right-icon__clear{
+		.uicon-close-circle-fill{
+			font-size: 12rpx!important;
+		}
+	}
+	.u-btn.bu_W {
+	    width: 50rpx;
+	}
+}
+
+@mixin reset-base {
+	.u-form-item,
+	.u-radio__label,
+	.u-checkbox__label,
+	.u-input__input {
+		font-size: $fontSize;
+		line-height: $normalHeight;
+	}
+
+	.u-checkbox {
+		/* max-width: 50rpx;
+		min-width: 50rpx; */
+	}
+
+	.u-radio__label {
+		margin-right: 2rpx;
+	}
+	.u-input__input {
+		width: 50rpx;
+		line-height: $normalHeight;
+	}
+	
+	.form-name{
+		.u-input__input {
+			width: 54rpx;
+		}
+	}
+	
+	.mini-input{
+		.u-input__input {
+			width: 40rpx;
+		}
+	}
+	
+	.mini-input2{
+		.u-input__input {
+			width: 42rpx;
+		}
+	}
+	
+
+	.u-input.u-input--border {
+		padding: 0 5rpx !important;
+	}
+	.u-btn {
+		margin-left: 3rpx;
+		padding: 0 5rpx;
+	}
+	.u-form-item--left {
+		flex: 0 0 40rpx !important;
+	}
+	.large-form {
+		width: 150rpx;
+		.u-form-item--left {
+			 flex: 0 0 50rpx !important;
+		}
+	}
+	
+	.u-form-item--left__content__label{
+		margin-left: 5rpx;
+	}
+	
+	.u-size-default {
+		font-size: $fontSize;
+		height: $normalHeight;
+		line-height: $normalHeight;
+	}
+
+	.btnGroup {
+		display: flex;
+	}
+	.bu_W {
+	    width: 40rpx;
+	}
+	/* #ifdef APP-PLUS */
+	.u-input__input{
+		min-height: 20rpx!important;
+	}
+	/* #endif */
+}
+
+.main-wrapper {
+	font-size: $fontSize;
+	display: flex;
+	padding: 0 5rpx;
+	margin:  0 3rpx;
+	border: 1px solid $borderColor;
+	padding-bottom: 10rpx;
+
+	.main-content {
+		flex: 1;
+
+		@include reset-base;
+
+		.uni-table-th,
+		.uni-table-td {
+			font-size: 8rpx;
+		}
+
+		.u-icon__icon.uicon-arrow-down-fill.u-iconfont {
+			font-size: 10rpx !important;
+		}
+
+		.main-table {
+			margin-bottom: 10rpx;
+			// height: calc(100vh - 396px);
+			overflow: auto;
+			
+			&.baogong2{
+				margin-bottom: 25rpx;
+				// height: calc(100vh - 316px);
+			}
+			
+			.un-verify{
+				background-color: #8080ff;
+			}
+			.finish-verify{
+				background-color: #95f204;
+			}
+		}
+		
+		.main-workProgress{
+			display: flex;
+			font-size: 15rpx;
+			margin-bottom: 10rpx;
+			.main-workProgress-desc{
+				margin-left: 10rpx;
+			}
+		}
+
+		.main-remark {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			margin-top: 8rpx;
+			margin-bottom: 10rpx;
+			.uni-input{
+				width: 200rpx;
+				font-size: 9rpx;
+				border: 1px solid rgb(220, 223, 230);
+				border-radius: 4px;
+				height: 30rpx;
+				margin-right: 8rpx;
+				background: #FFF
+			}
+			.uni-btn{
+				margin-left: 0;
+				width: 40rpx;
+				font-size: 9rpx;
+				height: 30rpx;
+				line-height: 30rpx;
+			}
+		}
+		
+		.main-radio-group {
+			display: flex;
+		}
+		
+		.hiddenLabel{
+			.u-form-item--left{
+				display: none;
+			}
+		}
+	}
+	.main-right {
+		min-width: 145rpx;
+		flex: 0;
+		padding-left: 7rpx;
+		margin-bottom: 5rpx;
+
+		@include reset-base;
+
+		.right-title {
+			line-height: 19rpx;
+		}
+		.right-content-wrapper {
+			border: 1px solid $borderColor;
+			padding: 20px;
+			// height: calc(100vh - 190px);
+			background: #FFF;
+		}
+
+		.right-content-item {
+			display: flex;
+		}
+	}
+	
+}
+
+.mini-table{
+	
+	
+}
+
+.main {
+	.main-submit-btn {
+		@include reset-base;
+		margin-top: 10px;
+		margin-right: 40px;
+		.btnGroup{
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+		}
+		.u-btn{
+			margin-left: inherit;
+			margin-right: 10px;
+		}
+	}
+}
+
+.main {
+	.headerp{
+		.u-input__input{
+			font-size: 15rpx;
+		}
+		.u-size-default {
+		    font-size: 13rpx;
+		    height: 23rpx;
+		    line-height: 23rpx;
+		}
+		.u-btn{
+			display: inline-flex;
+			padding: 0 12rpx
+		}
+	}
+}
+
+#main-form {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	font-size: $fontSize;
+	background-color: #FFF;
+	margin-bottom: 4rpx;
+	padding: 5px;
+	@include reset-base;
+	
+	.u-form-item{
+	    padding: 8rpx 0;
+	}
+
+	.main-radio-group {
+		display: flex;
+	}
+	
+	.hiddenLabel{
+		.u-form-item--left{
+			display: none;
+		}
+	}
+	
+	
+}
+
+.content {
+	.reset-btn-class{
+		.u-size-mini {
+		    font-size: 18px;
+		    height: 46px;
+		    line-height: 46px;
+		}
+	}
+}
+
+.main-workSelect-panel{
+	background-color: #FFF;
+	overflow-y: auto;
+	// max-height: 220px;
+	border-width: 1px;
+	border: 1px solid $borderColor;
+	display: flex;
+	flex-wrap: wrap;
+	.slider-item-wrapper{
+	    margin-top: 10px;
+	    margin-bottom: 10px;
+		width: 46%;
+	}
+}
+
+.slider-item-wrapper{
+	margin-left: 10rpx;
+	margin-right: 10rpx;
+}
+
+.mr-10{
+	margin-right: 10px;
+}
+
+.mr-20{
+	margin-right: 20px;
+}
+
+.ml-20{
+	margin-left: 20px;
+}
+
+.ml-10{
+	margin-left: 10px;
+}
+
+
+.mlr-10{
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+
+.item-input-wrapper{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	margin-top: 10rpx;
+	margin-right: 10rpx;
+	font-size: 10rpx;
+	background-color: #F3F4F6;
+	width: 185rpx;
+	
+	
+	
+	.item-input-label{
+		
+	}
+	.item-input-content{
+		
+	}
+}
+
+
+
+.popup-btn__wrapper{
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+
+.xui-reset {
+	.u-btn{
+		&.u-size-default {
+			font-size: 9rpx;
+			height: 23rpx;
+			line-height: 23rpx;
+		}
+		
+		&.mgReset{
+			margin-left: 0;
+			margin-right: 5rpx;
+		}
+	}
+	.u-checkbox{
+		.u-checkbox__icon-wrap--square{
+			width: 18rpx!important;
+			height: 18rpx!important;
+		}
+		.u-checkbox__label{
+			font-size: 8rpx;
+		}
+	}
+}
+
+.item-slider-wrapper{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	.item-slider-checkbox{
+		width: 25rpx;
+		margin-right: 6px;
+		margin-bottom: -10px;
+	}
+	.item-slider-content{
+		flex:1;
+	}
+}
+
+
+.userListWrapper{
+	.u-radio-group{
+		display: flex;
+		flex-wrap: wrap;
+		.u-radio{
+			min-width: 100rpx;
+		}
+	}
+	
+	.u-checkbox-group{
+		display: flex;
+		flex-wrap: wrap;
+		.u-checkbox{
+			min-width: 100rpx;
+		}
+	}
+}
+
+.border-bottom{
+	.uni-input-wrapper{
+		.uni-input-input{
+			border-bottom: 1rpx solid #c8c9cc;
+		}
+	}
+}
+
+
+.searchWrapper{
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin-left: 6rpx;
+	.u-btn{
+		margin-left: 3rpx;
+		margin-right: 3rpx;
+	}
+	
+}
+
+.selectedUserWrapper{
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	.u-tag{
+		margin-left: 2rpx;
+	}
+}
+
+.main-btns{
+	.u-btn.u-size-mini{
+		font-size: $fontSize;
+		height: $normalHeight;
+		line-height: $normalHeight;
+	}
+	.u-btn+.u-btn{
+		margin-left: 4rpx;
+	}
+}
+
+.main-bottom {
+	
+	.u-tag.u-size-default {
+	    font-size: $fontSize;
+	    height: $normalHeight;
+	    padding: 4rpx 5rpx;
+	}
+	.selectedUserWrapper{
+		margin-top: 2rpx;
+	}
+	
+	.u-icon__icon.uicon-close {
+		font-size: 10rpx !important;
+	}
+	.u-btn.u-size-mini{
+		font-size: $fontSize;
+		height: $normalHeight;
+		line-height: $normalHeight;
+	}
+	.userWrapper{
+		border: 1px solid #c8c9cc;
+		min-height: calc(100vh - 93rpx);
+		overflow-y: auto
+	}
+	@include reset-base;
+	
+	.changeBtn{
+		.u-btn{
+			margin-left: auto;
+		}
+	}
+	.uni-table{
+		.uni-table-td {
+		    padding: 3rpx 4rpx;
+		}
+	}
+	
+	.warp{
+		.u-size-mini.u-btn{
+			font-size: 8rpx;
+			height: 20rpx;
+			line-height: 20rpx;
+		}
+		.uni-table-td,.uni-table-th{
+			font-size: 10rpx;
+		}
+	}
+}
+
+
+
+//针对华为pad端底部控件无法点击的处理方法，加入margin-buttom
+.safe-margin-bottom{
+	/* #ifdef H5 */
+	margin-bottom: 80px !important;
+	/* #endif */
+	
+}
+
+
+.rejectPopupBtnWrapper{
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	uni-button{
+		margin-left: 6px;
+	}
+}
+
+.textWrapper{
+	margin: 10px;
+}
+
+.u-popup__content{
+	.u-picker{
+		.u-toolbar{
+			justify-content: flex-end;
+			height: 50px;
+			.u-toolbar__wrapper__confirm,.u-toolbar__wrapper__cancel{
+				font-size: 20px;
+			}
+		}
+	}
+}
+
+
+#main-form .u-button {
+   width: 84px;
+}
+
+.xui-reset{
+	.popup-btn__wrapper .u-button{
+		width: auto;
+		margin-bottom: 5px;
+		margin-right: 10px;
+	}
+}
+
+
+.flexCenter{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+	

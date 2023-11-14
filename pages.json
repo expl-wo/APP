@@ -1,0 +1,69 @@
+{
+	"easycom": {
+		// npm安装的方式不需要前面的"@/"，下载安装的方式需要"@/"
+		// npm安装方式
+		// "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+		// 下载安装方式
+		"autoscan": true,
+		"custom": {
+			// uni-ui 规则如下配置
+			"^xui-(.*)": "@/components/xui/xui-$1/xui-$1.vue",
+			"^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+		}
+
+	},
+	"pages": [
+		{
+		"path": "pages/main/main",
+		"style": {
+			"navigationBarTitleText": "MES首页",
+			"app-plus": {
+				"titleNView": {
+					"autoBackButton": false
+				}
+			}
+		}}
+	],
+
+	"tabBar": {
+		"color": "#7d7e74",
+		"selectedColor": "#000000",
+		"backgroundColor": "#ffffff",
+		"fontSize": "30px", //字体大小
+		"spacing": "0px", //字体到图标的距离
+		"height": "80px", //底部高
+		"list": [{
+				"pagePath": "pages/main/main",
+				"text": "首页",
+				"iconPath": "static/img/home.png",
+				"selectedIconPath": "static/img/homeHL.png"
+			},
+
+			{
+				"pagePath": "pages/user/user",
+				"text": "我的",
+				"iconPath": "static/img/user.png",
+				"selectedIconPath": "static/img/userHL.png"
+			}
+		]
+	},
+
+	"globalStyle": {
+		"navigationStyle": "default",
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#fff",
+		"backgroundColor": "#f4f4ef",
+		"rpxCalcMaxDeviceWidth": 99999,
+		"rpxCalcBaseDeviceWidth": 99999,
+		"rpxCalcIncludeWidth": 99999
+
+	},
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [{
+			"name": "", //模式名称
+			"path": "", //启动页面，必选
+			"query": "" //启动参数，在页面的onLoad函数里面得到
+		}]
+	}
+}

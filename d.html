@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>SLM APP下载</title>
+</head>
+<style type="text/css">
+   html {
+       height: 100%
+   }
+   
+   a,body,div,em,form,h1,h2,h3,input,p,select,span,td,textarea {
+       margin: 0;
+       padding: 0;
+       font-style: normal;
+       font-weight: 400;
+       font-family: "Helvetica Neue"
+   }
+   
+   body {
+       font-family: "Helvetica Neue",Helvetica,STHeiTi,sans-serif;
+       color: grey;
+       height: 100%;
+       background: #f2f2f2;
+       height: 100%
+   }
+   
+   img {
+       border: none
+   }
+   
+   a {
+       text-decoration: none;
+       color: #333
+   }
+   
+   div {
+       height: auto
+   }
+   
+   .download-bk {
+       width: 100%;
+       overflow: hidden;
+       padding-top: .7rem;
+       background-color: #fff
+   }
+   
+   .tips {
+       position: fixed;
+       z-index: 10000;
+       left: 50%;
+       margin-left: -3.42rem;
+       width: 6.84rem;
+       height: 1.25rem
+   }
+   
+   .tips-circle {
+       float: right;
+       margin-right: .15rem;
+       width: .14rem;
+       height: .14rem;
+       border-radius: .14rem;
+       background-color: rgba(12,33,63,.8)
+   }
+   
+   .tips-line {
+       clear: both;
+       float: right;
+       margin-right: .22rem;
+       width: 1px;
+       height: .54rem;
+       background-color: rgba(12,33,63,.8)
+   }
+   
+   .tips-content {
+       clear: both;
+       margin: 0 auto;
+       margin-top: .68rem;
+       display: block;
+       border: 1px solid rgba(12,33,63,.8);
+       -webkit-border-radius: 1rem;
+       background: rgba(12,33,63,.8);
+       -webkit-tap-highlight-color: rgba(255,255,255,0);
+       outline: 0;
+       width: 6.8rem;
+       height: .56rem;
+       line-height: .56rem;
+       font-size: .3rem;
+       color: #fff;
+       letter-spacing: -.48px;
+       text-align: center;
+       overflow: hidden
+   }
+   
+   .company-logo {
+       display: block;
+       margin: 0 auto;
+       width: 1.5rem;
+       height: 1.5rem;
+       background-size: cover
+   }
+   
+   .company-name {
+       margin-top: .24rem;
+       text-align: center;
+       color: #3abcff;
+       font-size: .44rem
+   }
+   
+   .company-intro {
+       text-align: center;
+       margin-top: .12rem;
+       color: #a4b6c2;
+       font-size: .24rem
+   }
+   
+   .download-button {
+       margin: .8rem auto;
+       margin-top: .5rem;
+       margin-bottom: .7rem;
+       display: block;
+       border: 1px solid #3cbaff;
+       -webkit-border-radius: 1rem;
+       background: #3cbaff;
+       -webkit-tap-highlight-color: rgba(255,255,255,0);
+       outline: 0;
+       width: 4.96rem;
+       height: .88rem;
+       line-height: .88rem;
+       font-size: .32rem;
+       color: #fff;
+       letter-spacing: -.48px;
+       text-align: center;
+       overflow: hidden;
+       position: relative
+   }
+   
+   .download-button .Android {
+       width: 100%;
+       height: 100%;
+       color: #fff;
+       font-size: .32rem
+   }
+   
+   .download-button .Android .AndroidDown {
+       display: block;
+       width: 100%;
+       height: 100%;
+       color: #fff;
+       font-size: .32rem
+   }
+   
+   .download-button .iPhone {
+       width: 100%;
+       height: 100%;
+       color: #fff;
+       font-size: .32rem
+   }
+   
+   .download-button .androidDown {
+       color: #fff;
+       font-size: .32rem
+   }
+   
+   .download-button a {
+       display: block
+   }
+   
+   .download-button .iPhone .iPhoneDown {
+       display: block;
+       width: 100%;
+       height: 100%;
+       color: #fff;
+       font-size: .32rem
+   }
+   
+   .download-introduce {
+       padding-top: .3rem;
+       margin: 0 .48rem;
+       color: #666;
+       font-size: .26rem
+   }
+   
+   .download-introduce p {
+       margin-top: .28rem;
+       font-size: .26rem
+   }
+   
+   .download-introduce p:first-child {
+       color: #333;
+       font-size: .28rem
+   }
+   
+   .ecode-line {
+       margin: 0 auto;
+       margin-top: .6rem;
+       width: 4.6rem;
+       height: .24rem
+   }
+   
+   .ecode-line-content {
+       position: relative;
+       font-size: .24rem;
+       color: #768893;
+       line-height: .24rem;
+       text-align: center
+   }
+   
+   .ecode-line-content:before {
+       content: '';
+       position: absolute;
+       left: 0;
+       margin-top: .12rem;
+       width: 1.5rem;
+       height: 1px;
+       transform: scaleY(.5);
+       background-color: #cad7dd
+   }
+   
+   .ecode-line-content:after {
+       content: '';
+       position: absolute;
+       right: 0;
+       margin-top: .12rem;
+       width: 1.5rem;
+       height: 1px;
+       transform: scaleY(.5);
+       background-color: #cad7dd
+   }
+   
+   .download-intro {
+       padding-top: .3rem;
+       margin: 0 .48rem;
+       color: #666;
+       overflow: hidden;
+       font-size: .16rem
+   }
+   
+   .download-intro p {
+       margin-top: .24rem
+   }
+   
+   .download-intro p:first-child {
+       color: #333;
+       font-size: .18rem
+   }
+   
+   .download-qr {
+       text-align: center;
+       margin: 0 auto;
+       margin-top: .5rem;
+       width: 3.4rem;
+       height: 3.9rem;
+       box-sizing: border-box;
+       line-height: 0
+   }
+   
+   .download-qr>.ecode-picture {
+       width: 3.2rem;
+       height: 3.2rem;
+       padding: .1rem
+   }
+   
+   .download-qr>.ecode-picture>canvas {
+       width: 3.2rem;
+       height: 3.2rem
+   }
+   
+   .download-qr>.download-qr-info {
+       font-size: .28rem;
+       color: #666;
+       padding-top: .1rem
+   }
+   
+   .btn-disabled {
+       background-color: #666;
+       border-color: #666
+   }
+   
+   .loader {
+       display: none;
+       font-size: 10px;
+       margin: auto;
+       text-indent: -9999em;
+       width: .78rem;
+       height: .78rem;
+       border-radius: 50%;
+       background: #fff;
+       background: -moz-linear-gradient(left,#fff 10%,rgba(255,255,255,0) 42%);
+       background: -webkit-linear-gradient(left,#fff 10%,rgba(255,255,255,0) 42%);
+       background: -o-linear-gradient(left,#fff 10%,rgba(255,255,255,0) 42%);
+       background: -ms-linear-gradient(left,#fff 10%,rgba(255,255,255,0) 42%);
+       background: linear-gradient(to right,#fff 10%,rgba(255,255,255,0) 42%);
+       position: absolute;
+       top: 0;
+       left: 0;
+       bottom: 0;
+       right: 0;
+       -webkit-animation: loading 1.4s infinite linear;
+       animation: loading 1.4s infinite linear
+   }
+   
+   .loader:before {
+       width: 50%;
+       height: 50%;
+       background: #fff;
+       border-radius: 100% 0 0 0;
+       position: absolute;
+       top: 0;
+       left: 0;
+       content: ''
+   }
+   
+   .loader:after {
+       background: #666;
+       width: 75%;
+       height: 75%;
+       border-radius: 50%;
+       content: '';
+       margin: auto;
+       position: absolute;
+       top: 0;
+       left: 0;
+       bottom: 0;
+       right: 0
+   }
+   
+   .ios-home {
+       font-size: 14px;
+       color: #999;
+       display: none;
+       text-align: center;
+       margin-bottom: 10px
+   }
+   
+   @-webkit-keyframes loading {
+       0% {
+           -webkit-transform: rotate(0);
+           transform: rotate(0)
+       }
+   
+       100% {
+           -webkit-transform: rotate(360deg);
+           transform: rotate(360deg)
+       }
+   }
+   
+   @keyframes loading {
+       0% {
+           -webkit-transform: rotate(0);
+           transform: rotate(0)
+       }
+   
+       100% {
+           -webkit-transform: rotate(360deg);
+           transform: rotate(360deg)
+       }
+   }
+   
+   .download-container {
+       display: none
+   }
+   
+   .login-before-download {
+       display: none
+   }
+   
+   @media only screen and (max-width: 800px) {
+       #login-area .n-login-container {
+           position:relative;
+           transform: none;
+           height: 100vh;
+           width: auto;
+           left: 0;
+           top: 0
+       }
+   
+       #login-area .n-login-container .account-model .account-item .country-panel-code {
+           display: none
+       }
+   
+       #login-area .n-login-container .account-model .account-item input {
+           padding-left: 0
+       }
+   }
+   
+   .n-login-container {
+       display: flex;
+       flex-direction: column;
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translateX(-50%) translateY(-50%);
+       width: 345px;
+       height: 423px;
+       background: #fff;
+       box-shadow: 0 5px 13px 0 rgba(21,30,64,.13);
+       border-radius: 10px;
+       padding: 0 36px
+   }
+   
+   .n-login-container .icon-close {
+       cursor: pointer;
+       position: absolute;
+       right: 16px;
+       top: 16px;
+       width: 14px;
+       height: 14px;
+       content: url(/home/imgs/3cGOCw_icon-close.png)
+   }
+   
+   .n-login-container .login-tab {
+       position: relative;
+       height: 66px;
+       display: flex;
+       align-items: flex-end;
+       justify-content: center
+   }
+   
+   .n-login-container .login-tab .tab-item {
+       cursor: pointer;
+       font-size: 16px;
+       color: #1d1d1d;
+       font-weight: 500;
+       padding-bottom: 16px
+   }
+   
+   .n-login-container .login-tab .tab-item:nth-child(n+2) {
+       margin-left: 52px
+   }
+   
+   .n-login-container .login-tab .tab-item.active {
+       color: #4598f0
+   }
+   
+   .n-login-container .login-tab .active-bar {
+       position: absolute;
+       bottom: 0;
+       left: 0;
+       height: 2px;
+       background-color: #4598f0;
+       transition: transform .3s
+   }
+   
+   .n-login-container .account-model {
+       display: none;
+       position: relative;
+       padding-top: 35px;
+       margin-bottom: 30px;
+       flex: 1
+   }
+   
+   .n-login-container .account-model .account-item,.n-login-container .account-model .pwd-item,.n-login-container .account-model .verify-item {
+       display: flex;
+       align-items: center;
+       height: 48px;
+       line-height: 48px;
+       border-bottom: 1px solid #d7dee3
+   }
+   
+   .n-login-container .account-model .account-item input,.n-login-container .account-model .pwd-item input,.n-login-container .account-model .verify-item input {
+       flex: 1;
+       width: 0;
+       height: 100%;
+       border: none;
+       font-size: 16px;
+       color: #1d1d1d
+   }
+   
+   .n-login-container .account-model .account-item input::placeholder,.n-login-container .account-model .pwd-item input::placeholder,.n-login-container .account-model .verify-item input::placeholder {
+       font-size: 14px;
+       color: #a4a8ab
+   }
+   
+   .n-login-container .account-model .verify-item .verify-img-area {
+       position: relative;
+       cursor: pointer;
+       width: 94px;
+       height: 43px;
+       overflow: hidden
+   }
+   
+   .n-login-container .account-model .verify-item .verify-img-area #verify-img {
+       width: 100%;
+       height: 100%;
+       border: none;
+       display: none
+   }
+   
+   .n-login-container .account-model .verify-item .verify-img-area #verify-default-img {
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: rgba(12,33,63,.3);
+       font-size: 16px;
+       color: #fff;
+       display: flex;
+       align-items: center;
+       justify-content: center
+   }
+   
+   .n-login-container .account-model .account-item .country-panel-code {
+       position: relative;
+       cursor: pointer;
+       min-width: 50px;
+       height: 24px;
+       line-height: 24px;
+       margin-right: 10px;
+       padding-right: 20px;
+       background: #f4f6fa;
+       border-radius: 4px;
+       font-size: 16px;
+       color: #768893
+   }
+   
+   .n-login-container .account-model .account-item .country-panel-code .code-toggle {
+       position: absolute;
+       right: 4px;
+       top: 50%;
+       transform: translateY(-50%);
+       width: 9px;
+       height: 6px;
+       background-image: url(/home/imgs/1SdSWT_toggle-down.png);
+       background-size: cover
+   }
+   
+   .n-login-container .account-model .account-item .country-panel-code .code-toggle.up {
+       background-image: url(/home/imgs/2OE1bQ_toggle-up.png)
+   }
+   
+   .n-login-container .account-model .login-tip {
+       height: 40px;
+       line-height: 30px;
+       font-size: 12px;
+       color: #ea5e56
+   }
+   
+   .n-login-container .account-model .btn-login {
+       height: 40px;
+       line-height: 40px;
+       background: linear-gradient(139deg,#3bbaff 0,#3eb0f8 36%,#329cf1 100%);
+       border-radius: 20px;
+       font-size: 16px;
+       color: #fff;
+       text-align: center;
+       cursor: pointer
+   }
+   
+   .n-login-container .account-model .account-model-footer {
+       position: absolute;
+       left: 0;
+       bottom: 0;
+       width: 100%;
+       height: 19px;
+       line-height: 19px;
+       font-size: 14px;
+       color: #768893;
+       text-align: center
+   }
+   
+   .n-login-container .account-model .account-model-footer #no-login {
+       float: left
+   }
+   
+   .n-login-container .account-model .account-model-footer .forget-pwd {
+       cursor: pointer
+   }
+   
+   .n-login-container .account-model .account-model-footer .forget-pwd:hover {
+       color: #4598f0
+   }
+   
+   .n-login-container .account-model #country-code-select {
+       display: none;
+       position: absolute;
+       top: 90px
+   }
+   
+   .n-login-container .qrcode-model {
+       display: none;
+       flex: 1
+   }
+   
+   .n-login-container .qrcode-model #qrcode {
+       display: block;
+       width: 186px;
+       height: 186px;
+       margin: 40px auto 30px
+   }
+   
+   .n-login-container .qrcode-model .scan-code-tip {
+       text-align: center;
+       font-size: 16px;
+       color: #768893
+   }
+   
+   .cb {
+       display: flex;
+       align-items: center;
+       cursor: pointer
+   }
+   
+   .cb.checked,.cb:hover {
+       color: #4598f0
+   }
+   
+   .cb.checked i,.cb:hover i {
+       border-color: #4598f0
+   }
+   
+   .cb.checked i::after {
+       display: block
+   }
+   
+   .cb i {
+       width: 14px;
+       height: 14px;
+       border-radius: 2px;
+       border: 1px solid #adb8be;
+       margin-right: 8px;
+       position: relative;
+       display: inline-block
+   }
+   
+   .cb i::after {
+       display: none;
+       content: "";
+       position: absolute;
+       left: 1px;
+       top: 2px;
+       width: 80%;
+       height: 50%;
+       border: 2px solid #4598f0;
+       border-radius: 1px;
+       border-top: none;
+       border-right: none;
+       background: 0 0;
+       transform: rotate(-45deg)
+   }
+   
+   .country-code-area {
+       display: flex;
+       flex-direction: column;
+       position: relative;
+       width: 187px;
+       height: 242px;
+       background: #fff;
+       box-shadow: 0 2px 4px 0 rgba(14,46,70,.2);
+       border-radius: 4px;
+       overflow: hidden;
+       padding: 0 0 4px
+   }
+   
+   .country-code-area .country-code-search {
+       height: 24px;
+       line-height: 24px;
+       background: #f1f4f9;
+       border-radius: 4px;
+       margin: 10px;
+       display: flex;
+       align-items: center
+   }
+   
+   .country-code-area .country-code-search input {
+       border: none;
+       background: 0 0;
+       height: 100%;
+       width: 100%;
+       font-size: 14px;
+       color: #768893
+   }
+   
+   .country-code-area .country-code-search input::placeholder {
+       color: #a4a8ab
+   }
+   
+   .country-code-area .country-code-search .search-icon {
+       width: 14px;
+       height: 14px;
+       margin: 0 4px 0 12px;
+       content: url(/home/imgs/3qE4dK_search-icon.png)
+   }
+   
+   .country-code-area .country-code-container {
+       flex: 1;
+       overflow: auto
+   }
+   
+   .country-code-area .country-code-container .group-list .group-title {
+       padding: 0 10px;
+       height: 24px;
+       line-height: 24px;
+       background: #fff;
+       font-size: 12px;
+       color: #c2ccd0
+   }
+   
+   .country-code-area .country-code-container .group-list .code-item {
+       padding: 0 10px;
+       cursor: pointer;
+       height: 34px;
+       line-height: 34px;
+       background: #fff;
+       font-size: 12px;
+       color: #768893
+   }
+   
+   .country-code-area .country-code-container .group-list .code-item:hover {
+       background: #f4f6fa
+   }
+   
+   .country-code-area .country-code-container .group-list .code-item .code-item-code {
+       float: right
+   }
+   
+   html {
+       margin: 0;
+       padding: 0;
+       border: 0;
+       outline: 0;
+       vertical-align: baseline;
+       background: 0 0;
+       font-size: 100px
+   }
+   
+   abbr,address,article,aside,audio,b,blockquote,body,canvas,caption,cite,code,dd,del,details,dfn,div,dl,dt,em,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video {
+       margin: 0;
+       padding: 0;
+       border: 0;
+       outline: 0;
+       font-size: .12rem;
+       vertical-align: baseline;
+       background: 0 0
+   }
+   
+   body {
+       line-height: 1
+   }
+   
+   :focus {
+       outline: 1
+   }
+   
+   article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary {
+       display: block
+   }
+   
+   nav ul {
+       list-style: none
+   }
+   
+   blockquote,q {
+       quotes: none
+   }
+   
+   blockquote:after,blockquote:before,q:after,q:before {
+       content: '';
+       content: none
+   }
+   
+   a {
+       margin: 0;
+       padding: 0;
+       border: 0;
+       font-size: 100%;
+       vertical-align: baseline;
+       background: 0 0
+   }
+   
+   ins {
+       background-color: #ff9;
+       color: #000;
+       text-decoration: none
+   }
+   
+   mark {
+       background-color: #ff9;
+       color: #000;
+       font-style: italic;
+       font-weight: 700
+   }
+   
+   del {
+       text-decoration: line-through
+   }
+   
+   abbr[title],dfn[title] {
+       border-bottom: 1px dotted #000;
+       cursor: help
+   }
+   
+   table {
+       border-collapse: collapse;
+       border-spacing: 0
+   }
+   
+   hr {
+       display: block;
+       height: 1px;
+       border: 0;
+       border-top: 1px solid #ccc;
+       margin: 1em 0;
+       padding: 0
+   }
+   
+   input,select {
+       vertical-align: middle
+   }
+   
+   input,textarea {
+       outline: 0;
+       padding: 0
+   }
+   
+   #download-bg {
+       position: relative;
+       width: 100%;
+       height: 100vh;
+       overflow: hidden;
+       background-position: center center;
+       background-repeat: no-repeat;
+       background-size: cover;
+       transition: opacity .5s ease-in-out
+   }
+   
+   #download-bg .bg-mask {
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0
+   }
+   
+   #download-bg.n1 {
+       background-image: url(/home/imgs/2Zj_2S_bg.png)
+   }
+   
+   #download-bg.n1 .container .download-container .btn-area {
+       margin-top: .4rem
+   }
+   
+   #download-bg.n1 .container .login-before-download .login-tip {
+       color: #ff958f
+   }
+   
+   #download-bg.n2 {
+       background-image: url(/home/imgs/9lGBWR_bg.png)
+   }
+   
+   #download-bg.n2 .bg-mask {
+       background-image: url(/home/imgs/3IlEvp_bg-mask.png)
+   }
+   
+   #download-bg.n2 .container .download-container {
+       padding: 1rem .48rem 0
+   }
+   
+   #download-bg.n2 .container .download-container .btn-area {
+       position: absolute;
+       bottom: .94rem;
+       left: .48rem;
+       right: .48rem
+   }
+   
+   #download-bg.n2 .container .login-before-download .login-tip {
+       color: #f8e71c
+   }
+   
+   #download-bg .btn {
+       position: relative;
+       height: .44rem;
+       line-height: .44rem;
+       background: linear-gradient(139deg,#3bbaff 0,#3eb0f8 36%,#329cf1 100%);
+       box-shadow: 0 2px 4px 0 rgba(54,163,243,.37);
+       border-radius: 100px;
+       font-size: .16rem;
+       color: #fff;
+       text-align: center
+   }
+   
+   #download-bg .container {
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0
+   }
+   
+   #download-bg .container .download-container {
+       display: none;
+       position: relative;
+       width: 100%;
+       height: 100%;
+       text-align: center;
+       box-sizing: border-box;
+       padding: .8rem .48rem 0
+   }
+   
+   #download-bg .container .download-container .company-logo {
+       width: 1rem;
+       height: 1rem
+   }
+   
+   #download-bg .container .download-container .company-name {
+       margin-top: .12rem;
+       font-size: .24rem;
+       color: #fff
+   }
+   
+   #download-bg .container .login-before-download {
+       display: none;
+       padding: 0 .4rem
+   }
+   
+   #download-bg .container .login-before-download .login-title {
+       margin-top: .5rem;
+       text-align: center;
+       font-size: .26rem;
+       color: #fff
+   }
+   
+   #download-bg .container .login-before-download #account {
+       margin-top: .24rem
+   }
+   
+   #download-bg .container .login-before-download #pwd {
+       margin-top: .12rem
+   }
+   
+   #download-bg .container .login-before-download .login-tip {
+       height: .4rem;
+       line-height: .4rem;
+       font-size: .16rem;
+       color: #ff958f
+   }
+   
+   #download-bg .container .login-before-download .btn-login {
+       margin-top: .2rem
+   }
+   
+   #download-bg .open-browser-bg {
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: rgba(0,0,0,.8)
+   }
+   
+   #download-bg .open-browser-bg .open-browser {
+       position: absolute;
+       top: .08rem;
+       right: .18rem;
+       width: 2.49rem;
+       height: 1.05rem;
+       content: url(/home/imgs/SQvhVC_share.png)
+   }
+   
+   a {
+       text-decoration: none;
+       display: block
+   }
+   
+   input {
+       display: block;
+       width: 100%;
+       box-sizing: border-box;
+       background: 0 0;
+       border: none;
+       height: .48rem;
+       border-bottom: solid 1px rgba(255,255,255,.5);
+       font-size: .16rem;
+       color: #fff
+   }
+   
+   input::placeholder {
+       color: #fff;
+       opacity: .5
+   }
+</style>
+<body>
+<div class="title">
+    
+</div>
+<div class="list-wrapper">
+    <div class="list-item">
+        <a target="_blank" class="btn" href="d/last.apk" download="TB_SLM_last.apk">点击下载最新版SLM APP</a>
+    </div>
+</div>
+</body>
+</html>

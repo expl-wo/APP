@@ -1,0 +1,25 @@
+@import '../_public/bem-mixins';
+
+@include b(gap) {
+	height: 2upx;
+	background-color: #ccc;
+	&:before {
+		content: '';
+		height: 30upx;
+	}
+	&:after {
+		content: '';
+		height: 30upx;
+	}
+
+	@include e(division) {
+		height: 30upx;
+		widows: 100%;
+	}
+
+	@include e(line) {
+		height: 2upx;
+		transform: scaleY(0.5);
+		background-color: rgb(220, 223, 230);
+	}
+}

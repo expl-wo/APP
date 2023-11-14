@@ -1,0 +1,67 @@
+@import '../_public/bem-mixins';
+@import '../_public/var';
+
+@include b(link) {
+	text-decoration: underline;
+	font-size: $xui-common-font-size;
+}
+
+@include b(location) {
+	@include e(parent) {
+		position: relative;
+		font-size: $xui-common-font-size;
+	}
+
+	@include e(absolute) {
+		position: absolute;
+		font-size: $xui-common-font-size;
+	}
+}
+
+@include b(error) {
+	@include e(label) {
+		padding: 3px 0;
+		text-align: left;
+		color: $xui-error-color;
+		font-size: $xui-common-font-size;
+	}
+
+	@include e(tip) {
+		color: $xui-error-color;
+	}
+}
+
+@include b(label-error) {
+	color: $xui-error-color;
+}
+
+@include b(photo) {
+}
+
+@include b(menu) {
+}
+
+@include b(menu-item) {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	@include e(text) {
+		margin-top: 4px;
+	}
+}
+
+@include b(flex-center) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@include b(content) {
+	@include e(success) {
+		color: $xui-success-color;
+	}
+	@include e(fail) {
+		color: $xui-fail-color;
+	}
+}

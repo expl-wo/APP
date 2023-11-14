@@ -1,0 +1,109 @@
+{
+	"pages": [{
+		"path": "pages/production/index",
+		"style": {
+			"navigationBarTitleText": "生产管理",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/selectWorkSpace",
+		"style": {
+			"navigationBarTitleText": "工位选择",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/selectPosition",
+		"style": {
+			"navigationBarTitleText": "工位实列",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/index",
+		"style": {
+			"navigationBarTitleText": "生产任务",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/opReport",
+		"style": {
+			"navigationBarTitleText": "生产报工",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/opCheck",
+		"style": {
+			"navigationBarTitleText": "生产质检",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/opMaterial",
+		"style": {
+			"navigationBarTitleText": "部件登记",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/andon",
+		"style": {
+			"navigationBarTitleText": "Andon",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/checkMaterial",
+		"style": {
+			"navigationBarTitleText": "缺料检查",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/opBom",
+		"style": {
+			"navigationBarTitleText": "图纸BOM清单",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/resistanceTrim/resistanceTrim",
+		"style": {
+			"navigationBarTitleText": "电阻配平",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/resistanceTrim/trimManage",
+		"style": {
+			"navigationBarTitleText": "电阻配平",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/production/opTask/opMaterial",
+		"style": {
+			"navigationBarTitleText": "部件登记",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}
+	
+	]
+}
