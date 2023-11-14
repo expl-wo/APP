@@ -29,7 +29,7 @@
 		</view>
 		
 		<!--扫码弹窗-->
-		<u-popup mode="top" :show="scanShow" @close="scanShow=false">
+<!-- 		<u-popup mode="top" :show="scanShow" @close="scanShow=false">
 			<view class="app-containerC wp table-zdy">
 				<view class="th-group">
 					<view class="th">请点击屏幕上绿色按钮进行扫码操作</view>
@@ -40,7 +40,7 @@
 					</view>
 				</view>
 			</view>
-		</u-popup>
+		</u-popup> -->
 	</view>
 </template>
 
@@ -222,19 +222,19 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 				},300); 
 			},
 			// 扫码
-			scanNext(e){
-				// console.log('扫码了', e.target.value)
-				console.log(e.target.value)
-				this.scanId = e.target.value
-				this.scanShow = false
-				getApp().queryNo = e.target.value
-				setTimeout(()=>{
-					uni.navigateTo({
-						url:"/pages/production/opTask/index"
-					})
-				},300); 
-				this.scanId=''
-			},
+			// scanNext(e){
+			// 	// console.log('扫码了', e.target.value)
+			// 	console.log(e.target.value)
+			// 	this.scanId = e.target.value
+			// 	this.scanShow = false
+			// 	getApp().queryNo = e.target.value
+			// 	setTimeout(()=>{
+			// 		uni.navigateTo({
+			// 			url:"/pages/production/opTask/index"
+			// 		})
+			// 	},300); 
+			// 	this.scanId=''
+			// },
 			// chooseOneDeviceScan(){
 			// 	console.log("123")
 			// }
