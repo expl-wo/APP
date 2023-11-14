@@ -1,6 +1,6 @@
 <template>
 	<view class="content login-box">
-		<view class="title tc text-white text-df">湖南电气MES系统pad端</view>
+		<view class="title tc text-white text-df">湖南工程MES系统PAD端</view>
 		<view class="wp login-box-border">
 			<view class="login-box-cls shadow">
 				<view class="imageView app-containerC cc">

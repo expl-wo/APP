@@ -10,10 +10,10 @@
 			<u-icon @click="tapMsg" class="text-xl msg" size="50" name="bell-fill"></u-icon>
 		</view>
 		<view class="app-containerR app-containerWrap">
-			<view v-show="showList[1]" class="group-warter my-item w-240 tc bg-cyan" @tap="jumpTap1()">
+<!-- 			<view v-show="showList[1]" class="group-warter my-item w-240 tc bg-cyan" @tap="jumpTap1()">
 				<u-icon size="80" name="../../static/img/icon/shengChan.svg"></u-icon>
 				<view class="group-title">生产管理</view>
-			</view>
+			</view> -->
 			<view v-show="showList[0]" class="group-warter my-item w-240 tc bg-blue" @tap="jumpTap2()">
 				<u-icon class="text-xl" size="80" name="../../static/img/icon/pm_001.svg"></u-icon>
 				<view class="group-title">Andon管理</view>
@@ -22,10 +22,10 @@
 				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
 				<view class="group-title">设备管理</view>
 			</view>
-			<view v-show="showList[3]" class="group-warter w-240 tc my-item bg-mauve" @tap="jumpTap4()">
+<!-- 			<view v-show="showList[3]" class="group-warter w-240 tc my-item bg-mauve" @tap="jumpTap4()">
 				<u-icon class="text-xl s" size="80" name="../../static/img/icon/zhiLiang.svg"></u-icon>
 				<view class="group-title">质量管理</view>
-			</view>
+			</view> -->
 		</view>
 		
 		<!--扫码弹窗-->
