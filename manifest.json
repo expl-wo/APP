@@ -29,7 +29,9 @@
         /* 模块配置 */
         "modules" : {
             "Barcode" : {},
-            "Camera" : {}
+            "Camera" : {},
+            "Maps" : {},
+            "Geolocation" : {}
         },
         /* 应用发布信息 */
         "distribute" : {
@@ -59,7 +61,20 @@
             },
             /* SDK配置 */
             "sdkConfigs" : {
-                "ad" : {}
+                "ad" : {},
+                "maps" : {
+                    "amap" : {
+                        "appkey_ios" : "863480b77e7b0c312f1f5b8d4daea974",
+                        "appkey_android" : "863480b77e7b0c312f1f5b8d4daea974"
+                    }
+                },
+                "geolocation" : {
+                    "amap" : {
+                        "__platform__" : [ "android" ],
+                        "appkey_ios" : "863480b77e7b0c312f1f5b8d4daea974",
+                        "appkey_android" : "863480b77e7b0c312f1f5b8d4daea974"
+                    }
+                }
             },
             "icons" : {
                 "android" : {
@@ -103,7 +118,7 @@
             "proxy" : {
                 "/api" : {
                     // "target" : "http://10.16.9.163:8765/", //目标接口域名
-                    "target" : "http://192.168.1.56:8765/", //目标接口域名	
+                    "target" : "http://192.168.100.50:8765/", //目标接口域名	
 
                     // "target" : "http://10.16.64.221:8765/", //目标接口域名
                     // "target" : "http://192.168.93.50:8888/", //目标接口域名
@@ -118,6 +133,15 @@
         },
         "router" : {
             "base" : "/app_web/"
+        },
+        "sdkConfigs" : {
+            "maps" : {
+                "amap" : {
+                    "key" : "863480b77e7b0c312f1f5b8d4daea974",
+                    "securityJsCode" : "",
+                    "serviceHost" : ""
+                }
+            }
         }
     }
 }

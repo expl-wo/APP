@@ -1,0 +1,11 @@
+{
+	"pages": [{
+		"path": "pages/overhaul/index",
+		"style": {
+			"navigationBarTitleText": "检修",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}]
+}

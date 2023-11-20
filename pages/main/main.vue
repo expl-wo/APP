@@ -26,6 +26,10 @@
 				<u-icon class="text-xl s" size="80" name="../../static/img/icon/zhiLiang.svg"></u-icon>
 				<view class="group-title">质量管理</view>
 			</view> -->
+			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-purple" @tap="jumpTap5()">
+				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
+				<view class="group-title">检修管理</view>
+			</view>
 		</view>
 		
 		<!--扫码弹窗-->
@@ -76,7 +80,7 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		data() {
 			return {
 				codeList: ['0703_Andon', '0702_production', '0701_equipment', '0704_quality','pad-saoMa1005'],
-				showList: [false, false, false, false,false],
+				showList: [false, false, false, false, true],
 				msgSize: 0,
 				timeoutObj:{},
 				scanId:'',
@@ -129,6 +133,12 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 			jumpTap4() {
 				uni.navigateTo({
 					url: '/pages/quality/index'
+				});
+			},
+			// 检修
+			jumpTap5() {
+				uni.navigateTo({
+					url: '/pages/overhaul/index'
 				});
 			},
 			tapMsg(){
@@ -250,6 +260,8 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 						this.showList = this.codeList.map(item => {
 							return hasPrivilege(item);
 						})
+						this.showList[4] = true;
+						console.log('----', this.showList)
 						// if (process.env.NODE_ENV !== 'development') {
 							
 													
