@@ -10,7 +10,7 @@
 			<u-icon @click="tapMsg" class="text-xl msg" size="50" name="bell-fill"></u-icon>
 		</view>
 		<view class="app-containerR app-containerWrap">
-<!-- 			<view v-show="showList[1]" class="group-warter my-item w-240 tc bg-cyan" @tap="jumpTap1()">
+			<!-- 			<view v-show="showList[1]" class="group-warter my-item w-240 tc bg-cyan" @tap="jumpTap1()">
 				<u-icon size="80" name="../../static/img/icon/shengChan.svg"></u-icon>
 				<view class="group-title">生产管理</view>
 			</view> -->
@@ -22,7 +22,7 @@
 				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
 				<view class="group-title">设备管理</view>
 			</view>
-<!-- 			<view v-show="showList[3]" class="group-warter w-240 tc my-item bg-mauve" @tap="jumpTap4()">
+			<!-- 			<view v-show="showList[3]" class="group-warter w-240 tc my-item bg-mauve" @tap="jumpTap4()">
 				<u-icon class="text-xl s" size="80" name="../../static/img/icon/zhiLiang.svg"></u-icon>
 				<view class="group-title">质量管理</view>
 			</view> -->
@@ -30,10 +30,14 @@
 				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
 				<view class="group-title">检修管理</view>
 			</view>
+			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-purple" @tap="jumpTap6()">
+				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
+				<view class="group-title">工作台</view>
+			</view>
 		</view>
-		
+
 		<!--扫码弹窗-->
-<!-- 		<u-popup mode="top" :show="scanShow" @close="scanShow=false">
+		<!-- 		<u-popup mode="top" :show="scanShow" @close="scanShow=false">
 			<view class="app-containerC wp table-zdy">
 				<view class="th-group">
 					<view class="th">请点击屏幕上绿色按钮进行扫码操作</view>
@@ -58,8 +62,11 @@
 		mapState,
 		mapMutations
 	} from 'vuex'
-	import {getDictListByKey, transformDictDetail} from '@/components/xui/xui-dictionary/index.js'
-	
+	import {
+		getDictListByKey,
+		transformDictDetail
+	} from '@/components/xui/xui-dictionary/index.js'
+
 	import {
 		getToken,
 		getUserInfo,
@@ -75,17 +82,20 @@
 		currperm,
 		lineWorkSpace
 	} from '@/https/sys/permission.js'
-import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
+	import {
+		getAppMenu,
+		saveAppMenu
+	} from '../../utils/storage.js'
 	export default {
 		data() {
 			return {
-				codeList: ['0703_Andon', '0702_production', '0701_equipment', '0704_quality','pad-saoMa1005'],
+				codeList: ['0703_Andon', '0702_production', '0701_equipment', '0704_quality', 'pad-saoMa1005'],
 				showList: [false, false, false, false, true],
 				msgSize: 0,
-				timeoutObj:{},
-				scanId:'',
-				scanShow:false,
-				focus:false,
+				timeoutObj: {},
+				scanId: '',
+				scanShow: false,
+				focus: false,
 				token: '',
 				userId: ''
 			}
@@ -98,7 +108,7 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 					url: '/pages/login/login',
 				});
 			}
-			
+
 		},
 		created() {
 			//刚开始就把展示图片的前缀URL保存起来
@@ -108,7 +118,7 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		},
 		mounted() {
 			console.log("进入了主菜单");
-			
+
 		},
 		methods: {
 			// 生产
@@ -140,15 +150,20 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 				uni.navigateTo({
 					url: '/pages/overhaul/index'
 				});
-			},
-			tapMsg(){
+			}, // 检修
+			jumpTap6() {
 				uni.navigateTo({
-					url:'../user/message'
+					url: '/pages/staging/index'
+				});
+			},
+			tapMsg() {
+				uni.navigateTo({
+					url: '../user/message'
 				})
 			},
-			tapScan(){
+			tapScan() {
 				uni.navigateTo({
-					url:'../scan/scan'
+					url: '../scan/scan'
 				})
 			},
 			connectSocketInit() {
@@ -158,29 +173,29 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 					// 【非常重要】
 					//必须确保你的服务器是成功的,如果是手机测试千万别使用ws://127.0.0.1:9099
 					//【特别容易犯的错误】
-					url: "ws://10.16.9.107:8880/endpoint/websocket/msgsvr/"+this.userId,
+					url: "ws://10.16.9.107:8880/endpoint/websocket/msgsvr/" + this.userId,
 					success(data) {
 						console.log("websocket连接成功");
 					},
 					fail() {
-						self.reset() 
+						self.reset()
 					}
 				});
-			 
+
 				// 消息的发送和接收必须在正常连接打开中,才能发送或接收【否则会失败】
 				this.socketTask.onOpen((res) => {
 					console.log("WebSocket连接正常打开中...！");
 					this.is_open_socket = true;
 					// 注：只有连接正常打开中 ，才能正常成功发送消息
 					this.socketTask.send({
-						data: "{\"toUserId\":\""+uni.getStorageSync('lgnId')+"\"}",
+						data: "{\"toUserId\":\"" + uni.getStorageSync('lgnId') + "\"}",
 						async success() {
 							console.log("消息发送成功");
 						},
 					});
 					// 注：只有连接正常打开中 ，才能正常收到消息
 					this.socketTask.onMessage((res) => {
-						console.log("收到服务器内容：" +res.data);
+						console.log("收到服务器内容：" + res.data);
 						this.msgSize = JSON.parse(res.data).size
 					});
 				})
@@ -196,21 +211,21 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 						this.is_open_socket = false;
 						console.log("关闭成功", res)
 					},
-					fail(err) { 
+					fail(err) {
 						console.log("关闭失败", err)
 					}
 				})
 			},
 			// 防止长时间连接自动断开
-			reset(){
+			reset() {
 				clearInterval(this.timeoutObj)
 				this.start()
 			},
 			//重新连接
-			start(){
-				this.timeoutObj  =setInterval(()=>{
+			start() {
+				this.timeoutObj = setInterval(() => {
 					this.connectSocketInit()
-				},10000)
+				}, 10000)
 			},
 			clickRequest() {
 				if (this.is_open_socket) {
@@ -225,11 +240,11 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 				}
 			},
 			//点击扫码按钮
-			scanButtonClick(){
+			scanButtonClick() {
 				this.scanShow = true
-				setTimeout(()=>{
+				setTimeout(() => {
 					this.focus = true;
-				},300); 
+				}, 300);
 			},
 			// 扫码
 			// scanNext(e){
@@ -252,9 +267,11 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		onShow() {
 			currperm().then(res => {
 				getApp().globalData.padGL = []
-				this.codeList=['0703_Andon', '0702_production', '0701_equipment', '0704_quality','pad-saoMa1005']
+				this.codeList = ['0703_Andon', '0702_production', '0701_equipment', '0704_quality',
+					'pad-saoMa1005'
+				]
 				res.data.forEach(item => {
-					
+
 					if (item.code == '07_padGL') {
 						savePermission(item.sub);
 						this.showList = this.codeList.map(item => {
@@ -263,40 +280,40 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 						this.showList[4] = true;
 						console.log('----', this.showList)
 						// if (process.env.NODE_ENV !== 'development') {
-							
-													
+
+
 						// }else{
 						// 	this.showList = [true, true, true, true];
 						// }
 					}
 				})
-				if(getAppMenu().length==0){
+				if (getAppMenu().length == 0) {
 					uni.showToast({
-						title:"当前角色没有权限",
-						icon:"none",
-						duration:2000
+						title: "当前角色没有权限",
+						icon: "none",
+						duration: 2000
 					})
 				}
 			})
 			console.log("进入了主菜单2");
-			lineWorkSpace().then(res =>{
-				if(res.err_code == 10000){
+			lineWorkSpace().then(res => {
+				if (res.err_code == 10000) {
 					let instances = res.data.instances
 					let sub = res.data.sub
-					if(instances!=null&&instances!=undefined&&instances.length>0){
-						uni.setStorageSync("workSpace",instances[0].typeName)					
-					}else if(sub!=null&&sub!=undefined&&sub.length>0){
-						uni.setStorageSync("workSpace",sub[0].name)
+					if (instances != null && instances != undefined && instances.length > 0) {
+						uni.setStorageSync("workSpace", instances[0].typeName)
+					} else if (sub != null && sub != undefined && sub.length > 0) {
+						uni.setStorageSync("workSpace", sub[0].name)
 					}
 				}
 			})
-		}, 
+		},
 		async onLoad(options) {
 			upgradeApp.startUpgradeApp();
 			// 进入这个页面的时候创建websocket连接【整个页面随时使用】
 			this.connectSocketInit();
 		}
-	} 
+	}
 </script>
 
 <style>
@@ -305,13 +322,16 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		justify-content: center;
 		align-items: center;
 	}
-	.msg{
+
+	.msg {
 		position: absolute;
 		color: #2979FF;
-		right:15rpx;
+		right: 15rpx;
 	}
-	.msg-size{
-		width: 20rpx;height: 20rpx;
+
+	.msg-size {
+		width: 20rpx;
+		height: 20rpx;
 		line-height: 20rpx;
 		background-color: red;
 		border-radius: 50%;
@@ -321,14 +341,17 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		top: 3rpx;
 		z-index: 2;
 	}
-	.img-size{
-		width: 20rpx;height: 20rpx;
+
+	.img-size {
+		width: 20rpx;
+		height: 20rpx;
 		line-height: 20rpx;
 		position: absolute;
 		left: 18rpx;
 		top: 3rpx;
 		z-index: 2;
 	}
+
 	.app-containerR>.my-item {
 		width: 150rpx;
 		height: 240rpx;
@@ -338,6 +361,7 @@ import { getAppMenu, saveAppMenu } from '../../utils/storage.js'
 		align-items: center;
 		justify-content: center;
 	}
+
 	.my-item>.group-title {
 		font-size: 25rpx !important;
 	}

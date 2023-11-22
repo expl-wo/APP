@@ -76,7 +76,7 @@
 								</template>
 								<u-loading-icon
 								    v-else
-								    custom-class="van-action-sheet__loading"
+								    custom-class="u-action-sheet__loading"
 								    size="18"
 								    mode="circle"
 								/>

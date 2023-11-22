@@ -1,0 +1,35 @@
+{
+	"pages": [{
+		"path": "pages/staging/index",
+		"style": {
+			"navigationBarTitleText": "工作台",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}, {
+		"path": "pages/orderDetail/index",
+		"style": {
+			"navigationBarTitleText": "工单详情",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}, {
+		"path": "pages/orderDetail/processDetail/index",
+		"style": {
+			"navigationBarTitleText": "大工序详情",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}, {
+		"path": "pages/orderDetail/productionDetail/index",
+		"style": {
+			"navigationBarTitleText": "子工序详情",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}]
+}

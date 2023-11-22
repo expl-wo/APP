@@ -1,0 +1,34 @@
+/deep/ .u-action-sheet {
+			.u-action-sheet__item-wrap__item__name,
+			.u-action-sheet__cancel-text,
+			.u-action-sheet__header__title {
+				font-size: 32rpx;
+			}
+		}
+	
+/deep/ .u-cell{
+		
+	.u-cell__title-text{
+	font-size: 32rpx;
+	}
+		
+	.u-icon__icon {
+		font-size: 32rpx !important;
+		color: #1b5ae7;
+	}
+}
+
+	
+/deep/ .u-tabs{
+		
+	.uni-scroll-view-content{
+		height: 70rpx;
+	}
+		
+	.u-tabs__wrapper__nav{
+		height: 70rpx;
+	}
+	.u-tabs__wrapper__nav__item__text{
+		font-size: 32rpx;
+	}
+}
