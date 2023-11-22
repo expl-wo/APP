@@ -1,11 +1,41 @@
 {
 	"pages": [{
-		"path": "pages/overhaul/index",
-		"style": {
-			"navigationBarTitleText": "检修",
-			"app-plus": {
-				"titleNView": true
+			"path": "pages/overhaul/index",
+			"style": {
+				"navigationBarTitleText": "检修",
+				"app-plus": {
+					"titleNView": true
+				}
+			}
+		},
+		{
+			"path": "pages/overhaul/map/index",
+			"style": {
+				"navigationBarTitleText": "地图",
+				"app-plus": {
+					"titleNView": true
+				},
+				"subNVues": [{
+					"id": "picker", // 唯一标识
+					"path": "/pages/overhaul/map/picker.nvue", // 页面路径
+					"style": {
+						"position": "popup",
+						"width": "100%",
+						"background": "rgba(0,0,0,0.6)"
+					}
+				}
+				// {
+				// 	"id": "info", // 唯一标识
+				// 	"path": "/pages/overhaul/map/info.nvue", // 页面路径
+				// 	"style": {
+				// 		"position": "absolute",
+				// 		"top": "0",
+				// 		"mask": "rgba(0,0,0,0.1)",
+				// 		"background": "rgba(0,0,0,0.1)"
+				// 	}
+				// },
+				]
 			}
 		}
-	}]
+	]
 }

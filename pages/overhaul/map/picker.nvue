@@ -1,0 +1,43 @@
+<template>
+	<view>
+		<u-action-sheet round="8" :actions="list" :title="title" :show="true" @close="close"></u-action-sheet>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				title: '标题',
+				list: [
+					{
+						name:'选项一',
+						subname:"选项一描述",
+						color:'#ffaa7f',
+						fontSize:'20'
+					},
+					{
+						name: '选项二禁用',
+						disabled:true
+					},
+					{
+						name: '开启load加载', //开启后文字不显示
+						loading:true
+					}
+				],
+			}
+		},
+		methods: {
+			close() {
+				debugger;
+				uni.$emit('handlePicker', {show: false});
+			}
+		}
+	}
+</script>
+
+<style>
+	.picker-wrapper {
+		border: 1px solid red;
+	}
+</style>

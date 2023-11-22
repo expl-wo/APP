@@ -1,7 +1,7 @@
 <template>
 	<view class="user-info-root" :style="{width: width ? width + 'px' : '100%', color: fontColor}">
 		<view class="img">
-			<u-image shape="circle" width="60px" height="60px" :src="userInfo.imgUrl">
+			<u-image shape="circle" width="60px" height="60px" src="/static/img/user.png">
 				<template v-slot:loading>
 					<u-loading-icon color="red"></u-loading-icon>
 				</template>
@@ -14,25 +14,26 @@
 				<text>{{ userInfo.name || "--" }}</text>
 			</view>
 			<view class="department">
-				<text> {{ userInfo.department || "--" }} </text>
+				<text> {{ currentRole.roleDeptName || "--" }} </text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+	import { getCurrRole, setCurrRole, getUserInfo, getUserRoleList } from '@/utils/auth.js'
 	export default {
 		name: 'UserInfo',
 		props: {
-			// 用户信息
-			userInfo: {
-			  type: Object,
-			  default: () => ({
-				name: '张晓丽',
-				department: '流程与信息化管理部',
-				imgUrl: 'XXX',
-			  })
-			},
+			// // 用户信息
+			// userInfo: {
+			//   type: Object,
+			//   default: () => ({
+			// 	name: '张晓丽',
+			// 	department: '流程与信息化管理部',
+			// 	imgUrl: 'XXX',
+			//   })
+			// },
 			width: {
 			  type: Number,
 			},
@@ -49,9 +50,10 @@
 		},
 		data() {
 			return {
-				
+				userInfo: getUserInfo(),
+				currentRole: getCurrRole()
 			}
-		}
+		},
 	}
 </script>
 

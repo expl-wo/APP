@@ -1,0 +1,21 @@
+<template>
+	<view class="info-wrapper">
+		子窗体
+	</view>
+</template>
+
+<script>
+	export default {
+		
+	}
+</script>
+
+<style>
+	.info-wrapper {
+		top: 80px;
+		height: 200px;
+		padding: 20px;
+		border: 1px solid red;
+		background-color: transparent;
+	}
+</style>
