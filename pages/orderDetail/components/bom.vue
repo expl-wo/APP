@@ -3,7 +3,7 @@
 		<van-pull-refresh v-model="isLoading" class="pull-wrapper" @refresh="onRefresh">
 			<bom-item v-for="item in dataList" :key="item.id" :dataInfo="item" @takePhoto="takePhoto" />
 		</van-pull-refresh>
-		<upload-image :visible="dialogVisible" :title="dialogTitle" @closeDialog="closeDialog" />
+		<u-upload :visible="dialogVisible" :title="dialogTitle" @closeDialog="closeDialog" />
 	</view>
 </template>
 <script>

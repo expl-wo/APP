@@ -145,7 +145,6 @@
 			},
 			// 返回
 			back() {
-				debugger
 				window.history.go(-1);
 			},
 			/**
@@ -198,7 +197,7 @@
 	};
 </script>
 <style lang="scss" scoped>
-	@import './index.scss';
+	@import '@/assets/css/staging/index.scss';
 
 	.full-content {
 		width: 100%;
@@ -211,6 +210,8 @@
 			background-color: unset;
 		}
 
+		.uni-page-head {}
+
 		.order-info {
 			margin-bottom: 28rpx;
 		}
@@ -219,7 +220,7 @@
 			padding: 0 32rpx;
 			height: 60rpx;
 			line-height: 60rpx;
-			font-size: 36rpx;
+			font-size: $titleFontSize;
 		}
 
 		.info {
@@ -229,7 +230,7 @@
 			.item {
 				height: 40rpx;
 				line-height: 40rpx;
-				font-size: 24rpx;
+				font-size: $fontSize;
 				color: #657685;
 
 				.icon {
@@ -301,7 +302,7 @@
 				border-right: 2rpx solid #2165762c;
 				color: #657685;
 				text-align: center;
-				font-size: 24rpx;
+				font-size: $fontSize;
 				cursor: pointer;
 			}
 

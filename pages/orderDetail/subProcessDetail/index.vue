@@ -1,6 +1,6 @@
 <template>
   <view class="subProcess-detail-root">
-    <van-nav-bar
+    <u-navbar
       title="子工序详情"
       left-arrow
       @tap-left="handleBack"

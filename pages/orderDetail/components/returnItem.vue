@@ -19,7 +19,7 @@
 			</view>
 		</view>
 		<u-modal :show="isShowProveModal" title="复核确认" content='确认复核吗？' :closeOnClickOverlay="true"
-			@confirm='handleProveConfirm' @cancel='isShowProveModal = false'></u-modal>
+			@confirm='handleProveConfirm' @close='isShowProveModal = false'></u-modal>
 	</view>
 </template>
 <script>
@@ -58,6 +58,8 @@
 	}
 </script>
 <style lang="scss" scoped>
+	@import '@/assets/css/staging/index.scss';
+
 	.return-item {
 		height: 200rpx;
 		padding: 16rpx 20rpx;
@@ -68,10 +70,11 @@
 			align-items: center;
 			justify-content: flex-start;
 			height: 80rpx;
-			font-size: 32rpx;
+			font-size: $titleFontSize;
 
 			.status {
 				margin-left: 16rpx;
+				font-size: $fontSize;
 			}
 
 			.icon {
