@@ -73,38 +73,38 @@
 				}, ],
 				// 工单字段对应文本映射
 				workOrderFieldMapText: {
-					productNumber: {
+					prodNumber: {
 						label: "生产号",
 						iconName: "photo"
 					},
-					PM: {
+					projManagerName: {
 						label: "项目经理",
 						iconName: "photo"
 					},
-					startTime: {
+					planStartTime: {
 						label: "计划开始时间",
 						iconName: "photo"
 					},
-					endTime: {
+					planEndTime: {
 						label: "计划结束时间",
 						iconName: "photo"
 					},
 				},
 				// 检修工单字段对应文本映射
 				overhaulFiledMapText: {
-					productNumber: {
+					prodNumber: {
 						label: "生产号",
 						iconName: "photo"
 					},
-					PM: {
+					projManagerName: {
 						label: "项目经理",
 						iconName: "photo"
 					},
-					startTime: {
+					planStartTime: {
 						label: "计划开始时间",
 						iconName: "photo"
 					},
-					endTime: {
+					planEndTime: {
 						label: "计划结束时间",
 						iconName: "photo"
 					},
@@ -180,7 +180,6 @@
 			},
 		},
 		onLoad(params) {
-			console.log(params, '11111111111111111111')
 			this.getListData();
 			// 路由激活时，重新获取数据
 			this.showType = params.type || 'workOrder'
@@ -191,83 +190,54 @@
 			 * @method getListData 获取列表数据
 			 **/
 			async getListData() {
+				// type: this.showType,
 				const param = {
-					type: this.showType,
-					orderStatusList: [],
 					pageNum: 1,
 					pageSize: 20,
-					prodNumber: "",
-					projName: "",
-					workOrderType: 1
+					projName: this.searchKey,
+					workOrderType: 1,
 				};
-				let data = {};
-				debugger
+				let result = {};
+				let listData = []
 				if (this.showType === "workOrder") {
-					data = await getWorkOrderPageData(param);
+					const {
+						data
+					} = await getWorkOrderPageData(param);
+					result = data
+					listData = result.pageList.map(item => ({
+						id: item.id,
+						title: item.projName,
+						prodNumber: item.prodNumber,
+						projManagerName: item.projManagerName,
+						planStartTime: item.planStartTime,
+						planEndTime: item.planEndTime,
+					}))
 				} else if (this.showType === "overhaul") {
-					data = await getOverhaulPageData(param);
+					const {
+						data
+					} = await getOverhaulPageData(param);
+					result = data
+					listData = result.pageList.map(item => ({
+						title: item.projName,
+						prodNumber: item.prodNumber,
+						projManagerName: item.projManagerName,
+						planStartTime: item.planStartTime,
+						planEndTime: item.planEndTime,
+					}))
 				} else if (this.showType === "issue") {
-					data = await getIssuePageList(param);
+					const {
+						data
+					} = await getIssuePageList(param);
+					result = data
+					listData = result.pageList.map(item => ({
+						title: item.projName,
+						prodNumber: item.prodNumber,
+						projManagerName: item.projManagerName,
+						planStartTime: item.planStartTime,
+						planEndTime: item.planEndTime,
+					}))
 				}
-				if (data) {
-					if (this.refreshing) {
-						this.cardList = [];
-						this.refreshing = false;
-					}
-					cardList = data.results || [];
-					this.loading = false;
-					if (this.cardList.length >= data.totalRow) {
-						this.finished = true;
-					}
-				}
-				// setTimeout(() => {
-				// 	if (this.refreshing) {
-				// 		this.cardList = [];
-				// 		this.refreshing = false;
-				// 	}
-				// 	if (this.showType === "workOrder") {
-				// 		for (let i = 0; i < 4; i++) {
-				// 			this.cardList.push({
-				// 				status: "待审核",
-				// 				title: "子工序行/年检有效期",
-				// 				productNumber: "123456",
-				// 				PM: "测试人员",
-				// 				startTime: "2023",
-				// 				endTime: "2023",
-				// 				id: +new Date(),
-				// 			});
-				// 		}
-				// 	} else if (this.showType === "overhaul") {
-				// 		for (let i = 0; i < 4; i++) {
-				// 			this.cardList.push({
-				// 				status: "待审核",
-				// 				title: "子工序行/年检有效期",
-				// 				productNumber: "检修工单",
-				// 				PM: "检修工单",
-				// 				startTime: "2023",
-				// 				endTime: "2023",
-				// 				id: +new Date(),
-				// 			});
-				// 		}
-				// 	} else if (this.showType === "issue") {
-				// 		for (let i = 0; i < 4; i++) {
-				// 			this.cardList.push({
-				// 				title: "子工序行/年检有效期",
-				// 				issue: "xxxxx异常提示",
-				// 				issueType: "xxx",
-				// 				notifyPerson: "极乐鸟",
-				// 				handlePerson: "董子鸥",
-				// 				createTime: "2023",
-				// 				memo: "这里是描述这里是描述这里是描这里是描述这里是描述这里是描",
-				// 				id: 1,
-				// 			});
-				// 		}
-				// 	}
-				// 	this.loading = false;
-				// 	if (this.cardList.length >= 10) {
-				// 		this.finished = true;
-				// 	}
-				// }, 1000);
+				this.cardList = listData
 			},
 			/**
 			 * @method handleRouterChange 处理路由改变-问题页面
@@ -302,11 +272,7 @@
 				if (this.showType === "issue") return;
 				console.log(card, "card", this.showType);
 				uni.navigateTo({
-					url: '/pages/orderDetail/index',
-					params: {
-						id: card.id,
-						type: this.showType, // 传不同类型，显示不同类型的详情
-					},
+					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
 				});
 			},
 			/**

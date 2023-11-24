@@ -7,7 +7,7 @@
 		},
 		onLaunch: function() {
 			// #ifdef APP-PLUS
-			plus.screen.lockOrientation('landscape-primary');
+			// plus.screen.lockOrientation('landscape-primary');
 			// #endif
 		},
 		onShow: function() {
