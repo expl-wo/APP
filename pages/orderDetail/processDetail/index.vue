@@ -1,12 +1,12 @@
 <template>
 	<view class="process-detail-root">
-		<van-nav-bar title="大工序详情" left-arrow @tap-left="handleBack" class="nav-bar" />
+		<!-- <u-navbar title="大工序详情" left-arrow @tap-left="handleBack" class="nav-bar" /> -->
 		<view class="process-content">
 			<view class="process-info">
 				<view class="process-name title">{{ processName }}</view>
 				<view class="info">
 					<view class="info-item" :key="item" v-for="(item, key) in processDetailInfo">
-						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" />
+						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" class="icon" size='30' />
 						<text class="label">{{ getLabelByKey(key) }}:</text>
 						<text class="value" :title="item">{{ item || "--" }}</text>
 					</view>
@@ -16,7 +16,7 @@
 				<view class="list-item" v-for="(item, index) in listData" :key="index"
 					@tap="skipProductionDetail(item)">
 					<view class="process-title">
-						<text>{{ item.subProcessName }}</text>
+						<text class="name">{{ item.subProcessName }}</text>
 						<text class="prove-status" :style="{ color: ['#f64930', '#17aa81'][item.proveStatus] }">
 							{{ ["未审核", "已审核"][item.proveStatus] }}
 						</text>
@@ -214,8 +214,10 @@
 </script>
 
 <style lang="scss" scoped>
+	@import '@/assets/css/staging/index.scss';
+
 	.process-detail-root {
-		height: calc(100% - 83rpx);
+		// height: calc(100% - 83rpx);
 		background: linear-gradient(282deg,
 				rgba(209, 225, 246, 0.1) 0%,
 				rgba(209, 225, 246, 0.8) 70%);
@@ -233,13 +235,17 @@
 
 			.process-info {
 				margin: 16rpx 16rpx 20rpx;
+				font-size: $fontSize;
 
 				.process-name {
 					display: flex;
 					margin-bottom: 12rpx;
+					font-size: $titleFontSize;
 				}
 
 				.info {
+					color: $color;
+
 					.info-item {
 						overflow: hidden;
 						white-space: nowrap;
@@ -247,6 +253,10 @@
 
 						.label {
 							margin: 0 16rpx 0 8rpx;
+						}
+
+						.icon {
+							display: inline-block;
 						}
 
 						&:not(:last-child) {
@@ -257,13 +267,12 @@
 			}
 
 			.list {
-				height: 642rpx;
 				overflow-y: auto;
 				background: #f7f5f5;
 
 				.list-item {
 					width: 49%;
-					height: 100rpx;
+					height: 120rpx;
 					padding: 16rpx;
 					box-sizing: border-box;
 					float: left;
@@ -273,21 +282,21 @@
 					.process-title {
 						display: flex;
 						justify-content: space-between;
-						margin-bottom: 36rpx;
-						font-size: 14rpx;
+						margin-bottom: 28rpx;
+						font-size: $smallFontSize;
 						color: #445160;
 
+						.name {
+							font-size: $fontSize;
+						}
+
 						.prove-status {
-							font-size: 12rpx;
+							font-size: $smallFontSize;
 						}
 					}
 
-					.name {
-						margin-bottom: 8rpx;
-					}
-
 					&:nth-of-type(odd) {
-						margin-right: 1%;
+						margin-right: 2%;
 					}
 				}
 			}

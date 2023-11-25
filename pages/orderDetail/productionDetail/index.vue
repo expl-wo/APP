@@ -1,6 +1,6 @@
 <template>
   <view class="production-detail-root">
-    <van-nav-bar
+    <u-navbar
       title="工序详情"
       left-arrow
       @click-left="handleBack"

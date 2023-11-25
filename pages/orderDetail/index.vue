@@ -5,11 +5,11 @@
 			<view class="name">{{ projectInfo.name }}</view>
 			<view :class="['info', showMore ? 'show-more' : 'show-less']">
 				<template v-for="(item,key) in projectInfo">
-					<view class="item" :key="item" v-if="key !== 'name'">
+					<view class="item" :key="item" v-if="!['id','name'].includes(key)">
 						<u-icon :name="getIconByKey(key)" size="28" class="icon"></u-icon>
 						<view class="info-box">
 							<text class="label">{{getLabelByKey(key)}}：</text>
-							<text>{{item}}</text>
+							<text>{{item || '--'}}</text>
 						</view>
 					</view>
 				</template>
@@ -33,7 +33,7 @@
 			<u-cell-group class="file-list">
 				<u-cell v-for="file in fileList" :title="file.name" :key="file.id" size="large"
 					@click="handleDownFile(file)">
-					<text slot="value"><u-icon name="setting-fill" title="下载" class="download-icon" /></text>
+					<text slot="value"><u-icon name="download" title="下载" class="download-icon" size="28" /></text>
 				</u-cell>
 			</u-cell-group>
 		</u-action-sheet>
@@ -43,6 +43,9 @@
 	import ProcessList from "./components/processList.vue";
 	import Bom from "./components/bom.vue";
 	import ReturnList from "./components/returnList.vue";
+	import {
+		getWorkOrderDetailById
+	} from "@/https/staging/index.js";
 	export default {
 		components: {
 			ProcessList,
@@ -51,16 +54,8 @@
 		},
 		data() {
 			return {
-				projectInfo: {
-					name: "广东大亚湾核电站变压器项目",
-					productNo: "Z0001",
-					manager: "张三",
-					category: "变压器",
-					voltageLevel: "110kv",
-					status: 0,
-					planTime: "2023-11-09 - 2023-12-30",
-					actualTime: "2023-11-10 - 2023-12-30",
-				},
+				// 详情信息
+				projectInfo: {},
 				tabData: [{
 						index: 0,
 						name: "工序列表",
@@ -77,30 +72,32 @@
 						cName: "ReturnList"
 					},
 				],
-				activeTab: 0,
 				// 显示附件下载面板
 				isShowFilePanel: false,
 				// 附件列表
-				fileList: [{
-						name: "技术协议.excel",
-						id: 1,
-					},
-					{
-						name: "技术协议.excel",
-						id: 2,
-					}
+				fileList: [
+					// {
+					// 	name: "技术协议.excel",
+					// 	id: 1,
+					// },
+					// {
+					// 	name: "技术协议.excel",
+					// 	id: 2,
+					// }
 				],
+				// 显示更多信息
 				showMore: true,
+				// 展示的字段-图标
 				fieldMapText: {
 					productNo: {
 						label: '生产号',
 						icon: 'chat'
 					},
-					manager: {
+					projManagerName: {
 						label: '项目经理',
 						icon: 'chat'
 					},
-					category: {
+					prodCategory: {
 						label: '产品大类',
 						icon: "chat"
 					},
@@ -108,7 +105,7 @@
 						label: '电压等级',
 						icon: 'chat'
 					},
-					status: {
+					orderStatus: {
 						label: '工作状态',
 						icon: "chat"
 					},
@@ -125,10 +122,35 @@
 				componentName: 'ProcessList'
 			};
 		},
-		onReady() {
+		onLoad(options) {
+			debugger
+			console.log(options)
+			const params = this.$route.params
+			this.type = params.type
 			this.handleTouchAnimation();
+			options.id && this.getDetailInfoById(options.id);
 		},
 		methods: {
+			/**
+			 * @method getDetailInfoById 根据id获取详情
+			 **/
+			getDetailInfoById(id) {
+				getWorkOrderDetailById(id).then(res => {
+					debugger
+					if (res.data) {
+						this.projectInfo = {
+							name: res.data.projName,
+							productNo: res.data.productNo,
+							projManagerName: res.data.projManagerName,
+							prodCategory: res.data.prodCategory,
+							voltageLevel: res.data.voltageLevel,
+							orderStatus: res.data.orderStatus,
+							planTime: `${res.data.planStartTime || ''} - ${res.data.planEndTime || ''}`,
+							actualTime: `${res.data.createTime || ''} - ${res.data.planEndTime || ''}`,
+						}
+					}
+				})
+			},
 			/**
 			 * @method getLabelByKey 根据字段获取label
 			 * @param {String} 字段key
@@ -145,7 +167,6 @@
 			},
 			// 返回
 			back() {
-				debugger
 				window.history.go(-1);
 			},
 			/**
@@ -198,7 +219,7 @@
 	};
 </script>
 <style lang="scss" scoped>
-	@import './index.scss';
+	@import '@/assets/css/staging/index.scss';
 
 	.full-content {
 		width: 100%;
@@ -211,6 +232,8 @@
 			background-color: unset;
 		}
 
+		.uni-page-head {}
+
 		.order-info {
 			margin-bottom: 28rpx;
 		}
@@ -219,7 +242,7 @@
 			padding: 0 32rpx;
 			height: 60rpx;
 			line-height: 60rpx;
-			font-size: 36rpx;
+			font-size: $titleFontSize;
 		}
 
 		.info {
@@ -229,7 +252,7 @@
 			.item {
 				height: 40rpx;
 				line-height: 40rpx;
-				font-size: 24rpx;
+				font-size: $fontSize;
 				color: #657685;
 
 				.icon {
@@ -301,7 +324,7 @@
 				border-right: 2rpx solid #2165762c;
 				color: #657685;
 				text-align: center;
-				font-size: 24rpx;
+				font-size: $fontSize;
 				cursor: pointer;
 			}
 

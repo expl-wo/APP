@@ -1,19 +1,25 @@
+$smallFontSize:20rpx;
+$fontSize: 24rpx;
+$titleFontSize:32rpx;
+$bigFontSize: 36rpx;
+$color:#657685;
+
 /deep/ .u-action-sheet {
 			.u-action-sheet__item-wrap__item__name,
 			.u-action-sheet__cancel-text,
 			.u-action-sheet__header__title {
-				font-size: 32rpx;
+				font-size: $fontSize;
 			}
 		}
 	
 /deep/ .u-cell{
 		
 	.u-cell__title-text{
-	font-size: 32rpx;
+	font-size: $fontSize;
 	}
 		
 	.u-icon__icon {
-		font-size: 32rpx !important;
+		font-size: $fontSize !important;
 		color: #1b5ae7;
 	}
 }
@@ -29,6 +35,6 @@
 		height: 70rpx;
 	}
 	.u-tabs__wrapper__nav__item__text{
-		font-size: 32rpx;
+		font-size: $fontSize;
 	}
 }

@@ -276,6 +276,7 @@
 				}, 2000)
 			},
 			lower() {
+				debugger
 				setTimeout(() => {
 					this.status = 'nomore';
 				}, 2000)
@@ -405,9 +406,11 @@
 					margin-left: auto;
 				}
 			}
+
 			.search-wrapper {
 				padding: 0 16px;
 			}
+
 			.message-list {
 				margin: 0 16px;
 				max-height: 400px;

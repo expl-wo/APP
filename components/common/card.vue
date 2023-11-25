@@ -11,10 +11,10 @@
 				<view v-if="!['status', 'title', 'id'].includes(key)" class="info-item" :key="item"
 					:style="{ width: itemWidth }">
 					<view class="info">
-						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" color="#2979ff" size="28"
+						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" color="#2979ff" size="24"
 							class="icon"></u-icon>
-						<span class="label">{{ getLabelByKey(key) }}:</span>
-						<span class="value">{{ item }}</span>
+						<span class="label">{{ getLabelByKey(key)}}:</span>
+						<span class="value">{{ item || '--'}}</span>
 					</view>
 				</view>
 			</template>
@@ -89,23 +89,24 @@
 	};
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
+	@import '@/assets/css/staging/index.scss';
+
 	.card-root {
-		padding: 32rpx;
+		padding: 20rpx;
 		border-radius: 16rpx;
 		background: url("@/assets/imgs/staging/list-bg.png") no-repeat center;
 		background-size: 125% 150%;
 
 		.card-head {
 			display: flex;
-			margin-bottom: 24rpx;
+			margin-bottom: 12rpx;
 
 			.title {
 				display: inline-block;
 				margin-right: 10rpx;
-				font-size: 32rpx;
+				font-size: $fontSize;
 				color: #445160;
-				// font-weight: bold;
 			}
 
 			.type {
@@ -122,12 +123,10 @@
 			.status {
 				min-width: 80rpx;
 				margin: 0 8rpx;
-				height: 48rpx;
 				padding: 0 10rpx;
-				line-height: 48rpx;
 				border-radius: 24rpx;
 				background-color: #e0f8f1;
-				font-size: 28rpx;
+				font-size: $fontSize;
 				text-align: center;
 				color: #17aa81;
 			}
@@ -139,6 +138,7 @@
 			position: relative;
 			overflow: hidden;
 			transition: all 0.5s linear;
+			font-size: $smallFontSize;
 
 			.info-item {
 				&:not(:last-child) {
@@ -146,15 +146,13 @@
 				}
 
 				.info {
-					font-size: 24rpx;
-
 					.label {
 						margin: 0 10rpx;
 					}
 
 					.icon {
 						display: inline-block;
-						vertical-align: text-bottom;
+						vertical-align: middle;
 					}
 				}
 			}
@@ -164,18 +162,18 @@
 				padding: 20rpx;
 				right: 0;
 				bottom: -10rpx;
-				font-size: 40rpx;
+				font-size: $bigFontSize;
 			}
 		}
 
 		.show-more {
 			// 用max-height可以高度使自适应，设置高度要大于实际元素高度
-			max-height: 600rpx;
+			max-height: 400rpx;
 		}
 
 		.show-less {
 			// 展示四个字段的高度
-			max-height: 210rpx;
+			max-height: 140rpx;
 		}
 	}
 </style>
