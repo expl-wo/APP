@@ -1,7 +1,7 @@
 <template>
 	<view class="info-root">
 		<view class="info-item" :key="item" v-for="(item, key) in infoObj">
-			<van-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" />
+			<u-icon class="icon" v-if="getIconByKey(key)" :name="getIconByKey(key)" />
 			<text class="label">{{ getLabelByKey(key) }}:</text>
 			<text class="value">{{ item }}</text>
 		</view>
@@ -41,19 +41,24 @@
 	};
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 	.info-root {
 		margin: 0px 16px;
-		padding-bottom: 12px;
-		border-bottom: solid 1px rgba(101, 118, 133, 0.11);
-
+		// padding-bottom: 24rpx;
+		border-bottom: 1px solid rgba(101, 118, 133, 0.11);
+		font-size: 16px;
 		.info-item {
+			height: 20px;
+			line-height: 20px;
+			.icon {
+				display: inline-block;
+			}
 			.label {
-				margin: 0 16px 0 8px;
+			// 	margin: 0 16rpx;
 			}
 
 			&:not(:last-child) {
-				margin-bottom: 5px;
+			// 	margin-bottom: 4rpx;
 			}
 		}
 	}

@@ -26,19 +26,20 @@
 <style lang="less" scoped>
 	.progress-root {
 		width: 100%;
-		height: 24rpx;
-		line-height: 24rpx;
+		height: 18px;
+		line-height: 18px;
 		background-color: rgba(68, 81, 96, 0.1);
 		border-radius: 16rpx;
-		font-size: 24rpx;
+		font-size: 14px;
 
 		.progress {
 			height: 100%;
 			background-color: #3a62d7;
-			background-image: url("@/assets/imgs/staging/progress-bg.png");
+			// background-image: url("@/assets/imgs/staging/progress-bg.png");
 			background-size: 60rpx 60rpx;
 			border-radius: 16rpx;
 			text-align: right;
+			margin-bottom: 12px;
 		}
 
 		.value {
