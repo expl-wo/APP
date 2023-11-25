@@ -1,48 +1,67 @@
 <template>
-	<view class="subProcess-detail-root">
-<!-- 		<van-nav-bar title="子工序详情" left-arrow @tap-left="handleBack" class="nav-bar" /> -->
-<!-- 		<view class="subProcess-content">
-			<view class="subProcess-info">
-				<view class="subProcess-name title">
-					<view>{{ productionName }}</view>
-					<view class="operate-icon">
-						<text class="tip" @tap="showTipModal">工序要求</text>
-						<image src="@/assets/image/add-issue-icon.png" alt="" @tap="handleAddIssue" />
+	<view class="page-wrapper">
+		<view class="top-wrapper">
+			<view class="info">
+				<view class="name">{{ productionName }}</view>
+				<view class="extra-info">
+					<text class="notice" @click="showNotice">工步要求</text>
+					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
+				</view>
+			</view>
+			<production-info :fieldMapText="fieldMapText" :infoObj="subProductInfo" />
+			<u-tabs :list="tabList" line-width="20" @click="tabChange" />
+		</view>
+		<view class="list-wrapper">
+			<scroll-view v-if="listData.length" class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true"
+				scroll-y="true" @scrolltoupper="scrolltoupper" @scrolltolower="scrolltolower" @scroll="scroll">
+				<view class="list-item" v-for="(item, index) in listData" :key="index" @click="executeWork(item)">
+					<view class="title">
+						<text>{{ item.workName }}</text>
+						<text class="prove-status" :style="{ color: statusMap[item.checkStatus].color }">
+							{{ statusMap[item.checkStatus].label }}
+						</text>
+					</view>
+					<view class="progress">
+						<Progress />
 					</view>
 				</view>
-				<Info :fieldMapText="fieldMapText" :infoObj="subProcessDetailInfo" />
-				<van-tabs v-model="activeTab" line-width="12" line-height="4" @change="handleChangeTab">
-					<van-tab :title="tab.label" v-for="tab in tabList" :key="tab.value">
-						<List :listData="listData" @skip="skipSubProcessDetail">
-							<view class="progress">
-								<Progress />
-							</view>
-						</List>
-					</van-tab>
-				</van-tabs>
-			</view>
+<!-- 				<u-loadmore :status="status" /> -->
+
+			</scroll-view>
+			<u-empty v-else mode="data" icon="http://cdn.uviewui.com/uview/empty/car.png" />
 		</view>
-		<view class="btn-box">
-			<view class="pre-btn"></view>
-			<view class="next-btn"></view>
-		</view> -->
+		<view class="btn-wrapper">
+			<u-button icon="arrow-left" class="btn" :plain="true" :disabled="prevDisabled" :loading="prevLoading" @click="prev" />
+			<u-button icon="arrow-right" type="primary" class="btn next-btn" :plain="true" :disabled="nextDisabled" :loading="nextLoading" @click="next" />
+		</view>
+		<notice :show="noticeFlag" title="工步要求" :content="tip" @closeNotice="closeNotice" />
 	</view>
 </template>
 
 <script>
+	import Notice from '@/components/common/notice.vue';
+	import ProductionInfo from "@/components/common/productionInfo.vue";
 	import Progress from "@/components/common/progress.vue";
-	// import Info from "@/components/info.vue";
-	// import List from "@/components/list.vue";
-	// import { Dialog } from "vant";
+	const statusMap = {
+		0: {
+			label: '未复核',
+			color: '#f64930'
+		},
+		1: {
+			label: '已复核',
+			color: '#17aa81'
+		}
+	}
 	export default {
 		name: "ProcessDetail",
 		components: {
 			Progress,
-			// Info,
-			// List,
+			Notice,
+			ProductionInfo
 		},
 		data() {
 			return {
+				noticeFlag: false,
 				// 工序详情id
 				productionId: "",
 				// 字段与文本映射
@@ -53,15 +72,15 @@
 					},
 					groupPerson: {
 						label: "组长",
-						iconName: "photo"
+						iconName: "account-fill"
 					},
 					subGroupPerson: {
 						label: "副组长",
-						iconName: "photo"
+						iconName: "account-fill"
 					},
 					member: {
 						label: "成员",
-						iconName: "photo"
+						iconName: "account-fill"
 					},
 					planTime: {
 						label: "计划开工/完工时间",
@@ -72,82 +91,98 @@
 						iconName: "photo"
 					},
 				},
-				productionName: "工序名称",
+				productionName: "测试工步一",
 				// 工序详情信息
-				subProcessDetailInfo: {
+				subProductInfo: {
 					groupPerson: "司马懿",
 					subGroupPerson: "干酒",
 					member: "成员",
 				},
+				statusMap: Object.freeze(statusMap),
 				// 工序列表数据
 				listData: [{
-						subProcessName: "子工序名称",
-						proveStatus: 0,
+						workName: "工作内容一",
+						checkStatus: '0',
 						percentage: 50,
 					},
 					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
+						workName: "工作内容二",
+						checkStatus: '1',
 						percentage: 50,
 					},
 				],
 				// 当前选中的tab
 				activeTab: "",
 				tabList: [{
-						label: "全部",
+						name: "全部",
 						value: 0,
 					},
 					{
-						label: "未完工",
+						name: "未完工",
 						value: 1,
 					},
 					{
-						label: "未复核",
+						name: "未复核",
 						value: 2,
 					},
 					{
-						label: "已完成",
+						name: "已完成",
 						value: 3,
 					},
 				],
-				// 工序标准
-				tip: "这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准这是标准",
+				// 提示内容
+				tip: "<h4>工步标准</h4><p>xxxxxx</p>",
+				scrollTop: 0,
+				prevDisabled: false,
+				prevLoading: false,
+				nextDisabled: false,
+				nextLoading: false
 			};
 		},
-		mounted() {
-			this.getProcessId();
-		},
-		activated() {
-			this.getProcessId();
+		onLoad(option) {
+			// 接收参数
+			let id = JSON.parse(option.productId);
+		// 	console.log(params)
 		},
 		methods: {
-			/**
-			 * @method getProcessId 获取工序详情id
-			 **/
-			getProcessId() {
-				const {
-					id
-				} = this.$route.params;
-				if (id || this.productionId) {
-					this.productionId = id;
-					this.getDetailInfoById();
-				} else {
-					// 返回上一级路由
-					// window.history.go(-1);
-				}
+			// 显示提示
+			showNotice() {
+				this.noticeFlag = true;
 			},
-			/**
-			 * @method getDetailInfoById 获取详情信息
-			 **/
-			getDetailInfoById() {
-				// 调用接口获取详情及列表数据
+			// 关闭提示
+			closeNotice() {
+				this.noticeFlag = false;
 			},
-			/**
-			 * @method handleBack 处理导航返回
-			 **/
-			handleBack() {
-				window.history.go(-1);
+			// 添加问题
+			handleAddIssue() {
+				uni.navigateTo({
+					url: '/pages/orderDetail/addIssue'
+				});
 			},
+			// tab切换
+			tabChange(item) {
+				this.activeTab = item.value;
+				this.showLoading = false;
+			},
+			// 滑到顶部
+			scrolltoupper() {},
+			// 滑到底部
+			scrolltolower() {},
+			// 滑动事件
+			scroll() {},
+			// 执行工步
+			executeWork(item) {
+				// uni.navigateTo({
+				// 	url: ''
+				// });
+			},
+			// 上一项
+			prev() {},
+			// 下一项
+			next() {},
+			// 获取数据
+			getData() {},
+
 			/**
 			 * @method getIconByKey 根据字段key获取图标
 			 * @param {String} 字段key
@@ -161,108 +196,115 @@
 			 **/
 			getLabelByKey(key) {
 				return this.fieldMapText[key].label || "";
-			},
-			handleChangeTab(name, title) {
-				console.log(name, title, "nam");
-				this.getListDataByType();
-			},
-			showTipModal() {
-				// Dialog.alert({
-				//   message: this.tip || "暂无内容",
-				//   theme: "round-button",
-				//   confirmButtonColor: "#3a62d7",
-				//   width: "80%",
-				// }).then(() => {
-				//   console.log("确认");
-				// });
-			},
-			handleAddIssue() {
-				// 切换到新增问题页面
-			},
-			// 获取到列表数据
-			getListDataByType() {},
-			skipSubProcessDetail(id) {
-				this.$router.push({
-					name: "subProcessDetail",
-					params: {
-						id
-					},
-				});
-			},
+			}
 		},
 	};
 </script>
 
 <style lang="scss" scoped>
-	.subProcess-detail-root {
+	.page-wrapper {
 		height: 100%;
+		width: 100%;
 		background: linear-gradient(282deg,
 				rgba(209, 225, 246, 0.1) 0%,
 				rgba(209, 225, 246, 0.8) 70%);
 		position: relative;
-		border: 1px solid red;
-		.nav-bar {
-			background: unset;
-		}
 
-		.subProcess-content {
-			height: calc(100% - 83rpx);
-			margin: 20rpx 16rpx 0rpx;
+		.top-wrapper {
+			height: 178px;
+			margin: 10px 16rpx 0;
+			padding: 0 16rpx;
 			background-color: #fff;
-			border-radius: 10rpx;
-			overflow: hidden;
-
-			.subProcess-info {
-				/deep/.van-tabs__line {
-					background-color: #3a62d7;
-					border-radius: 10rpx;
+			border-radius: 10rpx 10rpx 0 0;
+			.info {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				height: 40px;
+				line-height: 40px;
+				.name {
+					font-size: 20px;
 				}
-
-				.subProcess-name {
+				.extra-info {
 					display: flex;
-					justify-content: space-between;
-					margin: 16rpx 16rpx 12rpx;
-
-					.operate-icon {
-						display: flex;
-						align-items: center;
-
-						.tip {
-							margin-right: 15rpx;
-							font-size: 14rpx;
-							color: #3a62d7;
-							cursor: pointer;
-						}
-
-						image {
-							cursor: pointer;
-						}
+					align-items: center;
+					justify-content: center;
+					.notice {
+						color: #3a62d7;
+						font-size: 16px;
+					}
+					.icon {
+						margin-left: 16rpx;
+						color: #3a62d7;
 					}
 				}
 			}
 		}
+		.list-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			// 需减去top-wrapper和margin高度
+			height: calc(100% - 248px);
+			width: calc(100% - 32rpx);
+			margin: 0 16rpx;
+			background-color: #fff;
 
-		.btn-box {
-			position: absolute;
-			left: 0;
-			bottom: 100rpx;
-			width: 100%;
-			text-align: center;
-
-			view {
-				display: inline-block;
-				width: 40rpx;
-				height: 40rpx;
-				border-radius: 8rpx;
-			}
-
-			.disable-btn {
-				border: solid 1rpx rgba(58, 98, 215, 0.5);
-			}
-
-			.enable-btn {
-				background-color: #e3ebfb;
+			.scroll-wrapper {
+				display: flex;
+				flex-direction: row;
+				
+				width: 100%;
+				height: 100%;
+				overflow: auto;
+				/deep/ .uni-scroll-view-content {
+					display: flex;
+					flex-wrap: wrap;
+				}
+				.list-item {
+					height: 100px;
+					width: 50%;
+					padding: 10px;
+					background-color: rgba(254, 254, 254, 0.1);
+					border-bottom: 1px solid rgba(230, 230, 230, 1);
+					
+					.title {
+						display: flex;
+						
+						justify-content: space-between;
+						height: 30px;
+						line-height: 30px;
+						margin-bottom: 16px;
+						font-size: 16px;
+						color: #445160;
+					}
+				}
+				.list-item:nth-child(odd) {
+					border-right: 1px solid rgba(230, 230, 230, 1);
+				}
 			}
 		}
+
+		.btn-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 60px;
+			width: calc(100% - 32rpx);
+			margin: 0 16rpx;
+			padding: 10px 0;
+			background-color: #fff;
+			.btn {
+				width: 10%;
+			}
+			.next-btn {
+				margin-left: 40px;
+				background-color: #ddebfe;
+				border: none;
+			}
+		}
+	}
+	.mr40 {
+		
 	}
 </style>

@@ -33,7 +33,7 @@
 			</u-empty>
 		</view>
 		<notice :show="noticeFlag" title="工序要求" :content="tip" @closeNotice="closeNotice" />
-<!-- 		<add-issue :show="addFlag" @closeAddPopup="closeAddPopup" /> -->
+
 
 	</view>
 </template>
@@ -43,21 +43,19 @@
 	import ProductionInfo from "@/components/common/productionInfo.vue";
 	import List from "@/components/common/list.vue";
 	import Notice from '@/components/common/notice.vue';
-	import AddIssue from '@/components/common/addIssue.vue';
 	export default {
 		name: "SubprocessDetail",
 		components: {
 			Progress,
 			ProductionInfo,
 			List,
-			Notice,
-			AddIssue
+			Notice
 		},
 		data() {
 			return {
 				// 工序详情id
 				productionId: "",
-				productioName: '测试工序',
+				productioName: '测试中工序一',
 				scrollTop: 0,
 				// 字段与文本映射
 				fieldMapText: {
@@ -83,152 +81,11 @@
 				},
 				// 工序列表数据
 				listData: [{
+						id: 1,
 						subProcessName: "子工序名称",
 						proveStatus: 0,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
+						percentage: 30,
+					}
 				],
 				// 当前选中的tab
 				activeTab: "",
@@ -328,7 +185,7 @@
 			getListDataByType() {},
 			skipSubProductDetail(item) {
 				uni.navigateTo({
-					url: '/pages/orderDetail/subProductionDetail/index'
+					url: `/pages/orderDetail/subProductionDetail/index?productId=${item.id}`
 				});
 			}
 		},

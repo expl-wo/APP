@@ -18,7 +18,7 @@
 	}, {
 		"path": "pages/orderDetail/processDetail/index",
 		"style": {
-			"navigationBarTitleText": "大工序详情",
+			"navigationBarTitleText": "标准工序详情",
 			"app-plus": {
 				"titleNView": true
 			}
@@ -26,7 +26,7 @@
 	}, {
 		"path": "pages/orderDetail/productionDetail/index",
 		"style": {
-			"navigationBarTitleText": "工序详情",
+			"navigationBarTitleText": "中工序详情",
 			"app-plus": {
 				"titleNView": true
 			}
@@ -34,7 +34,7 @@
 	}, {
 		"path": "pages/orderDetail/subProductionDetail/index",
 		"style": {
-			"navigationBarTitleText": "子工序详情",
+			"navigationBarTitleText": "工步详情",
 			"app-plus": {
 				"titleNView": true
 			}

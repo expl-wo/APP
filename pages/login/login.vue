@@ -164,7 +164,7 @@
 		onReady() {
 			if (getToken()) {
 				uni.reLaunch({
-					url: '/pages/main/main',
+					url: '/pages/overhaul/index',
 				});
 			}
 		},
