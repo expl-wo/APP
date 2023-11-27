@@ -26,13 +26,10 @@
 				<u-icon class="text-xl s" size="80" name="../../static/img/icon/zhiLiang.svg"></u-icon>
 				<view class="group-title">质量管理</view>
 			</view> -->
-			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-purple" @tap="jumpTap5()">
-				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
-				<view class="group-title">检修管理</view>
-			</view>
+
 			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-purple" @tap="jumpTap6()">
 				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
-				<view class="group-title">工作台</view>
+				<view class="group-title">检修管理</view>
 			</view>
 		</view>
 
@@ -146,14 +143,10 @@
 				});
 			},
 			// 检修
-			jumpTap5() {
-				uni.navigateTo({
-					url: '/pages/overhaul/index'
-				});
-			}, // 检修
 			jumpTap6() {
 				uni.navigateTo({
-					url: '/pages/staging/index'
+				// 	url: '/pages/staging/index'
+					url: '/pages/orderDetail/productionDetail/index'
 				});
 			},
 			tapMsg() {
