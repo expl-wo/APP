@@ -271,8 +271,11 @@
 				// 问题暂无详情
 				if (this.showType === "issue") return;
 				console.log(card, "card", this.showType);
+				// uni.navigateTo({
+				// 	url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
+				// });
 				uni.navigateTo({
-					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
+					url: `/pages/orderDetail/subProductionRowDetail/index`,
 				});
 			},
 			/**

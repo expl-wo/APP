@@ -1,3 +1,4 @@
+$minFontSize:16rpx;
 $smallFontSize:20rpx;
 $fontSize: 24rpx;
 $titleFontSize:32rpx;
@@ -36,5 +37,24 @@ $color:#657685;
 	}
 	.u-tabs__wrapper__nav__item__text{
 		font-size: $fontSize;
+	}
+}
+
+	
+/deep/ .u-cell{
+	font-size: $fontSize;
+		
+	.u-cell__body{
+		font-size: $smallFontSize;
+	}
+	.u-cell__value{
+		font-size: $smallFontSize;
+	}
+}
+	
+/deep/ .u-textarea{
+		
+	.u-textarea__field{
+		font-size: $smallFontSize;
 	}
 }

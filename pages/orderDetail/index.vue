@@ -1,6 +1,5 @@
 <template>
-	<view class="full-content" id="order-detail-root">
-		<!-- <u-navbar class="nav-bar" title="工单详情" @leftClick="back"></u-navbar> -->
+	<view class="sub-pro-row" id="order-detail-root">
 		<view class="order-info">
 			<view class="name">{{ projectInfo.name }}</view>
 			<view :class="['info', showMore ? 'show-more' : 'show-less']">
@@ -19,108 +18,28 @@
 				<span class="btn-item" @click="handleSkipToIssue">查看问题</span>
 			</view>
 		</view>
-		<view class="bottom-content">
-			<u-tabs :list="tabData" @change='handleTabChange' :activeStyle="{
-            color: '#323233',
-            fontWeight: 'bold',
-            transform: 'scale(1.05)'
-        }" :inactiveStyle="{ color: '#657685'}" lineWidth='30'></u-tabs>
-			<component :is="componentName" />
-		</view>
 		<!-- 附件下载面板 -->
 		<u-action-sheet :show="isShowFilePanel" title="附件" :closeOnClickOverlay="true" :closeOnClickAction="true"
 			@close='isShowFilePanel= false'>
 			<u-cell-group class="file-list">
 				<u-cell v-for="file in fileList" :title="file.name" :key="file.id" size="large"
 					@click="handleDownFile(file)">
-					<text slot="value"><u-icon name="download" title="下载" class="download-icon" size="28" /></text>
+					<text slot="value"><u-icon name="download" title="下载" class="download-icon" size="28"
+							color="#3a62d7" /></text>
 				</u-cell>
 			</u-cell-group>
 		</u-action-sheet>
 	</view>
 </template>
 <script>
-	import ProcessList from "./components/processList.vue";
-	import Bom from "./components/bom.vue";
-	import ReturnList from "./components/returnList.vue";
 	import {
 		getWorkOrderDetailById
 	} from "@/https/staging/index.js";
 	export default {
-		components: {
-			ProcessList,
-			Bom,
-			ReturnList,
-		},
 		data() {
 			return {
-				// 详情信息
-				projectInfo: {},
-				tabData: [{
-						index: 0,
-						name: "工序列表",
-						cName: "ProcessList"
-					},
-					{
-						index: 1,
-						name: "BOM",
-						cName: "Bom"
-					},
-					{
-						index: 2,
-						name: "返厂清单",
-						cName: "ReturnList"
-					},
-				],
-				// 显示附件下载面板
-				isShowFilePanel: false,
-				// 附件列表
-				fileList: [
-					// {
-					// 	name: "技术协议.excel",
-					// 	id: 1,
-					// },
-					// {
-					// 	name: "技术协议.excel",
-					// 	id: 2,
-					// }
-				],
-				// 显示更多信息
-				showMore: true,
-				// 展示的字段-图标
-				fieldMapText: {
-					productNo: {
-						label: '生产号',
-						icon: 'chat'
-					},
-					projManagerName: {
-						label: '项目经理',
-						icon: 'chat'
-					},
-					prodCategory: {
-						label: '产品大类',
-						icon: "chat"
-					},
-					voltageLevel: {
-						label: '电压等级',
-						icon: 'chat'
-					},
-					orderStatus: {
-						label: '工作状态',
-						icon: "chat"
-					},
-					planTime: {
-						label: '计划开始/结束时间',
-						icon: 'chat'
-					},
-					actualTime: {
-						label: '实际开始/结束时间',
-						icon: 'chat'
-					},
-				},
-				// 当前展示的列表组件
-				componentName: 'ProcessList'
-			};
+				ke: value
+			}
 		},
 		onLoad(options) {
 			debugger
@@ -221,7 +140,7 @@
 <style lang="scss" scoped>
 	@import '@/assets/css/staging/index.scss';
 
-	.full-content {
+	.sub-pro-row {
 		width: 100%;
 		height: 1624rpx;
 		overflow: hidden;
