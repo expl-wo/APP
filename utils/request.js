@@ -1,6 +1,7 @@
 import {
 		getToken,
-		setToken
+		setToken,
+		getUserInfo
 	} from '@/utils/auth.js'
 import {
 		getAjaxUrl
@@ -12,7 +13,7 @@ import {
 	export function getUrl(url, source='') {
 		let baseUrl = getAjaxUrl();
 		// #ifdef H5
-		baseUrl = '/api'
+		baseUrl = url.indexOf('evo-ims-overhaul') > -1 ? '' : '/api';
 		// #endif
 		console.log('request ---' + baseUrl);
 		return baseUrl + url;
@@ -69,6 +70,12 @@ import {
 		}
 		if (getToken()) {
 			header['authorization'] = getToken()
+		}
+		if (url.indexOf('evo-ims-overhaul') > -1) {
+			const userInfo = getUserInfo();
+			if (userInfo.username) {
+				header['userId'] = userInfo.username;
+			}
 		}
 		return new Promise((resolve, reject) => {
 			let requestUrl = getUrl(url, source);
