@@ -225,7 +225,7 @@
 				const userInfo = getUserInfo();
 				// 按钮权限控制
 				this.btnText = userInfo.id ? '复核' : '开工'
-				this.formList =
+				// this.formList = []
 			},
 			/**
 			 * @method getProcessId 获取工序详情id
