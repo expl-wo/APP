@@ -28,12 +28,12 @@ $color:#657685;
 	
 /deep/ .u-tabs{
 		
-	.uni-scroll-view-content{
-		height: 70rpx;
-	}
+	// .uni-scroll-view-content{
+	// 	height: 70rpx;
+	// }
 		
 	.u-tabs__wrapper__nav{
-		height: 70rpx;
+		margin: 6rpx 16rpx;
 	}
 	.u-tabs__wrapper__nav__item__text{
 		font-size: $fontSize;

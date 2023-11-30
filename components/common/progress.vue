@@ -9,6 +9,7 @@
 
 <script>
 	export default {
+		name: 'Progress',
 		props: {
 			// 进度条数据
 			progressObj: {
@@ -36,7 +37,7 @@
 			height: 100%;
 			background-color: #3a62d7;
 			// background-image: url("@/assets/imgs/staging/progress-bg.png");
-			background-size: 60rpx 60rpx;
+			// background-size: 30rpx 30rpx;
 			border-radius: 16rpx;
 			text-align: right;
 			margin-bottom: 12px;

@@ -16,12 +16,18 @@
 			<view class="department">
 				<text> {{ currentRole.roleDeptName || "--" }} </text>
 			</view>
+			<slot />
 		</view>
 	</view>
 </template>
 
 <script>
-	import { getCurrRole, setCurrRole, getUserInfo, getUserRoleList } from '@/utils/auth.js'
+	import {
+		getCurrRole,
+		setCurrRole,
+		getUserInfo,
+		getUserRoleList
+	} from '@/utils/auth.js'
 	export default {
 		name: 'UserInfo',
 		props: {
@@ -35,17 +41,17 @@
 			//   })
 			// },
 			width: {
-			  type: Number,
+				type: Number,
 			},
 			// 是否展示欢迎语
 			isShowHello: {
-			  type: Boolean,
-			  default: true,
+				type: Boolean,
+				default: true,
 			},
 			// 字体颜色，默认白色
 			fontColor: {
-			  type: String,
-			  default: '#fff',
+				type: String,
+				default: '#fff',
 			}
 		},
 		data() {
@@ -59,21 +65,24 @@
 
 <style lang="less" scoped>
 	.user-info-root {
-	  display: flex;
-	  width: 100%;
-	  box-sizing: border-box;
-	  .img {
-		width: 60px;
-		height: 60px;
-		margin-right: 10px;
-	  }
-	  .info {
-		flex: 1;
-		view-align: left;
-		.user-name {
-		  margin-bottom: 4px;
-		  font-size: 20px;
+		display: flex;
+		width: 100%;
+		box-sizing: border-box;
+
+		.img {
+			width: 60px;
+			height: 60px;
+			margin-right: 10px;
 		}
-	  }
+
+		.info {
+			flex: 1;
+			view-align: left;
+
+			.user-name {
+				margin-bottom: 4px;
+				font-size: 20px;
+			}
+		}
 	}
 </style>

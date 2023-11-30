@@ -2,8 +2,9 @@
 	<view class="card-root">
 		<view class="card-head">
 			<span class="title ellipse">{{ cardInfo[title] }}</span>
-			<span class="status" v-if="cardInfo['status']">
-				{{ cardInfo["status"] }}
+			<span class="status" v-if="cardInfo['status']"
+				:style="{color:getColor(cardInfo['status']),backgroundColor:getBackgroundColor(cardInfo['status'])}">
+				{{getStatusStr(cardInfo["status"])}}
 			</span>
 		</view>
 		<view :class="['card-body', isShowMore ? 'show-more' : 'show-less']">
@@ -28,6 +29,9 @@
 </template>
 
 <script>
+	import {
+		ORDER_STATUS_MAP
+	} from '@/utils/constants-custom.js'
 	export default {
 		props: {
 			// 卡片展示字段信息
@@ -50,14 +54,6 @@
 				type: String,
 				default: "90%",
 			},
-			// 圆角样式
-			showBottomRadius: {
-				type: Boolean,
-				default: true,
-			},
-		},
-		mounted() {
-			console.log(this.cardInfo, this.fieldMapText, "card");
 		},
 		data() {
 			return {
@@ -84,6 +80,24 @@
 			 **/
 			handleShowMore() {
 				this.isShowMore = !this.isShowMore;
+			},
+			/**
+			 * @method getStatusStr 获取状态字符串
+			 **/
+			getStatusStr(status) {
+				return ORDER_STATUS_MAP[status - 1].text
+			},
+			/**
+			 * @method getColor 获取文字颜色
+			 **/
+			getColor(status) {
+				return ORDER_STATUS_MAP[status - 1].color
+			},
+			/**
+			 * @method getBackgroundColor 获取背景色
+			 **/
+			getBackgroundColor(status) {
+				return ORDER_STATUS_MAP[status - 1].backgroundColor
 			},
 		},
 	};
@@ -121,13 +135,14 @@
 			}
 
 			.status {
-				min-width: 80rpx;
 				margin: 0 8rpx;
-				padding: 0 10rpx;
+				padding: 0 16rpx;
 				border-radius: 24rpx;
+				/* 默认背景色 */
 				background-color: #e0f8f1;
 				font-size: $fontSize;
 				text-align: center;
+				/* 默认颜色 */
 				color: #17aa81;
 			}
 		}
@@ -152,7 +167,7 @@
 
 					.icon {
 						display: inline-block;
-						vertical-align: middle;
+						vertical-align: bottom;
 					}
 				}
 			}

@@ -1,26 +1,40 @@
 <template>
 	<view class="form">
 		<view class="form-item" v-for="(item,index) in formList" :key="index">
-			<u-cell :isLink='item.showLink' :value='item.value'
-				:arrow-direction="activeIndex === index ? 'down':'right'" @click="showActionSheet(item,index,'select')">
+			<u-cell :isLink='item.showLink' :arrow-direction="activeIndex === index ? 'down':'right'">
 				<view slot="title" class="u-slot-title">
 					<view class="cell-head">
 						<text class="u-cell-text">{{item.title}}</text>
-						<u-tag :text="item.time" plain size="mini" class='picker-tag'
-							@click="showActionSheet(item,index,'time')">
-						</u-tag>
-						<!-- <text @click="showActionSheet(item,index,'time')">{{item.time === 'hour' ? "小时":"天" }}</text> -->
+						<view class='picker-tag'>
+							<view class="copy-box">
+								<u-icon name="plus" color="#3a62d7" size="28" class="icon"
+									@click="handleCopyRecord(item,index)"></u-icon>
+								<u-icon name="trash-fill" color="#3a62d7" size="28" class="icon"
+									@click="handleDeleteRecord(item,index)"></u-icon>
+							</view>
+							<text class="time-type" v-if="item.type"
+								@click="showActionSheet(item,index,'time')">{{item.time}}</text>
+							<text class="tip" v-if="item.type">{{item.type === 'hour'?'该记录按小时执行':'该记录按天执行'}}</text>
+						</view>
 					</view>
 					<view class="content" v-if="item.textArea">
-						<u--textarea v-model="item.textArea" placeholder="请输入内容"></u--textarea>
+						<u--textarea v-model="item.textAreaValue" placeholder="请输入内容"></u--textarea>
 					</view>
 				</view>
+				<text slot="value" class="u-slot-value"
+					@click="showActionSheet(item,index,'select')">{{item.value}}</text>
 			</u-cell>
 		</view>
 		<view class="photo">
-			<text>拍照取证</text>
-			<u-upload :fileList="photoList" @afterRead="afterRead" @delete="deletePic" name="5" multiple
-				:maxCount="3"></u-upload>
+			<u-cell>
+				<view slot="title" class="u-slot-title">
+					<view><text>拍照取证</text></view>
+					<view>
+						<u-upload :fileList="fileList" :maxCount="10" :previewFullImage="true" @afterRead="afterRead"
+							@delete="deletePic" name="1" multiple></u-upload>
+					</view>
+				</view>
+			</u-cell>
 		</view>
 	</view>
 </template>
@@ -49,13 +63,16 @@
 		data() {
 			return {
 				activeIndex: "",
-				photoList: [],
+				fileList: [],
 			}
 		},
 		methods: {
+			handleCopyRecord(item, index) {
+				this.$emit('copyRecord', item, index)
+			},
 			// 展示选项面板
 			showActionSheet(item, index, type) {
-				// if (!item.showLink) return
+				if (!item.value) return
 				this.activeIndex = type === 'time' ? "" : index
 				this.$emit('showActionSheet', {
 					currentItem: item,
@@ -64,35 +81,60 @@
 				})
 			},
 
-			afterRead() {
-				uni.chooseImage({
-					count: 6, //默认9
-					sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
-					// sourceType: ['album'], //从相册选择
-					success: function(res) {
-						console.log(JSON.stringify(res.tempFilePaths));
-						// 预览图片
-						uni.previewImage({
-							urls: res.tempFilePaths,
-							longPressActions: {
-								itemList: ['发送给朋友', '保存图片', '收藏'],
-								success: function(data) {
-									console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data
-										.index + 1) + '张图片');
-								},
-								fail: function(err) {
-									console.log(err.errMsg);
-								}
-							}
-						});
-					},
-					fail: function() {
-						console.log('调用失败')
-					}
-				});
+			afterRead({
+				file,
+				lists,
+				name
+			}) {
+				debugger
 			},
-			deletePic() {
-
+			// 删除图片
+			deletePic(event) {
+				this.fileList.splice(event.index, 1)
+			},
+			// 新增图片
+			async afterRead(event) {
+				debugger
+				// 当设置 multiple 为 true 时, file 为数组格式，否则为对象格式
+				let lists = [].concat(event.file)
+				let fileListLen = this.fileList.length
+				lists.map((item) => {
+					this.fileList.push({
+						...item,
+						// status: 'uploading',
+						// message: '上传中'
+					})
+				})
+				for (let i = 0; i < lists.length; i++) {
+					const result = await this.uploadFilePromise(lists[i].url)
+					let item = this.fileList[fileListLen]
+					this.fileList.splice(fileListLen, 1, Object.assign(item, {
+						status: 'success',
+						message: '',
+						url: result
+					}))
+					fileListLen++
+				}
+			},
+			uploadFilePromise(url) {
+				return new Promise((resolve, reject) => {
+					let a = uni.uploadFile({
+						url: 'http://192.168.2.21:7001/upload', // 仅为示例，非真实的接口地址
+						filePath: url,
+						name: 'file',
+						formData: {
+							user: 'test'
+						},
+						success: (res) => {
+							setTimeout(() => {
+								resolve(res.data.data)
+							}, 1000)
+						}
+					});
+				})
+			},
+			handleDeleteRecord(item, index) {
+				this.$emit('deleteRecord', item, index)
 			}
 		}
 	}
@@ -100,7 +142,7 @@
 
 <style lang='scss' scoped>
 	.form {
-		max-height: 600px;
+		height: calc(100% - 300px);
 		overflow-y: auto;
 		margin: 0 16rpx;
 		background-color: #fff;
@@ -111,8 +153,32 @@
 				display: flex;
 				justify-content: space-between;
 
+				.u-cell-text {
+					width: 60rpx;
+				}
+
 				.picker-tag {
-					width: 100rpx;
+					flex: 1;
+					margin-left: 20rpx;
+
+					.copy-box {
+						display: inline-block;
+						margin: 0 30rpx;
+
+						.icon {
+							display: inline-block;
+							margin: 0 10rpx;
+						}
+					}
+
+					.tip {
+						font-size: 12px;
+					}
+
+					.time-type {
+						padding: 0 20rpx;
+						color: #3a62d7;
+					}
 				}
 			}
 		}

@@ -15,12 +15,19 @@
 			</view>
 		</view>
 		<!-- 卡片列表 -->
-		<u-list @scrolltolower="getListData" class="card-list" :owerThreshold='50' :upperThreshold='50'>
-			<u-list-item v-for="(item, index) in cardList" :key="index" class="card-item"
-				@click.native="handleShowDetail(item)">
-				<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
-			</u-list-item>
-		</u-list>
+		<view class="card-box">
+			<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
+				:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
+				:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
+				@scrolltolower="getListData('scrolltolower')">
+				<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(index)">
+					<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
+				</view>
+				<u-loadmore :status="status" v-if="cardList.length > 4" />
+			</scroll-view>
+			<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
+			</u-empty>
+		</view>
 		<!-- 动作面板 -->
 		<u-action-sheet :show="showFilterPanel" :actions="filterList" cancelText="取消" :closeOnClickAction="true"
 			:closeOnClickOverlay="true" title="状态筛选" :round="16" class="action-sheet" @select="handleConfirmFilter"
@@ -30,11 +37,12 @@
 			@close="showSearchPanel = false">
 			<view class="search-pop">
 				<u-search v-model="searchKey" inputAlign="center" height="70" shape="round" :clearabled="true"
-					placeholder="请输入搜索关键词" actionText='搜索' :showAction="true" @search="getListData"
+					placeholder="请输入关键字" actionText='搜索' :showAction="true" @search="getListData"
 					@clear="handleClearSearchKey">
 				</u-search>
 			</view>
 		</u-popup>
+		<u-toast ref="uToast"></u-toast>
 	</view>
 </template>
 
@@ -46,96 +54,26 @@
 		getOverhaulPageData,
 		getIssuePageList
 	} from "@/https/staging/index.js";
+	import {
+		CARD_FIELD_MAP,
+		ISSUE_FILED_MAP,
+		ORDER_STATUS_MAP
+	} from '@/utils/constants-custom.js'
 	export default {
 		name: "Staging",
 		components: {
-			Card,
+			Card
 		},
 		data() {
 			return {
-				// 列表数据
+				// 展示列表数据
 				cardList: [],
-				// 勘查工单tab列表
-				workOrderTabs: [{
-						label: "勘查工单",
-						value: 1,
-						code: "workOrder",
-					},
-					{
-						label: "检修工单",
-						value: 2,
-						code: "overhaul",
-					},
-				],
-				issueTabs: [{
-					label: "问题",
-					value: 1,
-				}, ],
 				// 工单字段对应文本映射
-				workOrderFieldMapText: {
-					prodNumber: {
-						label: "生产号",
-						iconName: "photo"
-					},
-					projManagerName: {
-						label: "项目经理",
-						iconName: "photo"
-					},
-					planStartTime: {
-						label: "计划开始时间",
-						iconName: "photo"
-					},
-					planEndTime: {
-						label: "计划结束时间",
-						iconName: "photo"
-					},
-				},
+				workOrderFieldMapText: CARD_FIELD_MAP,
 				// 检修工单字段对应文本映射
-				overhaulFiledMapText: {
-					prodNumber: {
-						label: "生产号",
-						iconName: "photo"
-					},
-					projManagerName: {
-						label: "项目经理",
-						iconName: "photo"
-					},
-					planStartTime: {
-						label: "计划开始时间",
-						iconName: "photo"
-					},
-					planEndTime: {
-						label: "计划结束时间",
-						iconName: "photo"
-					},
-				},
+				overhaulFiledMapText: CARD_FIELD_MAP,
 				// 问题字段对应文本映射
-				issueFiledMapText: {
-					issue: {
-						label: "异常项",
-						iconName: "photo"
-					},
-					issueType: {
-						label: "问题分类",
-						iconName: "photo"
-					},
-					notifyPerson: {
-						label: "通知人",
-						iconName: "photo"
-					},
-					handlePerson: {
-						label: "问题处理人",
-						iconName: "photo"
-					},
-					createTime: {
-						label: "问题提交时间",
-						iconName: "photo"
-					},
-					memo: {
-						label: "问题描述",
-						iconName: "photo"
-					},
-				},
+				issueFiledMapText: ISSUE_FILED_MAP,
 				// 当前选中项下标
 				activeIndex: 0,
 				// 展示筛选面板
@@ -144,19 +82,8 @@
 				showSearchPanel: false,
 				// 搜索关键词
 				searchKey: "",
-				// 筛选面板选项
-				filterList: [{
-					name: "待办",
-					value: '1'
-				}, {
-					name: "已办",
-					value: '2'
-				}, {
-					name: "未办",
-					value: '3'
-				}],
 				// 颜色值与状态映射
-				statusMapColor: [],
+				statusMapColor: ['#fbefe9', '#e3ebfb', '#e9ecee'],
 				// 展示返回按钮
 				showBack: false,
 				// 展示页面类型 workOrder-勘查工单 overhaul-检修页面、issue-问题页面
@@ -167,6 +94,16 @@
 				finished: false,
 				// 刷新
 				refreshing: false,
+				// 列表数据总数
+				total: 0,
+				// 当前页
+				pageNum: 1,
+				// 列表刷新状态
+				status: "nomore",
+				// 包含所有字段的列表数据
+				allListData: [],
+				// 选中的工单状态
+				selectOrderStatu: ''
 			};
 		},
 		computed: {
@@ -176,8 +113,51 @@
 					this.workOrderFieldMapText;
 			},
 			tabList() {
-				return this.showType === "issue" ? this.issueTabs : this.workOrderTabs;
+				const issueTabs = [{
+					label: "问题",
+					value: 1,
+				}];
+				const workOrderTabs = [{
+						label: "勘查工单",
+						value: 1,
+						code: "workOrder",
+					},
+					{
+						label: "检修工单",
+						value: 2,
+						code: "overhaul",
+					},
+				]
+				return this.showType === "issue" ? issueTabs : workOrderTabs;
 			},
+			// 筛选面板选项
+			filterList() {
+				const workOrderFilters = ['创建工单', '审批完成', '现场勘查', '勘查报告', '报告审批', '指派项目经理', '指派组员', '结束', '暂停'];
+				const overhaulFilters = ['创建工单', '工序执行', '竣工报告', '竣工报告审批', '返厂检修现场拆解', '返厂检修厂内拆解', '厂内生产', '试验', '检修报告',
+					'指派项目经理', '指派组员', '结束', '暂停'
+				]
+				const workOrder = [{
+					value: '',
+					name: '全部'
+				}];
+				const overhaul = [{
+					value: '',
+					name: '全部'
+				}];
+				ORDER_STATUS_MAP.forEach((item, index) => {
+					const tempObj = {
+						name: item.text,
+						value: index + 1
+					};
+					workOrderFilters.includes(item.text) && workOrder.push(tempObj)
+					overhaulFilters.includes(item.text) && overhaul.push(tempObj)
+				})
+				const obj = {
+					workOrder: workOrder,
+					overhaul: overhaul
+				}
+				return obj[this.showType]
+			}
 		},
 		onLoad(params) {
 			this.getListData();
@@ -189,23 +169,30 @@
 			/**
 			 * @method getListData 获取列表数据
 			 **/
-			async getListData() {
-				// type: this.showType,
+			async getListData(type) {
 				const param = {
-					pageNum: 1,
+					pageNum: this.pageNum,
 					pageSize: 20,
 					projName: this.searchKey,
 					workOrderType: 1,
 				};
+				if (this.selectOrderStatu) {
+					param.orderStatusList = [this.selectOrderStatu]
+				}
 				let result = {};
 				let listData = []
+				debugger
 				if (this.showType === "workOrder") {
+					param.workOrderType = 1;
 					const {
 						data
 					} = await getWorkOrderPageData(param);
 					result = data
+					this.total = result.total;
+					this.allListData = [...result.pageList]
 					listData = result.pageList.map(item => ({
 						id: item.id,
+						status: item.orderStatus,
 						title: item.projName,
 						prodNumber: item.prodNumber,
 						projManagerName: item.projManagerName,
@@ -213,11 +200,16 @@
 						planEndTime: item.planEndTime,
 					}))
 				} else if (this.showType === "overhaul") {
+					param.workOrderType = 2;
 					const {
 						data
-					} = await getOverhaulPageData(param);
+					} = await getWorkOrderPageData(param);
 					result = data
+					this.total = result.total;
+					this.allListData = [...result.pageList]
 					listData = result.pageList.map(item => ({
+						id: item.id,
+						status: item.orderStatus,
 						title: item.projName,
 						prodNumber: item.prodNumber,
 						projManagerName: item.projManagerName,
@@ -229,6 +221,8 @@
 						data
 					} = await getIssuePageList(param);
 					result = data
+					this.total = result.total;
+					this.allListData = [...result.pageList]
 					listData = result.pageList.map(item => ({
 						title: item.projName,
 						prodNumber: item.prodNumber,
@@ -237,7 +231,31 @@
 						planEndTime: item.planEndTime,
 					}))
 				}
-				this.cardList = listData
+				console.log(listData, 'listData')
+				debugger
+				let message = '已经刷新'
+				if (type === 'scrolltoupper') {
+					this.pageNum = 1;
+					this.cardList = listData
+					this.refreshing = true
+					// } else if (type === 'scrolltolower') {
+				} else {
+					if (this.cardList.length < this.total) {
+						this.cardList.push(...listData)
+						this.status = 'loadmore'
+						this.pageNum++
+					} else {
+						message = '已经没有更多数据'
+						this.status = 'nomore'
+					}
+				}
+				debugger
+				setTimeout(() => {
+					this.refreshing = false
+				}, 200)
+				this.$refs.uToast.show({
+					message
+				})
 			},
 			/**
 			 * @method handleRouterChange 处理路由改变-问题页面
@@ -256,27 +274,31 @@
 			 **/
 			handleTabChange(tab, index) {
 				if (this.activeIndex === index) return;
-				this.activeIndex = index;
-				this.showType = tab.code; // 展示数据变化
-				console.log(this.showType, "showType");
-				// 列表数据先置空
+				// tab切换时要清空数据
 				this.cardList = [];
+				this.total = 0;
+				this.pageNum = 1;
+				// 选中tab类型变化
+				this.activeIndex = index;
+				this.showType = tab.code;
 				// 切换列表数据
-				this.onRefresh();
+				this.getListData();
 			},
 			/**
 			 * @method handleShowDetail 点击卡片展示详情
 			 **/
-			handleShowDetail(card) {
+			handleShowDetail(index) {
+				const card = this.allListData[index]
 				// 问题暂无详情
 				if (this.showType === "issue") return;
 				console.log(card, "card", this.showType);
-				// uni.navigateTo({
-				// 	url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
-				// });
+				debugger
 				uni.navigateTo({
-					url: `/pages/orderDetail/subProductionRowDetail/index`,
+					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}&workProcedureType=${card.prodCategory}`,
 				});
+				// uni.navigateTo({
+				// 	url: `/pages/orderDetail/subProductionRowDetail/index`,
+				// });
 			},
 			/**
 			 * @method handleShowFilter 点击显示筛选面板
@@ -303,20 +325,15 @@
 			 **/
 			handleConfirmFilter(action) {
 				console.log(action, "handleConfirmFilter");
-				this.selectStatu = action.value
+				this.selectOrderStatu = action.value;
+				this.cardList = [];
+				this.getListData();
 			},
 			/**
 			 * @method handleBack 处理导航返回
 			 **/
 			handleBack() {
 				window.history.go(-1);
-			},
-			onRefresh() {
-				this.finished = false;
-				// 重新加载数据
-				// 将 loading 设置为 true，表示处于加载状态
-				this.loading = true;
-				this.getListData();
 			},
 		},
 	};
@@ -327,12 +344,13 @@
 
 	.staging-root {
 		width: 100%;
-		// height: calc(100% - 83rpx);
 		background: url("@/assets/imgs/staging/staging-bg.png") no-repeat center;
 		background-size: 100% 100%;
+		overflow: hidden;
 		font-size: $fontSize;
 
 		.head-tab {
+			height: 68rpx;
 			padding: 16rpx 16rpx 0rpx;
 			margin-bottom: 16rpx;
 			display: flex;
@@ -356,18 +374,24 @@
 			}
 		}
 
-		.card-list {
-			height: calc(100% - 80rpx);
+		.card-box {
+			height: calc(100% - 68rpx);
+			padding-bottom: 60rpx;
 			overflow-y: auto;
 
-			.card-item {
-				margin: 0 20rpx 12rpx;
+			.card-list {
+				height: 100%;
 
-				&:not(:last-child) {
-					margin-bottom: 12rpx;
+				.card-item {
+					margin: 0 20rpx 12rpx;
+
+					&:not(:last-child) {
+						margin-bottom: 12rpx;
+					}
 				}
 			}
 		}
+
 
 		.search-action-sheet {
 			position: absolute;
@@ -385,5 +409,10 @@
 		}
 
 
+	}
+
+	/deep/ .uni-scroll-view-refresher {
+		background: url("@/assets/imgs/staging/staging-bg.png") no-repeat center;
+		background-size: 100% 100%;
 	}
 </style>

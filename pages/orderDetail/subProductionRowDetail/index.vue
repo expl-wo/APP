@@ -4,23 +4,24 @@
 			<view class="info">
 				<view class="name">{{ subProductionRowName }}</view>
 				<view class="extra-info">
-					<text class="notice" @click="showNotice">工序要求</text>
+					<text class="notice" @click="isShowTip = true">工序要求</text>
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
 			<ProductionInfo :fieldMapText="fieldMapText" :infoObj="detailInfo" style="height: auto;" />
 			<UserInfo style="padding: 16px" fontColor='#000' :userInfo="userInfo">
 				<view class="sign-time">
-					<text>签到：{{signInTime}}</text>
-					<text>签出：{{signOutTime}}</text>
+					<text :title='signInTime' v-if='signInTime'>签到：{{signInTime}}</text>
+					<text v-if='signOutTime'>签退：{{signOutTime}}</text>
 				</view>
 			</UserInfo>
 			<view class="sign-box">
 				<view class="sign-in sign-btn" @click="handleSign('signIn')">签到</view>
-				<view class="sign-out sign-btn" @click="handleSign('signIn')">签出</view>
+				<view class="sign-out sign-btn" @click="handleSign('signOut')">签退</view>
 			</view>
 		</view>
-		<CustomForm :haveActionSheet='haveActionSheet' :formList='formList' @showActionSheet='showActionSheet'>
+		<CustomForm :haveActionSheet='haveActionSheet' :formList='showFormList' @showActionSheet='showActionSheet'
+			@copyRecord='copyRecord' @deleteRecord='deleteRecord'>
 		</CustomForm>
 		<view class="btn-box">
 			<view class="left-btn">
@@ -31,15 +32,22 @@
 					<u-icon name="arrow-right" size="30" bold></u-icon>
 				</view>
 			</view>
-			<view class="right-btn" @click="submit">{{btnText}}</view>
+			<view class="right-btn" @click="showProveSheet">{{btnText}}</view>
 		</view>
-		<u-action-sheet :show="isShowActionSheet" :actions="actionSheetObj.actions" :title="actionSheetObj.title"
+		<!-- 操作面板 -->
+		<u-action-sheet round :show="isShowActionSheet" :actions="actionSheetObj.actions" :title="actionSheetObj.title"
 			:description="isShowActionSheet.description" @close="close" @select="select">
 		</u-action-sheet>
 		<u-datetime-picker :show="isShowTimePicker" v-model="time" mode="datetime" :closeOnClickOverlay='true'
 			@close='close'></u-datetime-picker>
 		<u-picker :show="isShowHourPicker" :columns="hourColumns" :defaultIndex='hourDefaultIndex'
-			:closeOnClickOverlay='true' title='时间选择' @close='close' @cancel='close'></u-picker>
+			:closeOnClickOverlay='true' title='时间选择' @close='close' @cancel='close' @confirm='hourConfirm'></u-picker>
+		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
+			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
+		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
+		<CustomSheet :show='showCustomSheet' title="测试" :selects='selects' @close='closeCustomSheet'
+			@handleCheck='handleCheck' @reset='reset'>
+		</CustomSheet>
 	</view>
 </template>
 
@@ -47,23 +55,39 @@
 	import ProductionInfo from "@/components/common/info.vue";
 	import CustomForm from '@/components/common/form.vue';
 	import UserInfo from '@/components/common/user-info.vue';
+	import Notice from '@/components/common/notice.vue';
+	import CustomSheet from '@/components/common/customSheet.vue'
+	import moment from 'moment'
 	import {
 		getCurrRole,
 		getUserInfo
 	} from '@/utils/auth.js'
+	import {
+		getMesWorkContent,
+		setMesWorkContent
+	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessDetail",
 		components: {
 			ProductionInfo,
 			CustomForm,
-			UserInfo
+			UserInfo,
+			Notice,
+			CustomSheet
+		},
+		computed: {
+			showFormList() {
+				return this.formList.sort((a, b) => {
+					return a.type === b.type
+				})
+			}
 		},
 		data() {
 			return {
 				formList: [{
 						title: '记录2',
 						formType: 'multSelect',
-						time: 'hour',
+						time: '时',
 						type: 'hour',
 						showLink: true,
 						value: '选项一、选项二',
@@ -79,28 +103,28 @@
 					{
 						title: '记录3',
 						formType: 'textArea',
-						time: 'day',
+						time: '天',
 						type: 'day',
 						showLink: false,
-						textArea: '22222',
-						value: '内容2',
+						textAreaValue: '22222',
 						textArea: true
 					},
 					{
-						title: '记录4',
+						title: '记录值',
 						formType: 'textArea',
-						time: 'hour',
-						type: 'select',
-						value: '内容2',
+						time: '时',
+						value: 9,
+						type: 'hour',
 						defaultValue: '14时',
+						showLink: true,
 						actions: [{
-								name: '男',
+								name: 1,
 							},
 							{
-								name: '女',
+								name: 2,
 							},
 							{
-								name: '保密',
+								name: 3,
 							},
 						]
 					},
@@ -162,9 +186,34 @@
 				},
 				signInTime: '2023/11/27 10:23:12',
 				signOutTime: '2023/11/27 10:23:13',
+				isShowProvePicker: false,
+				proveColumns: [
+					['是', '否']
+				],
+				isShowTip: false,
+				// 工序标准
+				tip: "<h4>测试</h4><br>",
+				showCustomSheet: true,
+				selects: [{
+					value: 1,
+					label: '哈哈哈哈',
+					isCheck: false
+				}, {
+					value: 2,
+					label: 'hihihihi',
+					isCheck: false
+				}, {
+					value: 3,
+					label: '哈喽哈喽哈喽',
+					isCheck: false
+				}, {
+					value: 4,
+					label: '你好',
+					isCheck: false
+				}]
 			};
 		},
-		onReady() {
+		mounted() {
 			this.getProcessId();
 			this.initData()
 		},
@@ -176,6 +225,7 @@
 				const userInfo = getUserInfo();
 				// 按钮权限控制
 				this.btnText = userInfo.id ? '复核' : '开工'
+				this.formList =
 			},
 			/**
 			 * @method getProcessId 获取工序详情id
@@ -261,11 +311,49 @@
 			 **/
 			showNext() {},
 			/**
-			 * @method submit 表单提交
+			 * @method showProveSheet 显示复核面板
 			 **/
-			submit() {},
+			showProveSheet() {
+				this.isShowProvePicker = true
+			},
+			hourConfirm() {},
+			proveConfirm() {},
 			handleSign(type) {
 
+			},
+
+			handleSign(type) {
+				debugger
+				if (type === 'signIn') {
+					this.signInTime = moment().format('YYYY-MM-DD HH:mm:ss');
+				} else {
+					this.signOutTime = moment().format('YYYY-MM-DD HH:mm:ss');
+				}
+			},
+			handleAddIssue() {
+				uni.navigateTo({
+					url: '/pages/orderDetail/addIssue'
+				});
+			},
+			copyRecord(item, index) {
+				console.log(item, index)
+				this.formList.push(item)
+			},
+
+			deleteRecord(item, index) {
+				this.formList.splice(index, 1)
+			},
+			handleCheck(index) {
+				this.selects[index].isCheck = !this.selects[index].isCheck
+			},
+			closeCustomSheet(selectedList) {
+				console.log(selectedList, 'selectedList')
+				this.showCustomSheet = false
+			},
+			reset() {
+				this.selects.forEach(item => {
+					item.isCheck = false
+				})
 			}
 		},
 	};
@@ -297,7 +385,8 @@
 				line-height: 40px;
 
 				.name {
-					font-size: $fontSize;
+					// font-size: $fontSize;
+					font-size: 20px;
 				}
 
 				.extra-info {
@@ -319,7 +408,7 @@
 
 			.sign-box {
 				position: absolute;
-				bottom: 70px;
+				bottom: 50px;
 				right: 20rpx;
 				display: flex;
 				text-align: center;
@@ -344,8 +433,13 @@
 			}
 
 			.sign-time {
+				margin-top: 10rpx;
 				font-size: $minFontSize;
 				color: #445160;
+
+				&:first-child {
+					margin-right: 10rpx;
+				}
 			}
 		}
 
@@ -355,7 +449,7 @@
 			position: absolute;
 			left: 0;
 			bottom: 0;
-			padding: 20rpx 0;
+			padding: 10rpx 0;
 			width: 100%;
 			display: flex;
 			justify-content: space-around;
@@ -363,15 +457,15 @@
 			text-align: center;
 
 			.left-btn {
-				width: 184rpx;
-				height: 80rpx;
+				width: 144rpx;
+				height: 60rpx;
 				display: flex;
 				justify-content: space-between;
 
 				.btn {
-					width: 80rpx;
-					height: 80rpx;
-					line-height: 80rpx;
+					width: 60rpx;
+					height: 60rpx;
+					line-height: 60rpx;
 					border-radius: 16rpx;
 					border: solid 2rpx rgba(58, 98, 215, 0.5);
 					text-align: center;
@@ -387,9 +481,9 @@
 			}
 
 			.right-btn {
-				width: 328rpx;
-				height: 80rpx;
-				line-height: 80rpx;
+				width: 300rpx;
+				height: 60rpx;
+				line-height: 60rpx;
 				background-color: #3a62d7;
 				border-radius: 16rpx;
 				font-size: $fontSize;
@@ -398,8 +492,6 @@
 
 			view {
 				display: inline-block;
-				width: 40rpx;
-				height: 40rpx;
 				border-radius: 8rpx;
 			}
 

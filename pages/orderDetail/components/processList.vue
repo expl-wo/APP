@@ -16,11 +16,20 @@
 <script>
 	import Card from "@/components/common/card.vue";
 	import Progress from "@/components/common/progress.vue";
+	import {
+		getProcessList
+	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessList",
 		components: {
 			Card,
 			Progress,
+		},
+		props: {
+			orderInfo: {
+				type: Object,
+				default: () => ({})
+			}
 		},
 		data() {
 			return {
@@ -42,30 +51,41 @@
 						iconName: "chat"
 					},
 				},
-				cardList: [{
-						title: "这里是大工序名",
-						groupPerson: "李腾辉",
-						subGroupPerson: "张辽",
-						member: "程普、陆逊、李子健、张俊杰",
-					},
-					{
-						title: "这里是大工序名",
-						groupPerson: "李腾辉",
-						subGroupPerson: "张辽",
-						member: "程普、陆逊、李子健、张俊杰",
-					},
-					{
-						title: "这里是大工序名",
-						groupPerson: "李腾辉",
-						subGroupPerson: "张辽",
-						member: "程普、陆逊、李子健、张俊杰",
-					},
-					{
-						title: "这里是大工序名",
-						groupPerson: "李腾辉",
-						subGroupPerson: "张辽",
-						member: "程普、陆逊、李子健、张俊杰",
-					},
+				cardList: [
+					// {
+					// 	title: "这里是大工序名",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// },
+					// {
+					// 	title: "这里是大工序名",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// },
+					// {
+					// 	title: "这里是大工序名",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// },
+					// {
+					// 	title: "这里是大工序名",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// }, {
+					// 	title: "这里是大工序名",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// }, {
+					// 	title: "cecece",
+					// 	groupPerson: "李腾辉",
+					// 	subGroupPerson: "张辽",
+					// 	member: "程普、陆逊、李子健、张俊杰",
+					// },
 				],
 				// 列表加载状态
 				loading: false,
@@ -73,13 +93,21 @@
 				finished: false,
 				// 刷新
 				refreshing: false,
+				page: {
+					pageSize: 20,
+					pageNum: 1
+				}
 			};
+		},
+		mounted() {
+			this.getListData()
 		},
 		methods: {
 			/**
 			 * @method getListData 获取列表数据
 			 **/
 			getListData() {
+				debugger
 				setTimeout(() => {
 					if (this.refreshing) {
 						this.cardList = [];
@@ -99,15 +127,22 @@
 						this.finished = true;
 					}
 				}, 1000);
-			},
-			onRefresh() {
-				this.finished = false;
-				this.loading = true;
-				this.getListData();
+				const param = {
+					...this.page,
+					overHaulCode: this.orderInfo.id,
+					workProcedureType: Number(this.orderInfo.workProcedureType)
+				}
+				debugger
+				getProcessList(param).then(res => {
+					if (res) {
+						this.cardList = res.pageList || []
+					}
+				})
 			},
 			handleShowDetail(card) {
 				console.log(card, "card");
-				const url = `/pages/orderDetail/processDetail/index?id=${card.id}`
+				const url =
+					`/pages/orderDetail/processDetail/index?procedureCode=${card.id}&overHaulCode=${this.orderInfo.id}`
 				uni.navigateTo({
 					url,
 				})
@@ -117,18 +152,21 @@
 </script>
 <style lang="scss" scoped>
 	.full-wrapper {
-		height: 100%;
 		overflow-y: auto;
 		font-size: 12rpx;
 		color: #657685;
 
-		.card-item {
-			position: relative;
-			margin: 0 32rpx 24rpx;
-			cursor: pointer;
+		.card-list {
+			height: 100%;
 
-			.progress {
-				margin-top: 10rpx;
+			.card-item {
+				position: relative;
+				margin: 0 16rpx 16rpx;
+				cursor: pointer;
+
+				.progress {
+					margin-top: 10rpx;
+				}
 			}
 		}
 	}

@@ -1,6 +1,5 @@
 <template>
 	<view class="process-detail-root">
-		<!-- <u-navbar title="大工序详情" left-arrow @tap-left="handleBack" class="nav-bar" /> -->
 		<view class="process-content">
 			<view class="process-info">
 				<view class="process-name title">{{ processName }}</view>
@@ -21,9 +20,8 @@
 							{{ ["未审核", "已审核"][item.proveStatus] }}
 						</text>
 					</view>
-					<!-- <view class="name">{{ item.subProcessName }}</view> -->
 					<view class="progress">
-						<Progress />
+						<Progress :progressObj="{value:item.percentage,percentage:' 50%',total:100}" />
 					</view>
 				</view>
 			</view>
@@ -33,6 +31,12 @@
 
 <script>
 	import Progress from "@/components/common/progress.vue";
+	import {
+		getProcessDetail
+	} from "@/https/staging/index.js";
+	import {
+		WORK_ORDER_FIELD_MAP
+	} from '@/utils/constants-custom.js'
 	export default {
 		name: "ProcessDetail",
 		components: {
@@ -43,32 +47,7 @@
 				// 大工序详情id
 				processId: "",
 				// 字段与文本映射
-				fieldMapText: {
-					code: {
-						label: "工序编码",
-						iconName: "photo"
-					},
-					groupPerson: {
-						label: "组长",
-						iconName: "photo"
-					},
-					subGroupPerson: {
-						label: "副组长",
-						iconName: "photo"
-					},
-					member: {
-						label: "成员",
-						iconName: "photo"
-					},
-					planTime: {
-						label: "计划开工/完工时间",
-						iconName: "photo"
-					},
-					realTime: {
-						label: "实际开工/完工时间",
-						iconName: "photo"
-					},
-				},
+				fieldMapText: WORK_ORDER_FIELD_MAP,
 				processName: "大工序名称",
 				// 大工序详情信息
 				processDetailInfo: {
@@ -158,51 +137,39 @@
 				],
 			};
 		},
-		mounted() {
-			this.getProcessId();
-		},
-		activated() {
-			this.getProcessId();
+		onLoad(options) {
+			debugger
+			console.log(options, 'options')
+			this.getDetailInfoById(options);
 		},
 		methods: {
 			/**
-			 * @method getProcessId 获取大工序详情id
-			 **/
-			getProcessId() {
-				const {
-					id
-				} = this.$route.params;
-				if (id || this.processId) {
-					this.processId = id;
-				} else {
-					// 返回上一级路由
-					// window.history.go(-1);
-				}
-			},
-			/**
 			 * @method getDetailInfoById 获取详情信息
 			 **/
-			getDetailInfoById() {},
-			/**
-			 * @method handleBack 处理导航返回
-			 **/
-			handleBack() {
-				window.history.go(-1);
+			getDetailInfoById(param) {
+				getProcessDetail(param).then(res => {
+					console.log(res, 'getProcessDetail')
+					if (res) {
+						this.processDetailInfo = res.data || {}
+						this.listData = res.data.listData
+					}
+				})
 			},
 			/**
 			 * @method getIconByKey 根据字段key获取图标
 			 * @param {String} 字段key
 			 **/
 			getIconByKey(key) {
-				return this.fieldMapText[key].iconName || "";
+				return this.fieldMapText[key] && this.fieldMapText[key].iconName || "";
 			},
 			/**
 			 * @method getLabelByKey 根据字段获取label
 			 * @param {String} 字段key
 			 **/
 			getLabelByKey(key) {
-				return this.fieldMapText[key].label || "";
+				return this.fieldMapText[key] && this.fieldMapText[key].label || "";
 			},
+			// 跳转到工序详情界面
 			skipProductionDetail(process) {
 				const url = `/pages/orderDetail/productionDetail/index?id=${process.id}`
 				uni.navigateTo({
@@ -229,7 +196,7 @@
 		.process-content {
 			height: calc(100% - 83rpx);
 			margin: 20rpx 16rpx 0rpx;
-			background-color: #fff;
+			// background-color: #fff;
 			border-radius: 10rpx;
 			overflow: hidden;
 
@@ -267,8 +234,9 @@
 			}
 
 			.list {
+				height: 740px;
 				overflow-y: auto;
-				background: #f7f5f5;
+				// background: #f7f5f5;
 
 				.list-item {
 					width: 49%;
