@@ -1,5 +1,5 @@
 <template>
-	<van-popup position="bottom" close-on-popstate round class="cust-popup" :close-on-tap-overlay="false"
+<!-- 	<van-popup position="bottom" close-on-popstate round class="cust-popup" :close-on-tap-overlay="false"
 		:value="visible" :style="{ height: '50%' }">
 		<view class="popup-top">
 			<text class="btn-wrapper" @tap="cancel">取消</text>
@@ -14,12 +14,25 @@
 				</template>
 			</van-uploader>
 		</view>
-	</van-popup>
+	</van-popup> -->
+	<u-popup :show="visible" :round="20" :closeOnClickOverlay="false">
+		<view class="popup-top">
+			<text class="btn-wrapper" @tap="cancel">取消</text>
+			<text class="title">{{ title }}</text>
+			<text class="btn-wrapper confirm" @tap="confirm">确定</text>
+		</view>
+		<view class="popup-content">
+			<view class="upload-tip">仅支持png、jpg、jpeg格式图片，最多3张，单张20M以内</view>
+			<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="imageList"
+				:maxCount="3" @beforeRead="beforeRead($event, 'image')" @afterRead="afterRead($event, 'image')"
+				@delete="deleteFile($event, 'image')" />
+		</view>
+	</u-popup>
 </template>
 <script>
-	const MAX_IMG_SIZE = 10 * 1024 * 1024;
-	const ACCEPT_TYPE = ['image/jpg', 'image/jpeg', 'image/png'];
-
+	
+	import { UPLOAD_LIMIT } from '@/utils/constants-custom';
+	
 	export default {
 		props: {
 			visible: {
@@ -33,61 +46,55 @@
 		},
 		data() {
 			return {
-				fileList: [],
+				imageList: [],
 
 			}
 		},
 		methods: {
-			beforeRead(file) {
-				// 单选图片
+			beforeRead(event, type) {
+				let {
+					file
+				} = event;
 				return new Promise((resolve, reject) => {
-					if (!Array.isArray(file)) {
-						if (this.isOverSize(file.size)) {
-							this.$toast.fail('所选图片请勿超过20M');
-							reject();
-						}
-						if (!this.isAcceptType(file.type)) {
-							this.$toast.fail('仅支持jpg、jpeg、png格式图片');
-							reject();
-						}
-						resolve(file);
-					} else {
-						let eligibleFile = file.filter(item => {
-							return !this.isOverSize(item.size) && this.isAcceptType(item.type)
-						})
-						if (!eligibleFile.length) {
-							this.$toast.fail('所选图片不符合要求');
-							reject();
-						}
-						if (eligibleFile.length && eligibleFile.length < file.length) {
-							this.$toast({
-								message: '已自动过滤不符合条件的图片',
-								duration: 3000
-							});
-							resolve(eligibleFile);
-						}
-						resolve(file);
+					let eligibleFile = file.filter(item => {
+						return !this.isOverSize(item.size, type)
+					})
+					if (!eligibleFile.length) {
+						uni.showToast({
+							title: `所选${UPLOAD_LIMIT[type].label}大小不符合要求`,
+							duration: 2000
+						});
+						reject();
 					}
+					if (eligibleFile.length && eligibleFile.length < file.length) {
+						uni.showToast({
+							title: `已自动过滤不符合条件的${UPLOAD_LIMIT[type].label}`,
+							duration: 2000
+						});
+						resolve(eligibleFile, type);
+					}
+					resolve(file, type);
 				})
 			},
-			afterRead(file) {
-				console.log(this.fileList);
+			afterRead(file, type) {
+				this[`${type}List`].push(...file.file);
+			},
+			deleteFile(event, type) {
+				let index = event.index;
+				this[`${type}List`].splice(index, 1);
+			},
+			// 判断是否图片是否超出限制
+			isOverSize(size, type) {
+				return size > UPLOAD_LIMIT[type].maxSize;
 			},
 			cancel() {
-				this.fileList = [];
-				this.$emit('closeDialog', false);
+				this.imageList = [];
+				this.$emit('closePopup', false);
 			},
 			confirm() {
 				// 上传图片到服务器
-				this.fileList = [];
-				this.$emit('closeDialog', true);
-			},
-			// 判断是否图片是否超出限制
-			isOverSize(size) {
-				return size > MAX_IMG_SIZE;
-			},
-			isAcceptType(type) {
-				return ACCEPT_TYPE.includes(type.toLowerCase());
+				this.imageList = [];
+				this.$emit('closePopup', true);
 			}
 		}
 	}
