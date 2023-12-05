@@ -20,9 +20,12 @@
 				<view class="sign-out sign-btn" @click="handleSign('signOut')">签退</view>
 			</view>
 		</view>
-		<CustomForm :haveActionSheet='haveActionSheet' :formList='showFormList' @showActionSheet='showActionSheet'
-			@copyRecord='copyRecord' @deleteRecord='deleteRecord'>
+		<CustomForm :haveActionSheet='haveActionSheet' :formList='showFormList' @showActionSheet='showActionSheet'>
 		</CustomForm>
+		<view class="save-btn">
+			<view class="save btn" @click="handleSave">保存</view>
+			<view class="report btn" @click="handleReport">报工</view>
+		</view>
 		<view class="btn-box">
 			<view class="left-btn">
 				<view :class="['btn', havePre?'enable-btn':'disabled-btn']" @click="showPre">
@@ -38,16 +41,20 @@
 		<u-action-sheet round :show="isShowActionSheet" :actions="actionSheetObj.actions" :title="actionSheetObj.title"
 			:description="isShowActionSheet.description" @close="close" @select="select">
 		</u-action-sheet>
-		<u-datetime-picker :show="isShowTimePicker" v-model="time" mode="datetime" :closeOnClickOverlay='true'
-			@close='close'></u-datetime-picker>
-		<u-picker :show="isShowHourPicker" :columns="hourColumns" :defaultIndex='hourDefaultIndex'
-			:closeOnClickOverlay='true' title='时间选择' @close='close' @cancel='close' @confirm='hourConfirm'></u-picker>
+		<!-- 	<u-datetime-picker :show="isShowTimePicker" v-model="time" mode="datetime" :closeOnClickOverlay='true'
+			@close='close'></u-datetime-picker> -->
+		<!-- <u-picker :show="isShowHourPicker" :columns="hourColumns" :defaultIndex='hourDefaultIndex'
+			:closeOnClickOverlay='true' title='时间选择' @close='close' @cancel='close' @confirm='hourConfirm'></u-picker> -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
 		<CustomSheet :show='showCustomSheet' title="测试" :selects='selects' @close='closeCustomSheet'
 			@handleCheck='handleCheck' @reset='reset'>
 		</CustomSheet>
+		<u-calendar startText="住店" endText="离店" confirmDisabledText="请选择日期" :formatter="formatter"
+			:show="isShowCalendar" :maxDate="maxDate" @confirm="confirmCalendar" ref="calendar"
+			@close='isShowCalendar = false'>
+		</u-calendar>
 	</view>
 </template>
 
@@ -64,7 +71,8 @@
 	} from '@/utils/auth.js'
 	import {
 		getMesWorkContent,
-		setMesWorkContent
+		setMesWorkContent,
+		proveConfirmApi
 	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessDetail",
@@ -83,14 +91,20 @@
 			}
 		},
 		data() {
+			const d = new Date()
+			const year = d.getFullYear()
+			let month = d.getMonth() + 1
+			month = month < 10 ? `0${month}` : month
+			const date = d.getDate()
 			return {
 				formList: [{
-						title: '记录2',
-						formType: 'multSelect',
-						time: '时',
+						operationName: '记录2',
+						operationType: 'multSelect',
+						time: 'hour',
 						type: 'hour',
 						showLink: true,
 						value: '选项一、选项二',
+						requireImageFile: 1,
 						actions: [{
 								name: '男',
 								selected: true
@@ -98,21 +112,25 @@
 							{
 								name: '女',
 							}
-						]
+						],
+						openType: 2,
+						executionFrequency: "1"
 					},
 					{
-						title: '记录3',
-						formType: 'textArea',
-						time: '天',
+						executionFrequency: "3",
+						operationName: '记录3',
+						operationType: 'textArea',
+						time: 'day',
 						type: 'day',
 						showLink: false,
 						textAreaValue: '22222',
 						textArea: true
 					},
 					{
-						title: '记录值',
-						formType: 'textArea',
-						time: '时',
+						executionFrequency: "2",
+						operationName: '记录值',
+						operationType: 'textArea',
+						time: 'hour',
 						value: 9,
 						type: 'hour',
 						defaultValue: '14时',
@@ -161,17 +179,36 @@
 				// 当前操作项下标
 				currentOperateIndex: null,
 				haveActionSheet: false,
-				time: Number(new Date()),
+				// time: Number(new Date()),
+				// 展示日历选择
+				isShowCalendar: false,
+				mode: 'range',
+				maxDate: `${year}-${month}-${date + 10}`,
 				// 展示日期选择器
 				isShowTimePicker: false,
 				// 展示小时选择器 
 				isShowHourPicker: false,
 				// 小时列表
 				hourColumns: [
-					['11时', '12时', '13时', '14时', '15时', '16时']
+					[{
+						label: '11时',
+						selected: true
+					}, {
+						label: '12时',
+						selected: false
+					}, {
+						label: '13时',
+						selected: true
+					}, {
+						label: '14时',
+						selected: true
+					}, {
+						label: '15时',
+						selected: true
+					}, ]
 				],
 				// 默认选中项
-				hourDefaultIndex: [2],
+				// hourDefaultIndex: [2],
 				// 按钮文字-根据用户信息显示不同操作
 				btnText: '开工',
 				// 是否能上一项
@@ -193,7 +230,7 @@
 				isShowTip: false,
 				// 工序标准
 				tip: "<h4>测试</h4><br>",
-				showCustomSheet: true,
+				showCustomSheet: false,
 				selects: [{
 					value: 1,
 					label: '哈哈哈哈',
@@ -210,12 +247,15 @@
 					value: 4,
 					label: '你好',
 					isCheck: false
-				}]
+				}],
+
 			};
 		},
 		mounted() {
 			this.getProcessId();
-			this.initData()
+			this.initData();
+			// 如果需要兼容微信小程序的话，需要用此写法
+			this.$refs.calendar.setFormatter(this.formatter)
 		},
 		methods: {
 			/**
@@ -226,6 +266,36 @@
 				// 按钮权限控制
 				this.btnText = userInfo.id ? '复核' : '开工'
 				// this.formList = []
+				setMesWorkContent({
+					craftId: 6
+				}).then(res => {
+					if (res && res.data) {
+						// res.data.value.forEach(item => {
+						// 	const temObj = {
+						// 		title: item.operationName,
+						// 		formType: item.operationType,
+						// 		time: 'hour',
+						// 		value: 9,
+						// 		type: 'hour',
+						// 		defaultValue: '14时',
+						// 		showLink: true,
+						// 		actions: [{
+						// 				name: 1,
+						// 			},
+						// 			{
+						// 				name: 2,
+						// 			},
+						// 			{
+						// 				name: 3,
+						// 			},
+						// 		]
+						// 	}
+						// })
+						this.formList = res.data.value || []
+						console.log(res, 'formList', this.formList)
+
+					}
+				})
 			},
 			/**
 			 * @method getProcessId 获取工序详情id
@@ -284,9 +354,10 @@
 						this.isShowHourPicker = true
 						const defaultValue = currentItem.defaultValue
 						const idx = this.hourColumns[0].indexOf(defaultValue)
-						this.hourDefaultIndex = [idx]
+						// this.hourDefaultIndex = [idx]
 					} else {
-						this.isShowTimePicker = true
+						// this.isShowTimePicker = true
+						this.isShowCalendar = true
 					}
 				} else {
 					this.isShowActionSheet = true
@@ -300,7 +371,8 @@
 			 * @method close 关闭弹窗
 			 **/
 			close() {
-				this.haveActionSheet = this.isShowActionSheet = this.isShowTimePicker = this.isShowHourPicker = false;
+				this.haveActionSheet = this.isShowActionSheet = this.isShowCalendar = this
+					.isShowHourPicker = false;
 			},
 			/**
 			 * @method showPre 展示上一条
@@ -317,11 +389,20 @@
 				this.isShowProvePicker = true
 			},
 			hourConfirm() {},
-			proveConfirm() {},
+			proveConfirm() {
+				const param = {
+					craftId: 1,
+					pass: 0, // 0：复核不通过，1：复核通过
+				}
+				proveConfirmApi(param).then(res => {
+					if (res) {
+
+					}
+				})
+			},
 			handleSign(type) {
 
 			},
-
 			handleSign(type) {
 				debugger
 				if (type === 'signIn') {
@@ -335,14 +416,6 @@
 					url: '/pages/orderDetail/addIssue'
 				});
 			},
-			copyRecord(item, index) {
-				console.log(item, index)
-				this.formList.push(item)
-			},
-
-			deleteRecord(item, index) {
-				this.formList.splice(index, 1)
-			},
 			handleCheck(index) {
 				this.selects[index].isCheck = !this.selects[index].isCheck
 			},
@@ -354,6 +427,26 @@
 				this.selects.forEach(item => {
 					item.isCheck = false
 				})
+			},
+			confirmCalendar(date) {
+				console.log(date, 'confirmCalendar')
+			},
+			// 日历显示已选择的日期
+			formatter(day) {
+				const d = new Date()
+				let month = d.getMonth() + 1
+				const date = d.getDate()
+				if (day.month == month && day.day == date + 3) {
+					day.bottomInfo = '已操作'
+					day.dot = true
+				}
+				return day
+			},
+			handleSave() {
+				console.log('handleSave')
+			},
+			handleReport() {
+				console.log('handleReport')
 			}
 		},
 	};
@@ -444,6 +537,18 @@
 		}
 
 
+		.save-btn {
+			margin: 0 16rpx;
+			border-radius: 16rpx;
+
+			.btn {
+				height: 60rpx;
+				line-height: 60rpx;
+				margin: 10rpx 0;
+				background-color: #fff;
+				text-align: center;
+			}
+		}
 
 		.btn-box {
 			position: absolute;

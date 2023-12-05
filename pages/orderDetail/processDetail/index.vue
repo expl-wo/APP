@@ -32,15 +32,24 @@
 <script>
 	import Progress from "@/components/common/progress.vue";
 	import {
-		getProcessDetail
+		getProcessList
 	} from "@/https/staging/index.js";
 	import {
 		WORK_ORDER_FIELD_MAP
 	} from '@/utils/constants-custom.js'
+	import {
+		mapState
+	} from 'vuex'
 	export default {
 		name: "ProcessDetail",
 		components: {
 			Progress,
+		},
+		computed: {
+			...mapState("workOrder", [
+				// 工单详情信息
+				'workOrderDatialInfo'
+			])
 		},
 		data() {
 			return {
@@ -135,6 +144,7 @@
 						percentage: 50,
 					},
 				],
+				pageNum: 1
 			};
 		},
 		onLoad(options) {
@@ -146,12 +156,24 @@
 			/**
 			 * @method getDetailInfoById 获取详情信息
 			 **/
-			getDetailInfoById(param) {
-				getProcessDetail(param).then(res => {
-					console.log(res, 'getProcessDetail')
-					if (res) {
-						this.processDetailInfo = res.data || {}
-						this.listData = res.data.listData
+			getDetailInfoById(options) {
+				// this.processDetailInfo = {
+				// 	...this.workOrderDatialInfo
+				// };
+				const param = {
+					pageNum: this.pageNum,
+					pageSize: 10,
+					workCode: 1001,
+					workProcedureType: 1, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序,
+					// workProcedureType: options.workProcedureType
+				};
+				getProcessList(param).then(res => {
+					debugger
+					if (res.data && res.data.pageList) {
+						this.listData = res.data.pageList.map(item => ({
+							title: item.workProcedureName,
+							...item
+						}))
 					}
 				})
 			},

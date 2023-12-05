@@ -172,58 +172,53 @@
 			async getListData(type) {
 				const param = {
 					pageNum: this.pageNum,
-					pageSize: 20,
+					pageSize: 10,
 					projName: this.searchKey,
-					workOrderType: 1,
 				};
 				if (this.selectOrderStatu) {
 					param.orderStatusList = [this.selectOrderStatu]
 				}
 				let result = {};
-				let listData = []
+				let listData = [];
 				debugger
 				if (this.showType === "workOrder") {
 					param.workOrderType = 1;
 					const {
 						data
 					} = await getWorkOrderPageData(param);
-					result = data
-					this.total = result.total;
-					this.allListData = [...result.pageList]
-					listData = result.pageList.map(item => ({
-						id: item.id,
-						status: item.orderStatus,
-						title: item.projName,
-						prodNumber: item.prodNumber,
-						projManagerName: item.projManagerName,
-						planStartTime: item.planStartTime,
-						planEndTime: item.planEndTime,
-					}))
+					if (data && data.pageList) {
+						this.total = data.total;
+						this.allListData = [...data.pageList]
+						listData = data.pageList.map(item => ({
+							...item,
+							status: item.orderStatus,
+							title: item.projName,
+						}))
+					}
 				} else if (this.showType === "overhaul") {
 					param.workOrderType = 2;
 					const {
 						data
 					} = await getWorkOrderPageData(param);
-					result = data
-					this.total = result.total;
-					this.allListData = [...result.pageList]
-					listData = result.pageList.map(item => ({
-						id: item.id,
+					this.total = data && data.total;
+					this.allListData = [...data.pageList]
+					listData = data.pageList.map(item => ({
 						status: item.orderStatus,
 						title: item.projName,
-						prodNumber: item.prodNumber,
-						projManagerName: item.projManagerName,
-						planStartTime: item.planStartTime,
-						planEndTime: item.planEndTime,
+						...item
 					}))
 				} else if (this.showType === "issue") {
 					const {
 						data
-					} = await getIssuePageList(param);
-					result = data
-					this.total = result.total;
-					this.allListData = [...result.pageList]
-					listData = result.pageList.map(item => ({
+					} = await getIssuePageList({
+						pageNum: 1,
+						pageSize: 10,
+						searchKey: this.searchKey
+					});
+					console.log(data, 'getIssuePageList')
+					this.total = data && data.total;
+					this.allListData = [...data.pageList]
+					listData = data.pageList.map(item => ({
 						title: item.projName,
 						prodNumber: item.prodNumber,
 						projManagerName: item.projManagerName,
@@ -234,12 +229,7 @@
 				console.log(listData, 'listData')
 				debugger
 				let message = '已经刷新'
-				if (type === 'scrolltoupper') {
-					this.pageNum = 1;
-					this.cardList = listData
-					this.refreshing = true
-					// } else if (type === 'scrolltolower') {
-				} else {
+				if (type === 'scrolltolower') {
 					if (this.cardList.length < this.total) {
 						this.cardList.push(...listData)
 						this.status = 'loadmore'
@@ -248,6 +238,10 @@
 						message = '已经没有更多数据'
 						this.status = 'nomore'
 					}
+				} else {
+					this.pageNum = 1;
+					this.cardList = listData
+					this.refreshing = true
 				}
 				debugger
 				setTimeout(() => {
@@ -262,12 +256,10 @@
 			 **/
 			handleRouterChange(issueId) {
 				console.log(issueId, 'handleRouterChange')
-				if (this.type === "issue") {
-					this.showBack = true;
-					this.showType = "issue";
-					this.cardList = [];
-					this.getListData();
-				}
+				this.showBack = true;
+				this.showType = "issue";
+				this.cardList = [];
+				this.getListData();
 			},
 			/**
 			 * @method handleTabChange 处理tab改变
@@ -278,6 +270,7 @@
 				this.cardList = [];
 				this.total = 0;
 				this.pageNum = 1;
+				this.searchKey = '';
 				// 选中tab类型变化
 				this.activeIndex = index;
 				this.showType = tab.code;
@@ -292,9 +285,8 @@
 				// 问题暂无详情
 				if (this.showType === "issue") return;
 				console.log(card, "card", this.showType);
-				debugger
 				uni.navigateTo({
-					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}&workProcedureType=${card.prodCategory}`,
+					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
 				});
 				// uni.navigateTo({
 				// 	url: `/pages/orderDetail/subProductionRowDetail/index`,

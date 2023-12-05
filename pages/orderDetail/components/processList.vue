@@ -6,7 +6,7 @@
 			<view class="card-item" v-for="(card, index) in cardList" :key="index" @tap="handleShowDetail(card)">
 				<Card :fieldMapText="fieldMapText" :cardInfo="card" :showBottomRadius='false'>
 					<view class="progress">
-						<Progress />
+						<Progress :progress='card.progress' />
 					</view>
 				</Card>
 			</view>
@@ -34,65 +34,32 @@
 		data() {
 			return {
 				fieldMapText: {
-					title: {
+					workProcedureName: {
 						label: "标题",
 						iconName: "chat"
 					},
-					groupPerson: {
+					leaderName: {
 						label: "组长",
 						iconName: "chat"
 					},
-					subGroupPerson: {
+					deputyLeaderName: {
 						label: "副组长",
 						iconName: "chat"
 					},
-					member: {
+					memberName: {
 						label: "成员",
 						iconName: "chat"
 					},
 				},
-				cardList: [
-					// {
-					// 	title: "这里是大工序名",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// },
-					// {
-					// 	title: "这里是大工序名",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// },
-					// {
-					// 	title: "这里是大工序名",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// },
-					// {
-					// 	title: "这里是大工序名",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// }, {
-					// 	title: "这里是大工序名",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// }, {
-					// 	title: "cecece",
-					// 	groupPerson: "李腾辉",
-					// 	subGroupPerson: "张辽",
-					// 	member: "程普、陆逊、李子健、张俊杰",
-					// },
-				],
+				// 数据列表
+				cardList: [],
 				// 列表加载状态
 				loading: false,
 				// 加载完成
 				finished: false,
 				// 刷新
 				refreshing: false,
+				// 页面参数
 				page: {
 					pageSize: 20,
 					pageNum: 1
@@ -107,42 +74,25 @@
 			 * @method getListData 获取列表数据
 			 **/
 			getListData() {
-				debugger
-				setTimeout(() => {
-					if (this.refreshing) {
-						this.cardList = [];
-						this.refreshing = false;
-					}
-					for (let i = 0; i < 4; i++) {
-						this.cardList.push({
-							id: 1,
-							title: "这里是大工序名",
-							groupPerson: "李腾辉",
-							subGroupPerson: "张辽",
-							member: "程普、陆逊、李子健、张俊杰",
-						});
-					}
-					this.loading = false;
-					if (this.cardList.length >= 10) {
-						this.finished = true;
-					}
-				}, 1000);
 				const param = {
 					...this.page,
-					overHaulCode: this.orderInfo.id,
-					workProcedureType: Number(this.orderInfo.workProcedureType)
-				}
-				debugger
+					// workCode: this.orderInfo.id ,
+					workCode: 1001,
+					workProcedureType: 0, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序,
+				};
 				getProcessList(param).then(res => {
-					if (res) {
-						this.cardList = res.pageList || []
+					if (res.data && res.data.pageList) {
+						this.cardList = res.data.pageList.map(item => ({
+							title: item.workProcedureName,
+							...item
+						}))
 					}
 				})
 			},
 			handleShowDetail(card) {
 				console.log(card, "card");
 				const url =
-					`/pages/orderDetail/processDetail/index?procedureCode=${card.id}&overHaulCode=${this.orderInfo.id}`
+					`/pages/orderDetail/processDetail/index?workProcedureType=${card.id}`
 				uni.navigateTo({
 					url,
 				})

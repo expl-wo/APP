@@ -1,9 +1,9 @@
-import request from '@/utils/request_custom.js'
+import request from '@/utils/request.js'
 
 // 获取工单列表，勘查工单workOrderType-1 ， 检修工单workOrderType-2
 export function getWorkOrderPageData(data) {
 	return request({
-		url: '/work-order/page',
+		url: '/evo-ims-overhaul/work-order/page',
 		method: 'post',
 		data
 	})
@@ -11,14 +11,14 @@ export function getWorkOrderPageData(data) {
 // 获取工单详情
 export function getWorkOrderDetailById(id) {
 	return request({
-		url: `/work-order/find?id=${id}`,
+		url: `/evo-ims-overhaul/work-order/find?id=${id}`,
 		method: 'get',
 	})
 }
 // 获取工序列表
 export function getProcessList(data) {
 	return request({
-		url: '/work-procedure/page-info',
+		url: '/evo-ims-overhaul/work-procedure/page-info',
 		method: 'post',
 		data
 	})
@@ -26,7 +26,7 @@ export function getProcessList(data) {
 // 获取单个工序详情
 export function getProcessDetail(data) {
 	return request({
-		url: '/work-procedure/bind-info',
+		url: '/evo-ims-overhaul/work-procedure/bind-info',
 		method: 'post',
 		data
 	})
@@ -51,7 +51,7 @@ export function getReturnList(data) {
 // 获取mes工作内容
 export function getMesWorkContent(data) {
 	return request({
-		url: `/work-content-mes/query?craftId=${data.craftId}`,
+		url: `/evo-ims-overhaul/work-content-mes/query?craftId=${data.craftId}`,
 		method: 'get',
 		data
 	})
@@ -60,8 +60,52 @@ export function getMesWorkContent(data) {
 // 上报工作内容
 export function setMesWorkContent(data) {
 	return request({
-		url: `/work-content-mes/query?craftId=${data.craftId}`,
+		url: `/evo-ims-overhaul/work-content-mes/query?craftId=${data.craftId}`,
 		method: 'get',
+		data
+	})
+}
+
+// 查询已填写工作内容
+export function queryWorkContent(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-content/query",
+		method: 'post',
+		data
+	})
+}
+// 开工、完工接口
+export function reportWorderStatus(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure/report-status",
+		method: 'post',
+		data
+	})
+}
+
+// 报工接口
+export function reportWork(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure/report",
+		method: 'post',
+		data
+	})
+}
+
+// 获取问题页面
+export function getIssuePageList(data) {
+	return request({
+		url: "/evo-ims-overhaul/problem-base/page",
+		method: 'post',
+		data
+	})
+}
+
+// 审核确认接口
+export function proveConfirmApi(data) {
+	return request({
+		url: "/work-procedure/check",
+		method: 'post',
 		data
 	})
 }

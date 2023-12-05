@@ -9,7 +9,7 @@
 		</view>
 		<view :class="['card-body', isShowMore ? 'show-more' : 'show-less']">
 			<template v-for="(item, key) in cardInfo">
-				<view v-if="!['status', 'title', 'id'].includes(key)" class="info-item" :key="item"
+				<view v-if="Object.keys(fieldMapText).includes(key)" class="info-item" :key="item"
 					:style="{ width: itemWidth }">
 					<view class="info">
 						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" color="#2979ff" size="24"

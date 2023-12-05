@@ -4,7 +4,7 @@
 			<view class="name">{{ projectInfo.name }}</view>
 			<view :class="['info', showMore ? 'show-more' : 'show-less']">
 				<template v-for="(item,key) in projectInfo">
-					<view class="item" :key="item" v-if="!['id','name'].includes(key)">
+					<view class="item" :key="item" v-if="Object.keys(fieldMapText).includes(key)">
 						<u-icon :name="getIconByKey(key)" size="28" class="icon"></u-icon>
 						<view class="info-box">
 							<text class="label">{{getLabelByKey(key)}}：</text>
@@ -35,7 +35,7 @@
 		<u-action-sheet :show="isShowFilePanel" title="附件" :closeOnClickOverlay="true" :closeOnClickAction="true"
 			@close='isShowFilePanel= false'>
 			<u-cell-group class="file-list">
-				<u-cell v-for="file in fileList" :title="file.name" :key="file.url" size="large">
+				<u-cell v-for="file in projectInfo.fileList" :title="file.name" :key="file.url" size="large">
 					<text slot="value">
 						<u-icon name="download" title="下载" class="download-icon" size="28" color="#3a62d7"
 							@click="handleDownFile(file)" />
@@ -53,8 +53,12 @@
 		ORDER_DETAIL_FIELD_MAP
 	} from '@/utils/constants-custom.js'
 	import {
-		getWorkOrderDetailById
+		getWorkOrderDetailById,
+		getIssuePageList
 	} from "@/https/staging/index.js";
+	import {
+		mapState
+	} from 'vuex'
 	export default {
 		name: 'OrderDetail',
 		components: {
@@ -84,8 +88,6 @@
 				],
 				// 显示附件下载面板
 				isShowFilePanel: false,
-				// 附件列表
-				fileList: [],
 				// 显示更多信息
 				showMore: true,
 				// 展示的字段-图标
@@ -96,42 +98,37 @@
 				routeParam: {}
 			}
 		},
+		computed: {
+			...mapState("workOrder", ['workOrderDatialInfo'])
+		},
 		onLoad(options) {
 			console.log(options, '111111111')
-			options.id && this.getDetailInfoById(options.id);
+			// 设置工单详情信息
+			options.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
+				id: options.id
+			});
 			this.routeParam = {
 				...options
 			};
 		},
+		onReady() {
+			this.getDetailInfo()
+		},
 		methods: {
 			/**
-			 * @method getDetailInfoById 根据id获取详情
+			 * @method getDetailInfo 获取详情
 			 **/
-			getDetailInfoById(id) {
-				getWorkOrderDetailById(id).then(res => {
-					if (res.data) {
-						this.projectInfo = {
-							name: res.data.projName || '--',
-							productNo: res.data.productNo || '--',
-							projManagerName: res.data.projManagerName || '--',
-							prodCategory: res.data.prodCategory || '--',
-							voltageLevel: res.data.voltageLevel || '--',
-							orderStatus: res.data.orderStatus || '--',
-							planTime: `${res.data.planStartTime || ''} - ${res.data.planEndTime || ''}`,
-							actualTime: `${res.data.createTime || ''} - ${res.data.planEndTime || ''}`,
-						}
-						// 文件列表
-						const attachmentNames = res.data.attachmentName.split('|');
-						const attachmentUrls = res.data.attachmentUrl.split("|")
-						attachmentNames.forEach((item, index) => {
-							this.fileList.push({
-								name: item,
-								url: attachmentUrls[index]
-							})
-						})
-						console.log(this.projectInfo, 'projectInfo', this.fileList)
-					}
-				})
+			getDetailInfo() {
+				const obj = {
+					...this.workOrderDatialInfo
+				}
+				this.projectInfo = {
+					...obj,
+					name: obj.projName || '--',
+					planTime: `${obj.planStartTime && obj.planStartTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
+					actualTime: `${obj.createTime && obj.createTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
+				}
+				console.log(this.projectInfo, 'projectInfo')
 			},
 			/**
 			 * @method getLabelByKey 根据字段获取label
@@ -267,6 +264,7 @@
 		}
 
 		.info {
+			// height: 200px;
 			padding: 0 32rpx;
 
 			.item {

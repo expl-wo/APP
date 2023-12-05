@@ -1,8 +1,7 @@
 <template>
 	<view class="progress-root">
-		<view class="progress" :style="{ width: progressObj.percentage}">
-			<text class="value">{{ progressObj.value }}/</text>
-			<text class="total">{{ progressObj.total }}</text>
+		<view class="progress" :style="{ width: percentage || 0}">
+			<text class="value">{{ percentage }}</text>
 		</view>
 	</view>
 </template>
@@ -12,13 +11,9 @@
 		name: 'Progress',
 		props: {
 			// 进度条数据
-			progressObj: {
-				type: Object,
-				default: () => ({
-					value: 2,
-					percentage: "60%",
-					total: 19,
-				}),
+			percentage: {
+				type: String,
+				default: '',
 			}
 		},
 	};
@@ -47,9 +42,5 @@
 			color: #fff;
 		}
 
-		.total {
-			margin-right: 20rpx;
-			color: rgba(255, 255, 255, 0.6);
-		}
 	}
 </style>
