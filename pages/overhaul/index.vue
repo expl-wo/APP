@@ -1,12 +1,12 @@
 <template>
 	<view class="application-home-root">
-		<user-info style="padding: 16px" :userInfo="userInfo" />
+		<user-info style="padding: 16px" />
 		<!-- 签到信息 -->
 		<view class="sign-in">
 			<view class="date-box">
 				<view class="date-item" v-for="(item, index) in dateList" :key="index">
-					<view class="week">{{ item.week }}</view>
-					<view :class="['date', activeIndex === index ? 'current-time' : undefined]"
+					<view class="week">{{ item.weekDay }}</view>
+					<view class="h28" :class="['date', activeIndex === index ? 'current-time' : undefined]"
 						@click="handleSignIn(item, index)">
 						{{ item.date }}
 					</view>
@@ -19,7 +19,7 @@
 						<view v-for="signObj in sign"
 							:class="['sign-time', 'flex-center', activeIndex === index ? 'active-time' : undefined]"
 							:key="signObj.time">
-							<!-- 							<cover-view src="@/assets/imgs/overhaulhome-location-icon.png" alt="" /> -->
+							<cover-view src="@/assets/imgs/overhaulhome-location-icon.png" alt="" />
 							<text class="sign-status">{{ signObj.label }}</text>
 							<text class="time" v-if="signObj.time">{{ signObj.time }}</text>
 						</view>
@@ -31,25 +31,27 @@
 		<view class="message-content">
 			<view class="message-head">
 				<view class="head-title">消息通知</view>
-				<view class="more" @click="showMoreMessage">
+				<!-- 				<view class="more" @click="showMoreMessage">
 					<text>更多</text>
 					<u-icon name="arrow-right"></u-icon>
-				</view>
+				</view> -->
 			</view>
 			<u-search v-model="searchKey" class="search-wrapper" placeholder="请输入搜索内容" shape="square" bgColor="#eee"
-				@search="getMessageList"></u-search>
+				@search="onSearch"></u-search>
 			<scroll-view :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true" class="message-list"
-				@scrolltoupper="upper" @scrolltolower="lower" @scroll="scroll">
+				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
+				:refresher-triggered="refreshing" @refresherrefresh="getMessageList('scrolltoupper')"
+				@scrolltolower="getMessageList('scrolltolower')">
 				<view class="message-item" v-for="(item, index) in messageList" :key="index">
 					<view class="message-type">
-						<text class="type">{{ item.messageType }}</text>
+						<text class="type">{{ messageTypeMap[item.noticeType] }}</text>
 					</view>
 					<view class="memo">
-						<text class="memo-text ellipse">{{ item.memo }}</text>
-						<text>{{ item.time }}</text>
+						<text class="memo-text ellipse">{{ item.noticeContent }}</text>
+						<text>{{ item.createTime }}</text>
 					</view>
 				</view>
-				<u-loadmore :status="status" />
+				<u-loadmore :status="status" :nomoreText="nomoreText" />
 			</scroll-view>
 		</view>
 		<u-toast ref="uToast"></u-toast>
@@ -57,232 +59,141 @@
 </template>
 
 <script>
+	const weekMap = {
+		1: '一',
+		2: '二',
+		3: '三',
+		4: '四',
+		5: '五',
+		6: '六',
+		7: '日'
+	}
+	const messageTypeMap = {
+		1: '任务通知',
+		2: '超时通知'
+	}
+
 	import UserInfo from '@/components/common/user-info.vue';
+	import {
+		getSignInData,
+		getMessageList
+	} from '@/https/overhaul/clockIn';
+	import {
+		getUserInfo
+	} from '@/utils/auth.js';
+	import moment from 'moment';
 	export default {
 		components: {
 			UserInfo
 		},
 		data() {
 			return {
+				messageTypeMap: Object.freeze(messageTypeMap),
 				// 用户信息
-				userInfo: {
-					name: '张晓丽',
-					department: '流程与信息化管理部',
-					imgUrl: 'XXX',
-				},
-				messageList: [{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					},
-					{
-						messageType: '测试',
-						memo: '测试备注',
-						time: '2023-11-20 12:00:00'
-					}
-				],
-				// 签到信息列表
-				dateList: [{
-						week: "一",
-						date: 30,
-						status: 1,
-					},
-					{
-						week: "二",
-						date: 30,
-						status: 1,
-					},
-					{
-						week: "三",
-						date: 30,
-						status: 1,
-					},
-					{
-						week: "四",
-						date: 30,
-						status: 1,
-					},
-					{
-						week: "五",
-						date: 30,
-						status: 1,
-					},
-					{
-						status: 1,
-						week: "六",
-						date: 30,
-					},
-					{
-						status: 1,
-						week: "日",
-						date: 30,
-					},
-				],
+				userInfo: {},
+				messageList: [],
 				// 当前日期对应下标
-				activeIndex: 2,
+				activeIndex: 0,
 				// 签到信息列表
-				signList: [{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-					{
-						signIn: {
-							time: "08:30",
-							label: "签入"
-						},
-						signOut: {
-							label: "签出",
-							time: "18:30"
-						},
-					},
-				],
+				signList: new Array(7).fill({ time: '', label: '' }),
 				scrollTop: 0,
 				searchKey: '',
-				status: 'loadmore',
+				status: 'nomore',
+				pageNum: 1,
+				pageSize: 20,
+				hasNextPage: false,
+				refreshing: false
 			}
 		},
-		onReady() {},
-		methods: {
-			/**
-			 * @method handleSignIn 处理签到事件
-			 **/
-			handleSignIn() {
-				uni.navigateTo({
-					url: '/pages/overhaul/map/index'
-				});
+		computed: {
+			// 本周考勤数据
+			dateList() {
+				let arr = new Array(7).fill('');
+				let thisSunday = moment().endOf('isoWeek');
+				return arr.map((item, index) => {
+					let date = moment(thisSunday).subtract(6 - index, 'days');
+					if (moment().isSame(date, 'day')) {
+						this.activeIndex = index;
+					}
+					return {
+						weekDay: weekMap[date.isoWeekday()],
+						date: date.format('MM/DD'),
+						status: 0
+					}
+				})
 			},
-			showMoreMessage() {},
-			getMessageList() {},
-			upper() {
-				this.status = 'loading';
-				setTimeout(() => {
-					this.status = 'loadmore';
-				}, 2000)
-			},
-			lower() {
-				debugger
-				setTimeout(() => {
-					this.status = 'nomore';
-				}, 2000)
-			},
-			scroll() {},
+			nomoreText() {
+				return this.messageList.length ? '没有更多了' : '暂无数据';
+			}
+		},
+		onReady() {
+			const userInfo = getUserInfo();
+			this.getMessageList();
+			// let params = {
+			// 	userId: userInfo.username,
+			// 	userName: userInfo.name
+			// }
+			// getSignInData(params)
+			// .then(res => {
+			// 	if (res.success) {
+			// 		debugger;
+			// 		let { start, end } = res.data;
 
+			// 	}
+			// })
+		},
+		methods: {
+			// 签到
+			handleSignIn(item, index) {
+				if (index === this.activeIndex) {
+					uni.navigateTo({
+						url: '/pages/overhaul/map/index'
+					});
+				}
+			},
+			// 搜索
+			onSearch() {
+				this.pageNum = 1;
+				this.messageList = [];
+				this.getMessageList();
+			},
+			// 获取列表数据
+			getMessageList(type) {
+				if (type === 'scrolltoupper') {
+					this.refreshing = true;
+					this.pageNum = 1;
+					this.messageList = [];
+				} else if (type === 'scrolltolower') {
+					if (!this.hasNextPage) return;
+					this.pageNum++;
+				}
+				let {
+					pageNum,
+					pageSize,
+					searchKey
+				} = this;
+				let params = {
+					pageNum,
+					pageSize,
+					searchKey
+				};
+				this.status = 'loading';
+				getMessageList(params)
+					.then(res => {
+						if (res.success && res.data) {
+							let {
+								pageList,
+								hasNextPage
+							} = res.data;
+							this.messageList = [...this.messageList, ...pageList];
+							this.hasNextPage = hasNextPage;
+						}
+					})
+					.finally(() => {
+						this.status = this.hasNextPage ? 'loadmore' : 'nomore';
+						this.refreshing = false;
+					})
+			}
 		}
 	}
 </script>
@@ -308,14 +219,17 @@
 					text-align: center;
 
 					.week {
+						height: 22px;
 						margin-bottom: 10px;
 					}
 
 					.date {
 						display: inline-block;
+						height: 28px;
 						line-height: 28px;
 						margin-bottom: 5px;
 					}
+
 
 					.current-time {
 						width: 52px;
@@ -350,6 +264,7 @@
 
 			.sign-info {
 				display: flex;
+				height: 32px;
 				margin-bottom: 10px;
 
 				.flex-center {
@@ -386,6 +301,7 @@
 		.message-content {
 			margin: 0 16px;
 			width: calc(100% - 32px);
+			height: calc(100% - 209px);
 			border-radius: 8px;
 			background-color: #fff;
 			color: #657685;
@@ -413,7 +329,7 @@
 
 			.message-list {
 				margin: 0 16px;
-				max-height: 400px;
+				height: calc(100% - 79px);
 				overflow-y: auto;
 
 				.message-item {
@@ -458,6 +374,9 @@
 							width: 180px;
 						}
 					}
+				}
+				/deep/ .uni-scroll-view-refresher {
+					width: calc(100% - 32px);
 				}
 			}
 		}

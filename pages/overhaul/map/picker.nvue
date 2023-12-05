@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<u-action-sheet round="8" :actions="list" :title="title" :show="true" @close="close"></u-action-sheet>
+		<u-action-sheet round="8" :actions="list" :title="title" :show="true" @click="select" @close="close"></u-action-sheet>
 	</view>
 </template>
 
@@ -9,28 +9,29 @@
 		data() {
 			return {
 				title: '标题',
-				list: [
-					{
-						name:'选项一',
-						subname:"选项一描述",
-						color:'#ffaa7f',
-						fontSize:'20'
-					},
-					{
-						name: '选项二禁用',
-						disabled:true
-					},
-					{
-						name: '开启load加载', //开启后文字不显示
-						loading:true
-					}
-				],
+				list: [],
+				selectItem: null
 			}
 		},
+		onLoad() {
+			uni.$on('sendList', (res) => {
+				this.list = (res.data || []).map(item => {
+					return {
+						name: item.clockInProjName,
+						id: item.workOrderId
+					}
+				})
+			})
+		},
+		onUnload() {
+			uni.$off('sendList');
+		},
 		methods: {
+			select(index) {
+				this.selectItem = this.list[index];
+			},
 			close() {
-				debugger;
-				uni.$emit('handlePicker', {show: false});
+				uni.$emit('handlePicker', {show: false, selectItem: this.selectItem});
 			}
 		}
 	}

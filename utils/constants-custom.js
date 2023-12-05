@@ -173,6 +173,18 @@ const PROCESS_DETAIL_FIELD_MAP = {
 	},
 }
 
+const UPLOAD_LIMIT = {
+	image: {
+		label: '图片',
+		maxSize: 20 * 1024 * 1024,
+		acceptType: ['image/jpg', 'image/jpeg', 'image/png']
+	},
+	video: {
+		label: '视频',
+		maxSize: 200 * 1024 * 1024
+	}
+};
+
 export {
 	//检修工单对应的状态
 	ORDER_STATUS_MAP,
@@ -183,5 +195,7 @@ export {
 	// 工单详情展示字段
 	ORDER_DETAIL_FIELD_MAP,
 	// 工单详情信息展示字段
-	PROCESS_DETAIL_FIELD_MAP
+	PROCESS_DETAIL_FIELD_MAP,
+	// 图片、视频大小限制
+	UPLOAD_LIMIT
 };

@@ -73,7 +73,7 @@
 					},
 					{
 						index: 1,
-						name: "BOM",
+						name: "拆解BOM",
 						cName: "Bom"
 					},
 					{

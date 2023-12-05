@@ -13,7 +13,7 @@
 					</view>
 				</view>
 				<u-cell-group>
-					<u-cell title="所在项目" :isLink="true" :border="false" :value="projectName" arrow-direction="down"
+					<u-cell title="所在项目" :isLink="true" :border="false" :value="placeholder" arrow-direction="down"
 						@click="initPicker(true)"></u-cell>
 				</u-cell-group>
 				<!-- 签到信息 -->
@@ -21,12 +21,11 @@
 					<view class="sign-item" v-for="item in signList" :key="item.time">
 						<view class="icon">{{ item.label }}</view>
 						<view class="info">
-							<view class="address">{{ item.address }}</view>
-							<view class="sign-time">{{ item.time }}</view>
+							<view class="address">{{ item.address || '--' }}</view>
+							<view class="sign-time">{{ item.time || '--' }}</view>
 						</view>
 					</view>
 				</view>
-				<view>位置:{{ address }}</view>
 			</view>
 		</view>
 		<map id="map" class="map-container" :latitude="latitude" :longitude="longitude" :markers="markers">
@@ -41,88 +40,99 @@
 
 <script>
 	import UserInfo from '@/components/common/user-info.vue';
+	import { getProjectList, getSignInData, signIn } from '@/https/overhaul/clockIn';
+	import { getUserInfo  } from '@/utils/auth.js';
 	export default {
 		components: {
 			UserInfo
 		},
 		data() {
 			return {
-				id: 0, // 使用 marker点击事件 需要填写id
-				title: 'map',
+				userInfo: null,
 				latitude: '',
 				longitude: '',
 				markers: [],
 				// tabs列表
-				tabs: [{
-						name: "公司",
-						code: "12",
+				tabs: Object.freeze([{
+						name: "在公司",
+						value: 1
 					},
 					{
-						name: "返程",
-						code: "123",
-					},
-					{
-						name: "请假",
-						code: "1234",
+						name: "休假中",
+						value: 2
 					},
 					{
 						name: "去现场",
-						code: "123456",
+						value: 3
 					},
 					{
 						name: "现场",
-						code: "1234567",
+						value: 4
 					},
-				],
+					{
+						name: "返程中",
+						code: 5
+					}
+				]),
 				// 当前选中tab
 				activeIndex: 0,
-				title: '标题',
-				list: [{
-						name: '选项一',
-						subname: "选项一描述",
-						color: '#ffaa7f',
-						fontSize: '20'
-					},
-					{
-						name: '选项二禁用',
-						disabled: true
-					},
-					{
-						name: '开启load加载', //开启后文字不显示
-						loading: true
-					}
-				],
 				show: false,
 				signList: [{
-						time: '2023-11-21 12:00:00',
 						label: '签入',
-						address: '测试地址'
+						time: null,
+						address: null
 					},
 					{
-						time: '2023-11-21 13:00:00',
 						label: '签出',
-						address: '测试地址'
+						time: null,
+						address: null
 					},
 				],
-				projectName: 'xxx项目',
-				address: ''
+				selectProject: null,
+				address: '',
+				projectList: []
+			}
+		},
+		computed: {
+			placeholder() {
+				return this.selectProject ? this.selectProject.name : '请选择';
 			}
 		},
 		onShow() {
 			this.getLocation(true);
+			this.userInfo = getUserInfo();
+			let params = {
+				userId: this.userInfo.username,
+				userName: this.userInfo.name
+			}
+			// 获取项目列表
+			getProjectList(params)
+			.then(res => {
+				if (res.success && res.data) {
+					this.projectList = res.data.value || [];
+				}
+			})
+			this.getSignInfo();
 		},
 		onLoad() {
 			this.initPicker(false);
 			uni.$on('handlePicker', res => {
 				if (!res.show) {
 					this.initPicker(false);
+					this.selectProject = res.selectItem;
 				}
 			});
 
 		},
+		onUnload() {
+			uni.$off('handlePicker');
+		},
 		methods: {
 			initPicker(showFlag) {
 				uni.getSubNVueById('picker')[showFlag ? 'show' : 'hide']();
+				if (showFlag) {
+					uni.$emit('sendList', {data: this.projectList});
+				}
 			},
 			// 获取当前位置信息
 			getLocation(flag) {
@@ -184,9 +194,51 @@
 					longitude: this.longitude
 				});
 			},
+			// 获取当日签到信息
+			getSignInfo() {
+				let params = {
+					userId: this.userInfo.username,
+					userName: this.userInfo.name
+				}
+				// 获取当日签到信息
+				getSignInData(params)
+				.then(res => {
+					if (res.success && res.data) {
+						let { start, end } = res.data;
+						if (start) {
+							this.$set(this.signList, 0, { time: start.time, address: start.address, label: '签入' });
+						}
+						if (end) {
+							this.$set(this.signList, 1, { time: end.time, address: end.address, label: '签出' });
+						}
+					}
+				})
+			},
 			// 签到
 			signIn() {
-
+				let params = {
+					userId: this.userInfo.username,
+					userName: this.userInfo.name,
+					clockInType: this.activeIndex + 1,
+					clockInLocation: '112.650253,26.840432',
+					clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
+					// clockInLocation: `${this.longitude},${this.latitude}`,
+					// clockInAddress: this.address,
+					// clockInProjNo: this.selectProject.id,
+					// clockInProjName: this.selectProject.name,
+					// 接口测试数据
+					clockInProjNo: 3002,
+					clockInProjName: '测试多条数据'
+				}
+				signIn(params)
+				.then(res => {
+					if (res.success) {
+						uni.showToast({
+							title: '打卡成功'
+						})
+						this.getSignInfo();
+					}
+				})
 			},
 			tabChange(index) {
 				this.activeIndex = index;
