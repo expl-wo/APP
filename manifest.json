@@ -139,7 +139,9 @@
 					} // 路径重写
 				},
 				"/evo-ims-overhaul": {
-					"target": "http://10.16.67.119:8081/",
+					"target": "http://10.16.111.24:8081/", // 文江
+					// "target": "http://10.16.111.25:8081/", // 成哥
+					// "target": "http://10.16.67.119:8081/", // 孙博文
 					"changeOrigin": true, //是否跨域
 					"secure": false // 设置支持https协议的代理
 				}
