@@ -8,9 +8,9 @@
 				<span>{{ tab.label }}</span>
 			</view>
 			<view class="search-box">
-				<u-icon name="search" size="30" style="margin: 0 10rpx" @click="handleShowSearch"></u-icon>
+				<u-icon name="search" size="30" style="margin: 0 10rpx" @click="showSearchPanel = true"></u-icon>
 				<u-icon v-if="showType !== 'issue'" name="map-fill" size="30" style="margin: 0 10rpx"
-					@click="handleShowFilter">
+					@click="showFilterPanel= true">
 				</u-icon>
 			</view>
 		</view>
@@ -180,34 +180,7 @@
 				}
 				let result = {};
 				let listData = [];
-				debugger
-				if (this.showType === "workOrder") {
-					param.workOrderType = 1;
-					const {
-						data
-					} = await getWorkOrderPageData(param);
-					if (data && data.pageList) {
-						this.total = data.total;
-						this.allListData = [...data.pageList]
-						listData = data.pageList.map(item => ({
-							...item,
-							status: item.orderStatus,
-							title: item.projName,
-						}))
-					}
-				} else if (this.showType === "overhaul") {
-					param.workOrderType = 2;
-					const {
-						data
-					} = await getWorkOrderPageData(param);
-					this.total = data && data.total;
-					this.allListData = [...data.pageList]
-					listData = data.pageList.map(item => ({
-						status: item.orderStatus,
-						title: item.projName,
-						...item
-					}))
-				} else if (this.showType === "issue") {
+				if (this.showType === "issue") {
 					const {
 						data
 					} = await getIssuePageList({
@@ -225,9 +198,19 @@
 						planStartTime: item.planStartTime,
 						planEndTime: item.planEndTime,
 					}))
+				} else {
+					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
+					const {
+						data
+					} = await getWorkOrderPageData(param);
+					this.total = data && data.total;
+					this.allListData = [...data.pageList]
+					listData = data.pageList.map(item => ({
+						status: item.orderStatus,
+						title: item.projName,
+						...item
+					}))
 				}
-				console.log(listData, 'listData')
-				debugger
 				let message = '已经刷新'
 				if (type === 'scrolltolower') {
 					if (this.cardList.length < this.total) {
@@ -243,7 +226,6 @@
 					this.cardList = listData
 					this.refreshing = true
 				}
-				debugger
 				setTimeout(() => {
 					this.refreshing = false
 				}, 200)
@@ -284,25 +266,13 @@
 				const card = this.allListData[index]
 				// 问题暂无详情
 				if (this.showType === "issue") return;
-				console.log(card, "card", this.showType);
+				//
+				card.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
+					id: card.id
+				});
 				uni.navigateTo({
 					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
 				});
-				// uni.navigateTo({
-				// 	url: `/pages/orderDetail/subProductionRowDetail/index`,
-				// });
-			},
-			/**
-			 * @method handleShowFilter 点击显示筛选面板
-			 **/
-			handleShowFilter() {
-				this.showFilterPanel = true;
-			},
-			/**
-			 * @method handleShowSearch 点击显示搜索面板
-			 **/
-			handleShowSearch() {
-				this.showSearchPanel = true;
 			},
 			/**
 			 * @method handleClearSearchKey 点击清楚搜索框
@@ -320,12 +290,6 @@
 				this.selectOrderStatu = action.value;
 				this.cardList = [];
 				this.getListData();
-			},
-			/**
-			 * @method handleBack 处理导航返回
-			 **/
-			handleBack() {
-				window.history.go(-1);
 			},
 		},
 	};

@@ -8,7 +8,7 @@
 		</view>
 		<view class="btn-box">
 			<u-button type="default" text="重置" class="btn" @click="reset"></u-button>
-			<u-button type="primary" text="确定" class="btn" color="#3a62d7"></u-button>
+			<u-button type="primary" text="确定" class="btn" color="#3a62d7" @click="handleConfirm"></u-button>
 		</view>
 	</u-action-sheet>
 </template>
@@ -42,6 +42,10 @@
 			},
 			reset() {
 				this.$emit('reset')
+			},
+			handleConfirm() {
+				const selectedList = this.selects.filter(item => item.isCheck)
+				this.$emit('customSheetConfirm', selectedList)
 			}
 		}
 	}

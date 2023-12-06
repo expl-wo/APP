@@ -75,10 +75,26 @@ export function queryWorkContent(data) {
 	})
 }
 
-// 查询已填写工作内容
+// 批量查询已填写工作内容
 export function queryBatchRecord(data) {
 	return request({
 		url: "/evo-ims-overhaul/work-content/query-batch",
+		method: 'post',
+		data
+	})
+}
+// 上报工作内容
+export function reportWorkContent(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-content/report",
+		method: 'post',
+		data
+	})
+}
+// 查看操作项已填报时间
+export function queryHistoryRecordByTime(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-content/query-time",
 		method: 'post',
 		data
 	})

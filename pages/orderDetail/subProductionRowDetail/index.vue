@@ -1,6 +1,7 @@
 <template>
 	<view class="sub-pro-row">
 		<view class="top-wrapper">
+			<!-- 工序名称 -->
 			<view class="info">
 				<view class="name">{{ subProductionRowName }}</view>
 				<view class="extra-info">
@@ -8,20 +9,24 @@
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
+			<!-- 工单详情 -->
 			<ProductionInfo :fieldMapText="fieldMapText" :infoObj="detailInfo" style="height: auto;" />
+			<!-- 用户信息 -->
 			<UserInfo style="padding: 16px" fontColor='#000' :userInfo="userInfo">
 				<view class="sign-time">
-					<text :title='signInTime' v-if='signInTime'>签到：{{signInTime}}</text>
+					<text :title='signInTime' v-if='signInTime' style="margin-right: 10px;">签到：{{signInTime}}</text>
 					<text v-if='signOutTime'>签退：{{signOutTime}}</text>
 				</view>
 			</UserInfo>
 			<view class="sign-box">
-				<view class="sign-in sign-btn" @click="handleSign('signIn')">签到</view>
-				<view class="sign-out sign-btn" @click="handleSign('signOut')">签退</view>
+				<u-button type="primary" class="sign-btn" @click="handleSign('signIn')" :disabled="!!signInTime"
+					text="签到"></u-button>
+				<u-button type="primary" class="sign-btn" text="签退" @click="handleSign('signOut')"></u-button>
 			</view>
 		</view>
-		<CustomForm :haveActionSheet='haveActionSheet' :formList='showFormList' @showActionSheet='showActionSheet'>
-		</CustomForm>
+		<!-- 自定义表单 -->
+		<CustomForm :formList='formList' />
+		<!-- 按钮 -->
 		<view class="btn-box">
 			<view class="left-btn">
 				<view :class="['btn', havePre?'enable-btn':'disabled-btn']" @click="showPre">
@@ -33,20 +38,10 @@
 			</view>
 			<view class="right-btn" @click="showProveSheet">{{btnText}}</view>
 		</view>
-		<!-- 操作面板 -->
-		<u-action-sheet round :show="isShowActionSheet" :actions="actionSheetObj.actions" :title="actionSheetObj.title"
-			:description="isShowActionSheet.description" @close="close" @select="select">
-		</u-action-sheet>
+		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
-		<CustomSheet :show='showCustomSheet' title="测试" :selects='selects' @close='closeCustomSheet'
-			@handleCheck='handleCheck' @reset='reset'>
-		</CustomSheet>
-		<u-calendar startText="住店" endText="离店" confirmDisabledText="请选择日期" :formatter="formatter"
-			:show="isShowCalendar" :maxDate="maxDate" @confirm="confirmCalendar" ref="calendar"
-			@close='isShowCalendar = false'>
-		</u-calendar>
 	</view>
 </template>
 
@@ -55,16 +50,19 @@
 	import CustomForm from '@/components/common/form.vue';
 	import UserInfo from '@/components/common/user-info.vue';
 	import Notice from '@/components/common/notice.vue';
-	import CustomSheet from '@/components/common/customSheet.vue'
 	import moment from 'moment'
 	import {
 		getCurrRole,
 		getUserInfo
 	} from '@/utils/auth.js'
 	import {
+		mapState
+	} from 'vuex'
+	import {
 		getMesWorkContent,
 		setMesWorkContent,
-		proveConfirmApi
+		proveConfirmApi,
+		queryBatchRecord
 	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessDetail",
@@ -72,27 +70,15 @@
 			ProductionInfo,
 			CustomForm,
 			UserInfo,
-			Notice,
-			CustomSheet
+			Notice
 		},
 		computed: {
-			showFormList() {
-				return this.formList.sort((a, b) => {
-					return a.type === b.type
-				})
-			}
+			...mapState("workOrder", ['workOrderDatialInfo']),
 		},
 		data() {
-			const d = new Date()
-			const year = d.getFullYear()
-			let month = d.getMonth() + 1
-			month = month < 10 ? `0${month}` : month
-			const date = d.getDate()
 			return {
 				// 工序内容列表
 				formList: [],
-				// 工序行详情id
-				subProductionRowId: "",
 				// 字段与文本映射
 				fieldMapText: {
 					groupPerson: {
@@ -108,7 +94,10 @@
 						iconName: "account-fill"
 					}
 				},
+				// 当前选中工序名称
 				subProductionRowName: "工序名称",
+				// 工序行详情id
+				subProductionRowId: "",
 				// 工序详情信息
 				detailInfo: {
 					groupPerson: "司马懿",
@@ -120,39 +109,6 @@
 				isShowActionSheet: false,
 				// 操作面板对象
 				actionSheetObj: {},
-				// 当前操作项下标
-				currentOperateIndex: null,
-				haveActionSheet: false,
-				// time: Number(new Date()),
-				// 展示日历选择
-				isShowCalendar: false,
-				mode: 'range',
-				maxDate: `${year}-${month}-${date + 10}`,
-				// 展示日期选择器
-				isShowTimePicker: false,
-				// 展示小时选择器 
-				isShowHourPicker: false,
-				// 小时列表
-				hourColumns: [
-					[{
-						label: '11时',
-						selected: true
-					}, {
-						label: '12时',
-						selected: false
-					}, {
-						label: '13时',
-						selected: true
-					}, {
-						label: '14时',
-						selected: true
-					}, {
-						label: '15时',
-						selected: true
-					}, ]
-				],
-				// 默认选中项
-				// hourDefaultIndex: [2],
 				// 按钮文字-根据用户信息显示不同操作
 				btnText: '开工',
 				// 是否能上一项
@@ -165,41 +121,24 @@
 					department: '流程与信息化管理部',
 					imgUrl: 'XXX',
 				},
-				signInTime: '2023/11/27 10:23:12',
-				signOutTime: '2023/11/27 10:23:13',
+				// 签出时间
+				signInTime: '',
+				// 签退时间
+				signOutTime: '',
+				// 展示审核面板
 				isShowProvePicker: false,
+				// 问题审核
 				proveColumns: [
-					['是', '否']
+					['否', '是']
 				],
 				isShowTip: false,
 				// 工序标准
 				tip: "<h4>测试</h4><br>",
 				showCustomSheet: false,
-				selects: [{
-					value: 1,
-					label: '哈哈哈哈',
-					isCheck: false
-				}, {
-					value: 2,
-					label: 'hihihihi',
-					isCheck: false
-				}, {
-					value: 3,
-					label: '哈喽哈喽哈喽',
-					isCheck: false
-				}, {
-					value: 4,
-					label: '你好',
-					isCheck: false
-				}],
-
 			};
 		},
 		mounted() {
-			this.getProcessId();
 			this.initData();
-			// 如果需要兼容微信小程序的话，需要用此写法
-			this.$refs.calendar.setFormatter(this.formatter)
 		},
 		methods: {
 			/**
@@ -208,122 +147,69 @@
 			initData() {
 				const userInfo = getUserInfo();
 				// 按钮权限控制
-				this.btnText = userInfo.id ? '复核' : '开工'
+				this.btnText = userInfo.id ? '复核' : '开工';
+				// 工单详情
+				this.detailInfo = {
+					groupPerson: this.workOrderDatialInfo.projManagerName,
+					subGroupPerson: this.workOrderDatialInfo.duputyManagerName,
+					member: this.workOrderDatialInfo.taskTeamName,
+				};
+				// 工序工作内容
 				setMesWorkContent({
-					craftId: 6
+					craftId: 20231125
 				}).then(res => {
 					if (res && res.data) {
-						// res.data.value.forEach(item => {
-						// 	const temObj = {
-						// 		title: item.operationName,
-						// 		formType: item.operationType,
-						// 		time: 'hour',
-						// 		value: 9,
-						// 		type: 'hour',
-						// 		defaultValue: '14时',
-						// 		showLink: true,
-						// 		actions: [{
-						// 				name: 1,
-						// 			},
-						// 			{
-						// 				name: 2,
-						// 			},
-						// 			{
-						// 				name: 3,
-						// 			},
-						// 		]
-						// 	}
-						// })
-						this.formList = res.data.value || []
-						console.log(res, 'formList', this.formList)
+						const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+						const params = []
+						res.data.value.forEach(item => {
+							params.push({
+								workCode: this.workOrderDatialInfo.id ||
+									"20220705093359824311000301954583",
+								craftCode: "20231125",
+								operationCode: item.operationCode,
+								workScene: "SURVEY_SCENE", // 子工序对应的场景编码
+								executionFrequency: item.executionFrequency,
+								beginTime: currentTime
+							})
+						})
+						queryBatchRecord([{
+							"workCode": "20220705093359824311000301954583",
+							"craftCode": "20231125",
+							"operationCode": "5",
+							"workScene": "SURVEY_SCENE",
+							"executionFrequency": "0",
+							"beginTime": "2023-12-05 19:30:47"
+						}, {
+							"workCode": "20220705093359824311000301954583",
+							"craftCode": "20231125",
+							"operationCode": "4",
+							"workScene": "SURVEY_SCENE",
+							"executionFrequency": "1",
+							"beginTime": "2023-12-05 19:30:47"
+						}]).then(res => {
+							if (res && res.data && Array.isArray(res.data.value)) {
+								res.data.value.forEach((item, index) => {
+									item.fileList = item.fileList.filter(f => f.fileType === 'jpg')
+								})
+								this.formList = res.data.value || []
+								console.log(res, 'formList', this.formList)
+							}
+						})
 					}
 				})
 			},
 			/**
-			 * @method getProcessId 获取工序详情id
-			 **/
-			getProcessId() {
-				const {
-					id
-				} = this.$route.params;
-				if (id || this.subProductionRowId) {
-					this.subProductionRowId = id;
-					this.getDetailInfoById();
-				} else {
-					// 返回上一级路由
-					// window.history.go(-1);
-				}
-			},
-			/**
-			 * @method getDetailInfoById 获取详情信息
-			 **/
-			getDetailInfoById() {
-				// 调用接口获取详情及列表数据
-			},
-			/**
-			 * @method handleBack 处理导航返回
-			 **/
-			// handleBack() {
-			// 	window.history.go(-1);
-			// },
-			handleChangeTab(name, title) {
-				console.log(name, title, "nam");
-				this.getListDataByType();
-			},
-			showTipModal() {
-				// Dialog.alert({
-				//   message: this.tip || "暂无内容",
-				//   theme: "round-button",
-				//   confirmButtonColor: "#3a62d7",
-				//   width: "80%",
-				// }).then(() => {
-				//   console.log("确认");
-				// });
-			},
-
-			showActionSheet({
-				currentItem,
-				currentOperateIndex,
-				actionType
-			}) {
-				this.haveActionSheet = true
-				console.log(currentItem, 'form-item')
-				this.actionSheetObj = currentItem;
-				this.currentOperateIndex = currentOperateIndex
-
-				if (actionType === 'time') {
-					if (currentItem.time === 'hour') {
-						this.isShowHourPicker = true
-						const defaultValue = currentItem.defaultValue
-						const idx = this.hourColumns[0].indexOf(defaultValue)
-						// this.hourDefaultIndex = [idx]
-					} else {
-						// this.isShowTimePicker = true
-						this.isShowCalendar = true
-					}
-				} else {
-					this.isShowActionSheet = true
-				}
-			},
-			select(value) {
-				console.log(value, 'value')
-				this.formList[this.currentOperateIndex].value = value.name
-			},
-			/**
-			 * @method close 关闭弹窗
-			 **/
-			close() {
-				this.haveActionSheet = this.isShowActionSheet = this.isShowCalendar = this
-					.isShowHourPicker = false;
-			},
-			/**
 			 * @method showPre 展示上一条
 			 **/
-			showPre() {},
+			showPre() {
+
+			},
 			/**
 			 * @method showPre 展示下一条
 			 **/
-			showNext() {},
+			showNext() {
+
+			},
 			/**
 			 * @method showProveSheet 显示复核面板
 			 **/
@@ -331,22 +217,19 @@
 				this.isShowProvePicker = true
 			},
 			hourConfirm() {},
-			proveConfirm() {
+			proveConfirm(value) {
 				const param = {
-					craftId: 1,
-					pass: 0, // 0：复核不通过，1：复核通过
+					craftId: this.craftId || 1,
+					pass: value.indexs[0], // 0：复核不通过，1：复核通过
 				}
 				proveConfirmApi(param).then(res => {
+					debugger
 					if (res) {
 
 					}
 				})
 			},
 			handleSign(type) {
-
-			},
-			handleSign(type) {
-				debugger
 				if (type === 'signIn') {
 					this.signInTime = moment().format('YYYY-MM-DD HH:mm:ss');
 				} else {
@@ -357,32 +240,6 @@
 				uni.navigateTo({
 					url: '/pages/orderDetail/addIssue'
 				});
-			},
-			handleCheck(index) {
-				this.selects[index].isCheck = !this.selects[index].isCheck
-			},
-			closeCustomSheet(selectedList) {
-				console.log(selectedList, 'selectedList')
-				this.showCustomSheet = false
-			},
-			reset() {
-				this.selects.forEach(item => {
-					item.isCheck = false
-				})
-			},
-			confirmCalendar(date) {
-				console.log(date, 'confirmCalendar')
-			},
-			// 日历显示已选择的日期
-			formatter(day) {
-				const d = new Date()
-				let month = d.getMonth() + 1
-				const date = d.getDate()
-				if (day.month == month && day.day == date + 3) {
-					day.bottomInfo = '已操作'
-					day.dot = true
-				}
-				return day
 			}
 		},
 	};
@@ -437,7 +294,7 @@
 
 			.sign-box {
 				position: absolute;
-				bottom: 80px;
+				top: 108px;
 				right: 20rpx;
 				display: flex;
 				text-align: center;
@@ -450,14 +307,6 @@
 					height: 40rpx;
 					border-radius: 16rpx;
 					margin: 0 6rpx;
-				}
-
-				.sign-in {
-					background-color: #3a62d7;
-				}
-
-				.sign-out {
-					background-color: #3ad7d7;
 				}
 			}
 

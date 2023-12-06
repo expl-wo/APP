@@ -32,7 +32,8 @@ let workOrder = {
 						.split('|');
 					const attachmentUrls = res.data.attachmentUrl && res.data.attachmentUrl.split(
 						"|")
-					attachmentNames && attachmentUrls.length && attachmentNames.forEach((item, index) => {
+					attachmentUrls && attachmentNames && attachmentUrls.length && attachmentNames.forEach((
+						item, index) => {
 						fileList.push({
 							name: item,
 							url: attachmentUrls[index]

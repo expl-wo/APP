@@ -101,18 +101,21 @@
 		computed: {
 			...mapState("workOrder", ['workOrderDatialInfo'])
 		},
+		watch: {
+			workOrderDatialInfo: {
+				handler(newV, oldV) {
+					if (newV.id !== oldV.id) {
+						this.getDetailInfo()
+					}
+				},
+				immdiate: true
+			}
+		},
 		onLoad(options) {
 			console.log(options, '111111111')
-			// 设置工单详情信息
-			options.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
-				id: options.id
-			});
 			this.routeParam = {
 				...options
 			};
-		},
-		onReady() {
-			this.getDetailInfo()
 		},
 		methods: {
 			/**
@@ -205,29 +208,6 @@
 					}
 				})
 			},
-			/**
-			 * @method handleTouchAnimation 处理滑动事件
-			 **/
-			// handleTouchAnimation() {
-			// 	let element = document.getElementById("order-detail-root");
-			// 	let startY = 0;
-			// 	let endY = 0;
-			// 	const _this = this;
-			// 	if (element) {
-			// 		element.addEventListener("touchstart", function(e) {
-			// 			startY = e.changedTouches[0].pageY;
-			// 		});
-			// 		element.addEventListener("touchend", function(e) {
-			// 			endY = e.changedTouches[0].pageY;
-			// 			const y = endY - startY;
-			// 			if (y > 0 && Math.abs(y) > 50) {
-			// 				_this.showMore = true;
-			// 			} else if (y < 0 && Math.abs(y) > 50) {
-			// 				_this.showMore = false;
-			// 			}
-			// 		});
-			// 	}
-			// },
 		}
 	};
 </script>
