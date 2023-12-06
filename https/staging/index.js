@@ -74,6 +74,16 @@ export function queryWorkContent(data) {
 		data
 	})
 }
+
+// 查询已填写工作内容
+export function queryBatchRecord(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-content/query-batch",
+		method: 'post',
+		data
+	})
+}
+
 // 开工、完工接口
 export function reportWorderStatus(data) {
 	return request({

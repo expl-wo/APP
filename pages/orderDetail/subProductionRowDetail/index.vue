@@ -22,10 +22,6 @@
 		</view>
 		<CustomForm :haveActionSheet='haveActionSheet' :formList='showFormList' @showActionSheet='showActionSheet'>
 		</CustomForm>
-		<view class="save-btn">
-			<view class="save btn" @click="handleSave">保存</view>
-			<view class="report btn" @click="handleReport">报工</view>
-		</view>
 		<view class="btn-box">
 			<view class="left-btn">
 				<view :class="['btn', havePre?'enable-btn':'disabled-btn']" @click="showPre">
@@ -41,10 +37,6 @@
 		<u-action-sheet round :show="isShowActionSheet" :actions="actionSheetObj.actions" :title="actionSheetObj.title"
 			:description="isShowActionSheet.description" @close="close" @select="select">
 		</u-action-sheet>
-		<!-- 	<u-datetime-picker :show="isShowTimePicker" v-model="time" mode="datetime" :closeOnClickOverlay='true'
-			@close='close'></u-datetime-picker> -->
-		<!-- <u-picker :show="isShowHourPicker" :columns="hourColumns" :defaultIndex='hourDefaultIndex'
-			:closeOnClickOverlay='true' title='时间选择' @close='close' @cancel='close' @confirm='hourConfirm'></u-picker> -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
@@ -97,56 +89,8 @@
 			month = month < 10 ? `0${month}` : month
 			const date = d.getDate()
 			return {
-				formList: [{
-						operationName: '记录2',
-						operationType: 'multSelect',
-						time: 'hour',
-						type: 'hour',
-						showLink: true,
-						value: '选项一、选项二',
-						requireImageFile: 1,
-						actions: [{
-								name: '男',
-								selected: true
-							},
-							{
-								name: '女',
-							}
-						],
-						openType: 2,
-						executionFrequency: "1"
-					},
-					{
-						executionFrequency: "3",
-						operationName: '记录3',
-						operationType: 'textArea',
-						time: 'day',
-						type: 'day',
-						showLink: false,
-						textAreaValue: '22222',
-						textArea: true
-					},
-					{
-						executionFrequency: "2",
-						operationName: '记录值',
-						operationType: 'textArea',
-						time: 'hour',
-						value: 9,
-						type: 'hour',
-						defaultValue: '14时',
-						showLink: true,
-						actions: [{
-								name: 1,
-							},
-							{
-								name: 2,
-							},
-							{
-								name: 3,
-							},
-						]
-					},
-				],
+				// 工序内容列表
+				formList: [],
 				// 工序行详情id
 				subProductionRowId: "",
 				// 字段与文本映射
@@ -265,7 +209,6 @@
 				const userInfo = getUserInfo();
 				// 按钮权限控制
 				this.btnText = userInfo.id ? '复核' : '开工'
-				// this.formList = []
 				setMesWorkContent({
 					craftId: 6
 				}).then(res => {
@@ -293,7 +236,6 @@
 						// })
 						this.formList = res.data.value || []
 						console.log(res, 'formList', this.formList)
-
 					}
 				})
 			},
@@ -441,12 +383,6 @@
 					day.dot = true
 				}
 				return day
-			},
-			handleSave() {
-				console.log('handleSave')
-			},
-			handleReport() {
-				console.log('handleReport')
 			}
 		},
 	};
@@ -501,7 +437,7 @@
 
 			.sign-box {
 				position: absolute;
-				bottom: 50px;
+				bottom: 80px;
 				right: 20rpx;
 				display: flex;
 				text-align: center;
@@ -536,19 +472,6 @@
 			}
 		}
 
-
-		.save-btn {
-			margin: 0 16rpx;
-			border-radius: 16rpx;
-
-			.btn {
-				height: 60rpx;
-				line-height: 60rpx;
-				margin: 10rpx 0;
-				background-color: #fff;
-				text-align: center;
-			}
-		}
 
 		.btn-box {
 			position: absolute;
