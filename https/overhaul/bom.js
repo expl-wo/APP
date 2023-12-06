@@ -7,3 +7,10 @@ export function getBomDataList(data) {
 		data
 	})
 }
+export function getReturnList(data) {
+	return request({
+		url: '/evo-ims-overhaul',
+		method: 'post',
+		data
+	})
+}

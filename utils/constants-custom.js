@@ -1,3 +1,5 @@
+import constants from "./constants";
+
 //检修工单对应的状态
 const ORDER_STATUS_MAP = [{
 		text: '创建工单'
@@ -173,6 +175,44 @@ const PROCESS_DETAIL_FIELD_MAP = {
 	},
 }
 
+// 标准工序详情
+const WORK_ORDER_FIELD_MAP = {
+	code: {
+		label: "工序编码",
+		iconName: "photo"
+	},
+	groupPerson: {
+		label: "组长",
+		iconName: "photo"
+	},
+	subGroupPerson: {
+		label: "副组长",
+		iconName: "photo"
+	},
+	member: {
+		label: "成员",
+		iconName: "photo"
+	}
+}
+// 工序状态
+const WORK_STATUS_MAP = {
+	0: {
+		label: '未派工',
+		color: '#f60000'
+	},
+	1: {
+		label: '未开工',
+		color: '#f64930'
+	},
+	2: {
+		label: '已开工',
+		color: '#3a62d7'
+	},
+	5: {
+		label: '已完工',
+		color: '#17aa81'
+	}
+}
 const UPLOAD_LIMIT = {
 	image: {
 		label: '图片',
@@ -196,6 +236,10 @@ export {
 	ORDER_DETAIL_FIELD_MAP,
 	// 工单详情信息展示字段
 	PROCESS_DETAIL_FIELD_MAP,
+	// 标准工序详情
+	WORK_ORDER_FIELD_MAP,
+	// 工序状态
+	WORK_STATUS_MAP,
 	// 图片、视频大小限制
 	UPLOAD_LIMIT
 };

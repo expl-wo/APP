@@ -4,9 +4,7 @@
 			<text>{{ dataInfo.name || '--' }}</text>
 			<text class="status fs-12"
 				:class="[dataInfo.status ? '' : 'uncheck']">{{ dataInfo.status ? '已复核' : '待审核' }}</text>
-			<text class="icon">
-				<u-icon name="server-man" color="#3a62d7" size="40rpx" @tap="isShowProveModal = true" />
-			</text>
+			<u-icon class="icon" name="scan" color="#3a62d7" size="40rpx" @tap="isShowProveModal = true" />
 		</view>
 		<view class="item-bottom">
 			<view class="text-box">

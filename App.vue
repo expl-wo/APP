@@ -98,4 +98,12 @@
 	uni-toast .uni-toast__content {
 		font-size: 50rpx;
 	}
+	.u-loadmore__content__text {
+		line-height: 16px !important;
+	}
+
+	.u-loading-icon__spinner--spinner {
+		width: 15px !important;
+		height: 15px !important;
+	}
 </style>

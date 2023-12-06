@@ -1,3 +1,4 @@
+<!-- 标准工序列表 -->
 <template>
 	<view class="full-wrapper">
 		<!-- 卡片列表 -->
@@ -90,11 +91,9 @@
 				})
 			},
 			handleShowDetail(card) {
-				console.log(card, "card");
-				const url =
-					`/pages/orderDetail/processDetail/index?workProcedureType=${card.id}`
+				uni.setStorageSync('ims_standardProcess', card);
 				uni.navigateTo({
-					url,
+					url: '/pages/orderDetail/processDetail/index',
 				})
 			},
 		},

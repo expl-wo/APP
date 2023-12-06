@@ -77,7 +77,7 @@
 
 		.info {
 			flex: 1;
-			view-align: left;
+			text-align: left;
 
 			.user-name {
 				margin-bottom: 4px;

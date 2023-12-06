@@ -32,14 +32,6 @@
 			}
 		}
 	}, {
-		"path": "pages/orderDetail/subProductionDetail/index",
-		"style": {
-			"navigationBarTitleText": "工步详情",
-			"app-plus": {
-				"titleNView": true
-			}
-		}
-	}, {
 		"path": "pages/orderDetail/addIssue",
 		"style": {
 			"navigationBarTitleText": "添加问题"

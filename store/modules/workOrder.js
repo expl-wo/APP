@@ -42,6 +42,7 @@ let workOrder = {
 					projectInfo.fileList = fileList
 					console.log(projectInfo, 'projectInfo', commit)
 					commit("updateWorkOrderDetail", projectInfo)
+					uni.setStorageSync('ims_workOrder', projectInfo);
 				}
 			})
 		}

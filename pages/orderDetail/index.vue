@@ -27,8 +27,11 @@
 			            fontWeight: 'bold',
 			            transform: 'scale(1.05)'
 			        }" :inactiveStyle="{ color: '#657685'}" lineWidth='0'></u-tabs>
-				<component :is="componentName" :class="[showMore ? 'less-content' : 'more-content']"
-					:orderInfo='routeParam' />
+					<view class="comp-wrapper">
+						<component :is="componentName"
+							:orderInfo='routeParam' />
+					</view>
+
 			</view>
 		</view>
 		<!-- 附件下载面板 -->
@@ -216,6 +219,7 @@
 
 	.sub-pro-row {
 		width: 100%;
+		height: 100%;
 		overflow: hidden;
 		background: linear-gradient(rgba(209, 225, 246, 0.8) 0%,
 				rgba(209, 225, 246, 0) 70%);
@@ -226,21 +230,23 @@
 		}
 
 		.order-info {
+			width: 100%;
+			height: 100%;
 			position: relative;
 			margin-bottom: 28rpx;
 		}
 
 		.name {
 			padding: 0 32rpx;
-			height: 60rpx;
-			line-height: 60rpx;
+			height: 30px;
+			line-height: 30px;
 			font-size: $titleFontSize;
 		}
 
 		.more-icon {
 			position: absolute;
 			right: 30px;
-			top: 20px;
+			top: 7px;
 		}
 
 		.info {
@@ -248,8 +254,8 @@
 			padding: 0 32rpx;
 
 			.item {
-				height: 40rpx;
-				line-height: 40rpx;
+				height: 20px;
+				line-height: 20px;
 				font-size: $fontSize;
 				color: #657685;
 
@@ -309,12 +315,12 @@
 		}
 
 		.btn-wrapper {
-			height: 64rpx;
+			height: 32px;
 			display: flex;
 			align-items: center;
 			justify-content: space-around;
 			background-color: #fff;
-			margin: 20rpx 40rpx 0 40rpx;
+			margin: 10px 40rpx 0 40rpx;
 			border-radius: 8rpx;
 
 			.btn-item {
@@ -332,11 +338,14 @@
 		}
 
 		.more-content {
-			max-height: 760px;
+			height: calc(100% - 72px);
 		}
 
 		.less-content {
-			max-height: 600px;
+			height: calc(100% - 217px);
+		}
+		.comp-wrapper {
+			height: calc(100% - 50px);
 		}
 	}
 

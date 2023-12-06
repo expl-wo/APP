@@ -1,41 +1,49 @@
+<!-- 标准工序详情 -->
 <template>
-	<view class="process-detail-root">
-		<view class="process-content">
-			<view class="process-info">
-				<view class="process-name title">{{ processName }}</view>
-				<view class="info">
-					<view class="info-item" :key="item" v-for="(item, key) in processDetailInfo">
-						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" class="icon" size='30' />
-						<text class="label">{{ getLabelByKey(key) }}:</text>
-						<text class="value" :title="item">{{ item || "--" }}</text>
-					</view>
+	<view class="page-wrapper">
+		<view class="top-wrapper">
+			<view class="info">
+				<view class="name">{{ processName }}</view>
+				<view class="extra-info">
+					<text class="notice" @click="showNotice">工序要求</text>
+					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
-			<view class="list">
-				<view class="list-item" v-for="(item, index) in listData" :key="index"
-					@tap="skipProductionDetail(item)">
-					<view class="process-title">
-						<text class="name">{{ item.subProcessName }}</text>
-						<text class="prove-status" :style="{ color: ['#f64930', '#17aa81'][item.proveStatus] }">
-							{{ ["未审核", "已审核"][item.proveStatus] }}
-						</text>
+			<production-info :fieldMapText="fieldMapText" :infoObj="processDetailInfo" />
+			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs>
+		</view>
+		<view class="list-wrapper">
+			<scroll-view class="scroll-wrapper" scroll-top="0" :show-scrollbar="true" :scroll-y="true"
+				:refresher-triggered="refreshing" :refresher-enabled="true" :refresher-threshold="80"
+				:upper-threshold="50" :lower-threshold="30" @refresherrefresh="getData('scrolltoupper')"
+				@scrolltolower="getData('scrolltolower')">
+					<view class="list-item" v-for="(item, index) in listData" :key="index"
+						@click="skipProductionDetail(item)">
+						<view class="title">
+							<view class="name">{{ item.workProcedureName }}</view>
+							<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
+								{{ WORK_STATUS_MAP[item.workStatus].label }}
+							</view>
+						</view>
+						<view class="progress">
+							<Progress :percentage="item.workStatus + '%'" />
+						</view>
 					</view>
-					<view class="progress">
-						<Progress :progressObj="{value:item.percentage,percentage:' 50%',total:100}" />
-					</view>
-				</view>
-			</view>
+				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
+			</scroll-view>
 		</view>
 	</view>
 </template>
 
 <script>
+	import ProductionInfo from "@/components/common/productionInfo.vue";
 	import Progress from "@/components/common/progress.vue";
 	import {
 		getProcessList
 	} from "@/https/staging/index.js";
 	import {
-		WORK_ORDER_FIELD_MAP
+		WORK_ORDER_FIELD_MAP,
+		WORK_STATUS_MAP
 	} from '@/utils/constants-custom.js'
 	import {
 		mapState
@@ -43,139 +51,160 @@
 	export default {
 		name: "ProcessDetail",
 		components: {
+			ProductionInfo,
 			Progress,
 		},
 		computed: {
 			...mapState("workOrder", [
 				// 工单详情信息
 				'workOrderDatialInfo'
-			])
+			]),
+			nomoreText() {
+				return this.listData.length ? '没有更多了' : '暂无数据';
+			}
 		},
 		data() {
 			return {
+				WORK_STATUS_MAP: Object.freeze(WORK_STATUS_MAP),
 				// 大工序详情id
-				processId: "",
+				workProcedureCode: "",
 				// 字段与文本映射
 				fieldMapText: WORK_ORDER_FIELD_MAP,
-				processName: "大工序名称",
+				processName: "",
 				// 大工序详情信息
 				processDetailInfo: {
-					code: "XXXXX",
-					groupPerson: "司马懿",
-					subGroupPerson: "干酒",
-					member: "成员",
-					planTime: "2023/02/13~2023/02/14",
-					realTime: "2023/02/13~2023/02/14",
+					code: "",
+					groupPerson: "",
+					subGroupPerson: "",
+					member: ""
 				},
 				// 工序列表数据
-				listData: [{
-						subProcessName: "子工序名称",
-						proveStatus: 0,
-						percentage: 50,
+				listData: [],
+				pageNum: 1,
+				pageSize: 20,
+				tabList: [{
+						name: "全部",
+						value: -1,
 					},
 					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
+						name: "未派工",
+						value: 0,
 					},
 					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
+						name: "已开工",
+						value: 1,
 					},
 					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
+						name: "未开工",
+						value: 2,
 					},
 					{
-						subProcessName: "子工序名称",
-						proveStatus: 0,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
-					},
-					{
-						subProcessName: "子工序名称",
-						proveStatus: 1,
-						percentage: 50,
+						name: "已完工",
+						value: 3,
 					},
 				],
-				pageNum: 1
+				activeTab: '',
+				scrollTop: 0,
+				refreshing: false,
+				showLoading: false,
+				status: 'nomore',
+				hasNextPage: false,
+				// 工单场景
+				workOrderSceneType: ''
 			};
 		},
-		onLoad(options) {
-			debugger
-			console.log(options, 'options')
-			this.getDetailInfoById(options);
+		computed: {
+			nomoreText() {
+				return this.listData.length ? '没有更多了' : '暂无数据';
+			}
+		},
+		onLoad() {
+			let {
+				deputyLeaderName,
+				leaderName,
+				memberName,
+				workProcedureType,
+				title,
+				workProcedureCode,
+				workOrderSceneType
+			} = uni.getStorageSync('ims_standardProcess');
+			this.workProcedureType = workProcedureType;
+			this.workProcedureCode = workProcedureCode;
+			this.processName = title;
+			this.processDetailInfo.groupPerson = deputyLeaderName;
+			this.processDetailInfo.subGroupPerson = leaderName;
+			this.processDetailInfo.member = memberName;
+			this.processDetailInfo.code = workProcedureCode;
+			this.workOrderSceneType = workOrderSceneType;
+			this.getData();
 		},
 		methods: {
-			/**
-			 * @method getDetailInfoById 获取详情信息
-			 **/
-			getDetailInfoById(options) {
-				// this.processDetailInfo = {
-				// 	...this.workOrderDatialInfo
-				// };
-				const param = {
-					pageNum: this.pageNum,
-					pageSize: 10,
-					workCode: 1001,
-					workProcedureType: 1, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序,
-					// workProcedureType: options.workProcedureType
+			tabChange(item) {
+				this.activeTab = item.value;
+				this.pageNum = 1;
+				this.listData = [];
+				this.getData();
+			},
+			// 获取数据
+			getData(type) {
+				if (type === 'scrolltoupper') {
+					this.refreshing = true;
+					this.pageNum = 1;
+					this.listData = [];
+					this.showLoading = false;
+				} else if (type === 'scrolltolower') {
+					if (!this.hasNextPage) return;
+					this.pageNum++;
+				}
+				let {
+					pageNum,
+					pageSize
+				} = this;
+				// 暂时先用测试数据
+				let temp = this.workProcedureCode.split('_');
+				let params = {
+					pageNum,
+					pageSize,
+					workProcedureCode: temp[temp.length - 1],
+					workProcedureType: 1, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序
+					workOrderSceneType: this.workOrderSceneType
 				};
-				getProcessList(param).then(res => {
-					debugger
-					if (res.data && res.data.pageList) {
-						this.listData = res.data.pageList.map(item => ({
-							title: item.workProcedureName,
-							...item
-						}))
-					}
-				})
+				// 状态为全部特殊处理
+				if (this.activeTab !== -1) {
+					params.workStatus = this.activeTab;
+				} else {
+					delete params.workStatus;
+				}
+				let extraParams = {};
+				let workOrder = uni.getStorageSync('ims_workOrder');
+				let { id, workOrderType, procedureTemplateCode } = workOrder;
+				extraParams.workCode = id;
+				// 勘察工单
+				if (workOrderType === 1) {
+					extraParams.templateCode = procedureTemplateCode;
+				} else {
+					// TODO
+				}
+				if (type !== 'scrolltoupper') {
+					this.status = 'loading';
+				}
+				getProcessList({...params, ...extraParams})
+					.then(res => {
+						if (res.data) {
+							let {
+								pageList,
+								hasNextPage
+							} = res.data;
+							let revData = pageList || [];
+							this.listData = [...this.listData, ...revData];
+							this.hasNextPage = hasNextPage;
+						}
+					})
+					.finally(() => {
+						this.refreshing = false;
+						this.showLoading = true;
+						this.status = this.hasNextPage ? 'loadmore' : 'nomore';
+					})
 			},
 			/**
 			 * @method getIconByKey 根据字段key获取图标
@@ -193,9 +222,11 @@
 			},
 			// 跳转到工序详情界面
 			skipProductionDetail(process) {
-				const url = `/pages/orderDetail/productionDetail/index?id=${process.id}`
+				// 缓存中工序
+				uni.setStorageSync('ims_intermediateProcess', process);
+				// 跳转到中工序详情页面
 				uni.navigateTo({
-					url
+					url: '/pages/orderDetail/productionDetail/index'
 				})
 			},
 		},
@@ -205,89 +236,96 @@
 <style lang="scss" scoped>
 	@import '@/assets/css/staging/index.scss';
 
-	.process-detail-root {
-		// height: calc(100% - 83rpx);
+	.page-wrapper {
+		width: 100%;
+		height: 100%;
 		background: linear-gradient(282deg,
 				rgba(209, 225, 246, 0.1) 0%,
 				rgba(209, 225, 246, 0.8) 70%);
 
-		.nav-bar {
-			background: unset;
-		}
+		.top-wrapper {
+			height: 216px;
+			margin: 10px 16rpx 0;
+			padding: 0 16rpx;
+			background-color: #fff;
+			border-radius: 10rpx 10rpx 0 0;
 
-		.process-content {
-			height: calc(100% - 83rpx);
-			margin: 20rpx 16rpx 0rpx;
-			// background-color: #fff;
-			border-radius: 10rpx;
-			overflow: hidden;
+			.info {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				height: 40px;
+				line-height: 40px;
 
-			.process-info {
-				margin: 16rpx 16rpx 20rpx;
-				font-size: $fontSize;
-
-				.process-name {
-					display: flex;
-					margin-bottom: 12rpx;
-					font-size: $titleFontSize;
+				.name {
+					font-size: 20px;
 				}
 
-				.info {
-					color: $color;
+				.extra-info {
+					display: flex;
+					align-items: center;
+					justify-content: center;
 
-					.info-item {
-						overflow: hidden;
-						white-space: nowrap;
-						text-overflow: ellipsis;
+					.notice {
+						color: #3a62d7;
+						font-size: 16px;
+					}
 
-						.label {
-							margin: 0 16rpx 0 8rpx;
-						}
-
-						.icon {
-							display: inline-block;
-						}
-
-						&:not(:last-child) {
-							margin-bottom: 5rpx;
-						}
+					.icon {
+						margin-left: 16rpx;
+						color: #3a62d7;
 					}
 				}
 			}
+			/deep/ .u-tabs {
+				border-top: 1px solid rgba(101, 118, 133, 0.11);
+				border-bottom: 1px solid rgba(101, 118, 133, 0.11);
+			}
+		}
 
-			.list {
-				height: 740px;
+		.list-wrapper {
+			// 需减去top-wrapper和margin高度
+			height: calc(100% - 226px);
+			width: calc(100% - 32rpx);
+			overflow-y: auto;
+			margin: 0 16rpx;
+			background-color: #fff;
+
+			.scroll-wrapper {
+				width: 100%;
+				height: 100%;
 				overflow-y: auto;
-				// background: #f7f5f5;
+				box-sizing: border-box;
 
 				.list-item {
-					width: 49%;
-					height: 120rpx;
-					padding: 16rpx;
-					box-sizing: border-box;
-					float: left;
-					background: url("@/assets/imgs/staging/list-bg.png") no-repeat center;
-					background-size: 125% 150%;
+					display: inline-block;
+					height: 100px;
+					width: 50%;
+					padding: 10px;
+					background-color: rgba(254, 254, 254, 0.1);
+					border-bottom: 1px solid rgba(230, 230, 230, 1);
 
-					.process-title {
+					.title {
 						display: flex;
-						justify-content: space-between;
-						margin-bottom: 28rpx;
-						font-size: $smallFontSize;
+						height: 30px;
+						line-height: 30px;
+						margin-bottom: 16px;
+						font-size: 16px;
 						color: #445160;
-
 						.name {
-							font-size: $fontSize;
+							flex: 1;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
 						}
-
-						.prove-status {
-							font-size: $smallFontSize;
+						.status {
+							margin-left: auto;
 						}
 					}
+				}
 
-					&:nth-of-type(odd) {
-						margin-right: 2%;
-					}
+				.list-item:nth-child(even) {
+					border-right: 1px solid rgba(230, 230, 230, 1);
 				}
 			}
 		}

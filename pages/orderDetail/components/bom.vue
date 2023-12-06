@@ -1,5 +1,5 @@
 <template>
-	<view class="full-wrapper">
+	<view class="full-wrapper full-contet">
 		<!-- 第一层 -->
 		<scroll-view v-if="isFirstLevel" :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true"
 			class="list-wrapper" :refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50"
@@ -8,7 +8,7 @@
 				@selectChange="selectChange" @takePhoto="takePhoto" />
 		</scroll-view>
 		<!-- 其他层级 -->
-		<view v-else>
+		<view v-else class="full-contet">
 			<view class="parent-info">
 				<view class="top">
 					<u-icon name="arrow-left" size="36rpx" @click="goBack" />
@@ -140,9 +140,6 @@
 <style lang="scss" scoped>
 	.full-wrapper {
 		position: relative;
-		width: 100%;
-		height: 530px;
-		// box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1);
 
 		.list-wrapper {
 			width: calc(100% - 40rpx);
@@ -202,18 +199,6 @@
 				border: 1px solid red;
 				border-bottom: 1px solid #eee;
 				padding: 0 16px;
-
-				.name {
-					height: 36px;
-					line-height: 36px;
-				}
-
-				.other {
-					height: 24px;
-					line-height: 24px;
-					font-size: 12px;
-					color: #777;
-				}
 			}
 
 			.list-item:last-child {
@@ -243,5 +228,10 @@
 
 	.pd {
 		padding-left: 24rpx;
+	}
+	
+	.full-contet {
+		width: 100%;
+		height: 100%;
 	}
 </style>

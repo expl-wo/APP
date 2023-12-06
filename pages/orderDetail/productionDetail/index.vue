@@ -1,8 +1,9 @@
+<!-- 中工序详情 -->
 <template>
 	<view class="page-wrapper">
 		<view class="top-wrapper">
 			<view class="info">
-				<view class="name">{{ productioName }}</view>
+				<view class="name">{{ workProcedureName }}</view>
 				<view class="extra-info">
 					<text class="notice" @click="showNotice">工序要求</text>
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
@@ -12,29 +13,26 @@
 			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs>
 		</view>
 		<view class="list-wrapper">
-			<scroll-view v-if="listData.length" class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true"
-				scroll-y="true" @scrolltoupper="scrolltoupper" @scrolltolower="scrolltolower" @scroll="scroll">
-				<view class="list-item" v-for="(item, index) in listData" :key="index" @click="skipSubProductDetail(item)">
+			<scroll-view class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true"
+				:scroll-y="true" :upper-threshold="50" :lower-threshold="30" :refresher-threshold="80"
+				:refresher-enabled="true" :refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
+				@scrolltolower="getData('scrolltolower')">
+				<view class="list-item" v-for="(item, index) in listData" :key="index"
+					@click="skipSubProductDetail(item)">
 					<view class="title">
-						<text>{{ item.subProcessName }}</text>
-						<text class="prove-status" :style="{ color: ['#f64930', '#17aa81'][item.proveStatus] }">
-							{{ ["未审核", "已审核"][item.proveStatus] }}
-						</text>
+						<view class="name">{{ item.workProcedureName }}</view>
+						<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
+							{{ WORK_STATUS_MAP[item.workStatus].label }}
+						</view>
 					</view>
 					<view class="progress">
-						<Progress />
+						<Progress :percentage="item.workStatus + '%'" />
 					</view>
 				</view>
-				
-<!-- 				<u-loadmore :status="status" /> -->
-
+				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 			</scroll-view>
-			<u-empty v-else mode="data" icon="http://cdn.uviewui.com/uview/empty/car.png">
-			</u-empty>
 		</view>
 		<notice :show="noticeFlag" title="工序要求" :content="tip" @closeNotice="closeNotice" />
-
-
 	</view>
 </template>
 
@@ -43,8 +41,16 @@
 	import ProductionInfo from "@/components/common/productionInfo.vue";
 	import List from "@/components/common/list.vue";
 	import Notice from '@/components/common/notice.vue';
+
+	import {
+		getProcessList
+	
+	} from "@/https/staging/index.js";
+	import {
+		WORK_STATUS_MAP
+	} from '@/utils/constants-custom.js'
 	export default {
-		name: "SubprocessDetail",
+		name: "SubProductionDetail",
 		components: {
 			Progress,
 			ProductionInfo,
@@ -53,9 +59,11 @@
 		},
 		data() {
 			return {
-				// 工序详情id
-				productionId: "",
-				productioName: '测试中工序一',
+				WORK_STATUS_MAP: Object.freeze(WORK_STATUS_MAP),
+				// 标准工序编码
+				workProcedureCode: '',
+				// 标准工序名称
+				workProcedureName: '',
 				scrollTop: 0,
 				// 字段与文本映射
 				fieldMapText: {
@@ -72,54 +80,77 @@
 						iconName: "account-fill"
 					}
 				},
-				productionName: "工序名称",
 				// 工序详情信息
 				productionDetailInfo: {
-					groupPerson: "司马懿",
-					subGroupPerson: "干酒",
-					member: "成员",
+					groupPerson: "",
+					subGroupPerson: "",
+					member: "",
 				},
 				// 工序列表数据
-				listData: [{
-						id: 1,
-						subProcessName: "子工序名称",
-						proveStatus: 0,
-						percentage: 30,
-					}
-				],
+				listData: [],
 				// 当前选中的tab
 				activeTab: "",
 				tabList: [{
 						name: "全部",
+						value: -1,
+					},
+					{
+						name: "未派工",
 						value: 0,
 					},
 					{
-						name: "未完工",
+						name: "已开工",
 						value: 1,
 					},
 					{
-						name: "未复核",
+						name: "未开工",
 						value: 2,
 					},
 					{
-						name: "已完成",
+						name: "已完工",
 						value: 3,
 					},
 				],
 				// 工序标准
 				tip: "<h4>测试</h4><br>",
 				showLoading: false,
-				noticeFlag: false
+				noticeFlag: false,
+				pageNum: 1,
+				pageSize: 20,
+				refreshing: false,
+				hasNextPage: false,
+				status: 'nomore',
+				// 工单场景
+				workOrderSceneType: ''
 			};
 		},
+		computed: {
+			nomoreText() {
+				return this.listData.length ? '没有更多了' : '暂无数据';
+			}
+		},
 		onLoad() {
-			this.getProcessId();
+			let {
+				workProcedureCode,
+				workProcedureName,
+				deputyLeaderName,
+				leaderName,
+				memberName,
+				workOrderSceneType
+			} = uni.getStorageSync('ims_intermediateProcess');
+			this.workProcedureCode = workProcedureCode;
+			this.workProcedureName = workProcedureName;
+			this.productionDetailInfo.groupPerson = deputyLeaderName;
+			this.productionDetailInfo.subGroupPerson = leaderName;
+			this.productionDetailInfo.member = memberName;
+			this.getData();
 		},
 		methods: {
 			tabChange(item) {
 				this.activeTab = item.value;
-				console.log(this.activeTab)
-				this.showLoading = false;
+				this.pageNum = 1;
+				this.listData = [];
+				this.getData();
 			},
 			showNotice() {
 				this.noticeFlag = true;
@@ -127,65 +158,84 @@
 			closeNotice() {
 				this.noticeFlag = false;
 			},
-			scroll(scrollTop) {
-				debugger;
+			// 获取数据
+			getData(type) {
+				if (type === 'scrolltoupper') {
+					this.refreshing = true;
+					this.pageNum = 1;
+					this.listData = [];
+					this.showLoading = false;
+				} else if (type === 'scrolltolower') {
+					if (!this.hasNextPage) return;
+					this.pageNum++;
+				}
+				let {
+					pageNum,
+					pageSize
+				} = this;
+				let temp = this.workProcedureCode.split('_');
+				let params = {
+					pageNum,
+					pageSize,
+					workProcedureCode: temp[temp.length - 1],
+					workProcedureType: 2, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序
+					workOrderSceneType: this.workOrderSceneType
+				};
+				// 状态为全部特殊处理
+				if (this.activeTab !== -1) {
+					params.workStatus = this.activeTab;
+				} else {
+					delete params.workStatus;
+				}
+				let extraParams = {};
+				let workOrder = uni.getStorageSync('ims_workOrder');
+				let { id, workOrderType, procedureTemplateCode } = workOrder;
+				extraParams.workCode = id;
+				// 勘察工单
+				if (workOrderType === 1) {
+					extraParams.templateCode = procedureTemplateCode;
+				} else {
+					// TODO
+				}
+				if (type !== 'scrolltoupper') {
+					this.status = 'loading';
+				}
+				getProcessList({...params, ...extraParams})
+					.then(res => {
+						if (res.data) {
+							let {
+								pageList,
+								hasNextPage
+							} = res.data;
+							let revData = pageList || [];
+							this.listData = [...this.listData, ...revData];
+							this.hasNextPage = hasNextPage;
+						}
+					})
+					.finally(() => {
+						this.refreshing = false;
+						this.showLoading = true;
+						this.status = this.hasNextPage ? 'loadmore' : 'nomore';
+					})
 			},
-			scrolltolower() {
-			// 	this.loadmore()
-			},
-			scrolltoupper() {
-				this.showLoading = true;
-				console.log('---------', '划到顶部');
-			},
-			/**
-			 * @method getProcessId 获取工序详情id
-			 **/
-			getProcessId() {
-				// const {
-				// 	id
-				// } = this.$route.params;
-				// if (id || this.productionId) {
-				// 	this.productionId = id;
-				// 	this.getDetailInfoById();
-				// } else {
-				// 	// 返回上一级路由
-				// 	// window.history.go(-1);
-				// }
-			},
-			/**
-			 * @method getDetailInfoById 获取详情信息
-			 **/
-			getDetailInfoById() {
-				// 调用接口获取详情及列表数据
-			},
-			/**
-			 * @method getIconByKey 根据字段key获取图标
-			 * @param {String} 字段key
-			 **/
+			 // 根据字段key获取图标
 			getIconByKey(key) {
 				return this.fieldMapText[key].iconName || "";
 			},
-			/**
-			 * @method getLabelByKey 根据字段获取label
-			 * @param {String} 字段key
-			 **/
+			// 根据字段获取label
 			getLabelByKey(key) {
 				return this.fieldMapText[key].label || "";
-			},
-			handleChangeTab(name, title) {
-				console.log(name, title, "nam");
-				this.getListDataByType();
 			},
 			handleAddIssue() {
 				uni.navigateTo({
 					url: '/pages/orderDetail/addIssue'
 				});
 			},
-			// 获取到列表数据
-			getListDataByType() {},
 			skipSubProductDetail(item) {
+				// 缓存工步
+				uni.setStorageSync('ims_workStep', item);
 				uni.navigateTo({
-					url: `/pages/orderDetail/subProductionDetail/index?productId=${item.id}`
+					url: `/pages/orderDetail/subProductionRowDetail/index`
 				});
 			}
 		},
@@ -201,33 +251,43 @@
 				rgba(209, 225, 246, 0.8) 70%);
 
 		.top-wrapper {
-			height: 178px;
+			height: 186px;
 			margin: 10px 16rpx 0;
 			padding: 0 16rpx;
 			background-color: #fff;
 			border-radius: 10rpx 10rpx 0 0;
+
 			.info {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
 				height: 40px;
 				line-height: 40px;
+
 				.name {
 					font-size: 20px;
 				}
+
 				.extra-info {
 					display: flex;
 					align-items: center;
 					justify-content: center;
+
 					.notice {
 						color: #3a62d7;
 						font-size: 16px;
 					}
+
 					.icon {
 						margin-left: 16rpx;
 						color: #3a62d7;
 					}
 				}
+			}
+
+			/deep/ .u-tabs {
+				border-top: 1px solid rgba(101, 118, 133, 0.11);
+				border-bottom: 1px solid rgba(101, 118, 133, 0.11);
 			}
 		}
 
@@ -236,7 +296,7 @@
 			align-items: center;
 			justify-content: center;
 			// 需减去top-wrapper和margin高度
-			height: calc(100% - 188px);
+			height: calc(100% - 196px);
 			width: calc(100% - 32rpx);
 			margin: 0 16rpx;
 			background-color: #fff;
@@ -244,37 +304,42 @@
 			.scroll-wrapper {
 				display: flex;
 				flex-direction: row;
-				
+
 				width: 100%;
 				height: 100%;
 				overflow: auto;
-				/deep/ .uni-scroll-view-content {
-					display: flex;
-					flex-wrap: wrap;
-				}
+
 				.list-item {
+					display: inline-block;
 					height: 100px;
 					width: 50%;
 					padding: 10px;
 					background-color: rgba(254, 254, 254, 0.1);
 					border-bottom: 1px solid rgba(230, 230, 230, 1);
-					
+
 					.title {
 						display: flex;
-						
-						justify-content: space-between;
 						height: 30px;
 						line-height: 30px;
 						margin-bottom: 16px;
 						font-size: 16px;
 						color: #445160;
+						.name {
+							flex: 1;
+							white-space: nowrap;
+							overflow: hidden;
+							text-overflow: ellipsis;
+						}
+						.status {
+							margin-left: auto;
+						}
 					}
 				}
-				.list-item:nth-child(odd) {
+
+				.list-item:nth-child(even) {
 					border-right: 1px solid rgba(230, 230, 230, 1);
 				}
 			}
 		}
 	}
-
 </style>

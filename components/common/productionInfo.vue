@@ -1,6 +1,6 @@
 <template>
 	<view class="info-root">
-		<view class="info-item" :key="item" v-for="(item, key) in infoObj">
+		<view class="info-item" :key="item + Math.random(9999)" v-for="(item, key) in infoObj">
 			<u-icon class="icon" v-if="getIconByKey(key)" :name="getIconByKey(key)" />
 			<text class="label">{{ getLabelByKey(key) }}:</text>
 			<text class="value">{{ item }}</text>
@@ -43,8 +43,6 @@
 
 <style lang="scss" scoped>
 	.info-root {
-		// padding-bottom: 24rpx;
-		border-bottom: 1px solid rgba(101, 118, 133, 0.11);
 		font-size: 16px;
 		.info-item {
 			height: 30px;
