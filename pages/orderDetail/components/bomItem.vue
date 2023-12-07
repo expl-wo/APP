@@ -4,21 +4,25 @@
 			<!-- 由于u-checkbox组件不支持slot右侧内容，故用单选框代替 -->
 			<u-radio-group v-model="value" @change="groupChange">
 				<u-radio shape="square" size="32rpx" iconSize="32rpx" :name="dataInfo.id" @change="radioChange">
-					<view class="right"  @click="goToNext">
+					<view class="right" @click="goToNext">
 						<view class="top">
-							<text class="name">{{ dataInfo.name || '--' }}</text>
+							<text class="name">{{ dataInfo.bomName || '--' }}</text>
 							<view class="icon">
-								<!-- 				<next-bubble-menu :d-width="200" :dataList="actions" bingEleId="test1">
-									<u-icon id="test1" name="photo-fill" color="#3a62d7" size="20px" @tap.stop="takePhoto($event)" />
-								</next-bubble-menu> -->
 								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
 									@click.native.stop="scanQrCode($event)" />
 								<u-icon name="photo-fill" color="#3a62d7" size="36rpx"
 									@click.native.stop="takePhoto($event)" />
 							</view>
 						</view>
-						<view class="bottom">生产号：{{ dataInfo.productNo || '--' }}</view>
-						<view class="bottom">流水码：{{ dataInfo.srialCode || '--' }}</view>
+						<view class="bottom">
+							<view class="bottom-item">生产号：{{ productNo || '--' }}</view>
+							<view class="bottom-item">流水码：{{ dataInfo.srialCode || '--' }}</view>
+						</view>
+						<view class="bottom">
+							<view class="bottom-item">工位码：{{ dataInfo.stationCode || '--' }}</view>
+							<view class="bottom-item">
+								待入库状态：{{ dataInfo.bomStatus === null ? '--' : BOM_STATUS[dataInfo.bomStatus] }}</view>
+						</view>
 					</view>
 				</u-radio>
 			</u-radio-group>
@@ -26,15 +30,9 @@
 	</view>
 </template>
 <script>
-	const actions = [{
-			text: '拆解照片',
-			id: 1
-		},
-		{
-			text: '厂内生产照片',
-			id: 2
-		}
-	]
+	import {
+		BOM_STATUS
+	} from '@/utils/constants-custom';
 	export default {
 		props: {
 			dataInfo: {
@@ -44,11 +42,15 @@
 			checked: {
 				type: Boolean,
 				default: false
+			},
+			productNo: {
+				type: String,
+				default: ''
 			}
 		},
 		data() {
 			return {
-				actions: Object.freeze(actions),
+				BOM_STATUS: Object.freeze(BOM_STATUS),
 				showPopover: false,
 				value: '',
 				num: 0
@@ -56,11 +58,7 @@
 		},
 		methods: {
 			takePhoto() {
-				// 	this.showPopover = true;
-				this.$emit('takePhoto', this.dataInfo, 1);
-			},
-			onSelect(action) {
-				this.$emit('takePhoto', this.dataInfo, action.id);
+				this.$emit('showPopover', this.dataInfo);
 			},
 			// 进入下一层级
 			goToNext() {
@@ -125,10 +123,19 @@
 				}
 
 				.bottom {
+					display: flex;
+					width: 100%;
 					height: 40rpx;
 					line-height: 40rpx;
 					font-size: 24rpx;
 					color: #657685;
+
+					.bottom-item {
+						width: 50%;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
 				}
 			}
 

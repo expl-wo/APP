@@ -1,6 +1,5 @@
 <template>
-<!-- 	<van-popup position="bottom" close-on-popstate round class="cust-popup" :close-on-tap-overlay="false"
-		:value="visible" :style="{ height: '50%' }">
+	<u-popup class="cust-popup" :show="visible" :round="20" :closeOnClickOverlay="false">
 		<view class="popup-top">
 			<text class="btn-wrapper" @tap="cancel">取消</text>
 			<text class="title">{{ title }}</text>
@@ -8,46 +7,66 @@
 		</view>
 		<view class="popup-content">
 			<view class="upload-tip">仅支持png、jpg、jpeg格式图片，最多3张，单张20M以内</view>
-			<van-uploader v-model="fileList" multiple max-count="3" :before-read="beforeRead" :after-read="afterRead">
-				<template #preview-cover>
-					<view class="preview-cover van-ellipsis">预览</view>
-				</template>
-			</van-uploader>
-		</view>
-	</van-popup> -->
-	<u-popup :show="visible" :round="20" :closeOnClickOverlay="false">
-		<view class="popup-top">
-			<text class="btn-wrapper" @tap="cancel">取消</text>
-			<text class="title">{{ title }}</text>
-			<text class="btn-wrapper confirm" @tap="confirm">确定</text>
-		</view>
-		<view class="popup-content">
-			<view class="upload-tip">仅支持png、jpg、jpeg格式图片，最多3张，单张20M以内</view>
-			<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="imageList"
-				:maxCount="3" @beforeRead="beforeRead($event, 'image')" @afterRead="afterRead($event, 'image')"
+			<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="imageList" :maxCount="3"
+				@beforeRead="beforeRead($event, 'image')" @afterRead="afterRead($event, 'image')"
 				@delete="deleteFile($event, 'image')" />
 		</view>
 	</u-popup>
 </template>
 <script>
-	
-	import { UPLOAD_LIMIT } from '@/utils/constants-custom';
-	
+	import {
+		UPLOAD_LIMIT
+	} from '@/utils/constants-custom';
+	import {
+		uploadFile,
+		bindPic
+	} from '@/https/overhaul/bom';
+	import uploadHttp from '@/https/_public/upload';
+	import {
+		getToken,
+		setToken
+	} from '@/utils/auth.js';
+	const titleMap = {
+		1: '拆解照片',
+		2: '厂内生产照片'
+	}
 	export default {
 		props: {
 			visible: {
 				type: Boolean,
 				default: false
 			},
-			title: {
-				type: String,
-				default: '上传照片'
+			// 
+			imgType: {
+				type: Number,
+				default: 1
+			},
+			bomInfo: {
+				type: Object,
+				default: null
 			}
 		},
 		data() {
 			return {
-				imageList: [],
-
+				imageList: []
+			}
+		},
+		computed: {
+			title() {
+				return titleMap[this.imgType];
+			}
+		},
+		watch: {
+			visible(newVal) {
+				if (newVal && this.bomInfo) {
+					this.imageList = this.bomInfo.imgList.filter(item => item.imgType === this.imgType).map(item => {
+						return {
+							url: `http://10.16.9.128:9000/${item.imgPath}`,
+							filePath: item.imgPath,
+							fileName: item.imgName
+						}
+					})
+				}
 			}
 		},
 		methods: {
@@ -77,7 +96,29 @@
 				})
 			},
 			afterRead(file, type) {
-				this[`${type}List`].push(...file.file);
+				let uploadList = file.file;
+				let uploadTask = [];
+				for (let i = 0; i < uploadList.length; i++) {
+					uploadTask.push(this.uploadFilePromise(uploadList[i].url));
+				}
+				Promise.all(uploadTask)
+				.then(res => {
+					let successList = res.filter(item => item.status === 0);
+					if (successList.length < this.imageList) {
+						uni.showToast({
+							title: '存在上传失败的图片',
+							duration: 2000
+						});	
+					}
+					let uploadedList = successList.map(item => {
+						return {
+							url: `http://10.16.9.128:9000/${item.filePath}`,
+							filePath: item.filePath,
+							fileName: item.fileName
+						}
+					})
+					this[`${type}List`].push(...uploadedList);
+				})
 			},
 			deleteFile(event, type) {
 				let index = event.index;
@@ -91,17 +132,70 @@
 				this.imageList = [];
 				this.$emit('closePopup', false);
 			},
+			// 添加图片
 			confirm() {
-				// 上传图片到服务器
-				this.imageList = [];
-				this.$emit('closePopup', true);
-			}
+				if (!this.imageList.length) {
+					this.$emit('closePopup', false);
+					return;
+				}
+				let { id, workId } = this.bomInfo;
+				let params = {
+					bomId: id,
+					workId,
+					imgList: this.imageList.map(item => {
+						return {
+							imgPath: item.filePath,
+							imgName: item.fileName,
+							imgType: this.imgType
+						}
+					})
+				}
+				bindPic(params)
+				.then(res => {
+					if (res.success) {
+						uni.showToast({
+							title: '操作成功',
+							duration: 2000
+						});	
+						this.$emit('closePopup', true);
+					} else {
+						uni.showToast({
+							title: res.errMsg,
+							duration: 2000
+						});	
+					}
+				})
+				// this.imageList = [];
+				// this.$emit('closePopup', true);
+			},
+			// 上传图片到服务器
+			uploadFilePromise(url) {
+				return new Promise((resolve, reject) => {
+					uploadHttp.upload({
+						token: getToken(),
+						filePath: url
+					}).then(response => {
+						if (response.code === 200) {
+							setTimeout(() => {
+								return resolve({
+									status: 0,
+									...response.data
+								})
+							}, 150)
+						} else {
+							return resolve({
+								status: 500,
+								msg: '上传失败'
+							});
+						}
+					});
+				})
+			},
 		}
 	}
 </script>
 <style lang="scss" scoped>
 	.cust-popup {
-		padding: 0 40rpx;
 		box-sizing: border-box;
 	}
 
@@ -109,6 +203,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		padding: 0 20rpx;
 		height: 80rpx;
 
 		.btn-wrapper {
@@ -127,7 +222,8 @@
 	}
 
 	.popup-content {
-		height: calc(100% - 80rpx);
+		height: 200px;
+		padding: 0 20rpx;
 		overflow: auto;
 
 		.upload-tip {
