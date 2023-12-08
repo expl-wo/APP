@@ -229,6 +229,11 @@
 					url: '/pages/orderDetail/productionDetail/index'
 				})
 			},
+			handleAddIssue() {
+				uni.navigateTo({
+					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.workProcedureCode}&workScene=${this.workOrderSceneType}&workProcedureType=${1}`
+				});
+			},
 		},
 	};
 </script>

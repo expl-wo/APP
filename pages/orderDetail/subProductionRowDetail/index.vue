@@ -25,18 +25,22 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' />
+		<CustomForm :formList='formList' :isStart='isStart' :commonParam='commonParam'
+			@getBatchRecord='getBatchRecord' />
 		<!-- 按钮 -->
 		<view class="btn-box">
 			<view class="left-btn">
-				<view :class="['btn', havePre?'enable-btn':'disabled-btn']" @click="showPre">
+				<view :class="['btn', activeIndex > 0 ?'enable-btn':'disabled-btn']" @click="activeIndex--">
 					<u-icon name="arrow-left" size="30" bold></u-icon>
 				</view>
-				<view :class="['btn', haveNext?'enable-btn':'disabled-btn']" @click="showNext">
+				<view :class="['btn', activeIndex < (productionList.length - 1) ?'enable-btn':'disabled-btn']"
+					@click="activeIndex++">
 					<u-icon name="arrow-right" size="30" bold></u-icon>
 				</view>
 			</view>
-			<view class="right-btn" @click="showProveSheet">{{btnText}}</view>
+			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="!isStart && isShowProveBtn"
+				text='复核'></u-button>
+			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart" :text="btnText"></u-button>
 		</view>
 		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
@@ -62,7 +66,9 @@
 		getMesWorkContent,
 		setMesWorkContent,
 		proveConfirmApi,
-		queryBatchRecord
+		queryBatchRecord,
+		reportWorderStatus,
+		getProcessList
 	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessDetail",
@@ -77,7 +83,7 @@
 		},
 		data() {
 			return {
-				// 工序内容列表
+				// 工步工作内容列表
 				formList: [],
 				// 字段与文本映射
 				fieldMapText: {
@@ -96,13 +102,11 @@
 				},
 				// 当前选中工序名称
 				subProductionRowName: "工序名称",
-				// 工序行详情id
-				subProductionRowId: "",
 				// 工序详情信息
 				detailInfo: {
-					groupPerson: "司马懿",
-					subGroupPerson: "干酒",
-					member: "成员",
+					groupPerson: "",
+					subGroupPerson: "",
+					member: "",
 				},
 				// 工序标准
 				tip: "sssss",
@@ -111,16 +115,8 @@
 				actionSheetObj: {},
 				// 按钮文字-根据用户信息显示不同操作
 				btnText: '开工',
-				// 是否能上一项
-				havePre: false,
-				// 是否有下一项
-				haveNext: true,
 				// 用户信息
-				userInfo: {
-					name: '张晓丽',
-					department: '流程与信息化管理部',
-					imgUrl: 'XXX',
-				},
+				userInfo: {},
 				// 签出时间
 				signInTime: '',
 				// 签退时间
@@ -129,106 +125,156 @@
 				isShowProvePicker: false,
 				// 问题审核
 				proveColumns: [
-					['否', '是']
+					['否', '是'],
+					['不通过', '通过']
 				],
 				isShowTip: false,
 				// 工序标准
 				tip: "<h4>测试</h4><br>",
-				showCustomSheet: false,
+				// 公共参数
+				commonParam: {
+					workCode: '', // 工单编号
+					craftId: '', // 工步编号
+					workScene: '', // 工单场景
+				},
+				// 是否展示复核按钮
+				isShowProveBtn: false,
+				// 是否开工-不开工按钮都不显示-不允许操作
+				isStart: false,
+				// 工步列表
+				productionList: [],
+				// 当前选中的工步下标
+				activeIndex: 0
 			};
 		},
-		mounted() {
+		watch: {
+			activeIndex(nVal, oVal) {
+				if (nVal !== oVal) {
+					const currentProductionItem = this.productionList[this.activeIndex];
+					// 缓存工步
+					uni.setStorageSync('ims_workStep', currentProductionItem);
+					this.initData()
+				}
+			}
+		},
+		created() {
+			// 获取用户信息
+			const userInfo = getUserInfo();
+			this.getParamData();
 			this.initData();
 		},
 		methods: {
+			getParamData() {
+
+			},
 			/**
 			 * @method initData 初始化数据
 			 **/
 			initData() {
-				const userInfo = getUserInfo();
-				// 按钮权限控制
-				this.btnText = userInfo.id ? '复核' : '开工';
-				// 工单详情
+				// 工序详情信息
+				const workOrder = JSON.parse(localStorage.getItem('ims_workOrder')).data || {}
+				const workStep = JSON.parse(localStorage.getItem('ims_workStep')).data || {}
+				const intermediateProcess = JSON.parse(localStorage.getItem('ims_intermediateProcess')).data || {}
+				this.commonParam = {
+					workCode: workOrder.id,
+					craftId: workStep.workProcedureCode.split('_')[1],
+					workScene: workStep.workOrderSceneType,
+				}
 				this.detailInfo = {
-					groupPerson: this.workOrderDatialInfo.projManagerName,
-					subGroupPerson: this.workOrderDatialInfo.duputyManagerName,
-					member: this.workOrderDatialInfo.taskTeamName,
-				};
-				// 工序工作内容
+					groupPerson: workStep.leaderName,
+					subGroupPerson: workStep.deputyLeaderName,
+					member: workStep.memberName,
+				}
+				// 工步名称
+				this.subProductionRowName = workStep.workProcedureName
+				console.log(workOrder, 'localstorage', workStep, this.commonParam)
+				// 是否开工
+				this.isStart = !workStep.workStatus === 0
+				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus];
+				this.isShowProveBtn = !workOrder.reviewStatus
+				// 获取工步工作内容
+				this.getWorkStepContent()
+				// 获取工步列表数据用于上下页
+				this.getProcessListData(workOrder, intermediateProcess, workStep)
+			},
+			// 获取工步内容
+			getWorkStepContent() {
 				setMesWorkContent({
-					craftId: 20231125
+					craftId: this.commonParam.craftId
 				}).then(res => {
 					if (res && res.data) {
-						const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+						const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 						const params = []
 						res.data.value.forEach(item => {
 							params.push({
-								workCode: this.workOrderDatialInfo.id ||
-									"20220705093359824311000301954583",
-								craftCode: "20231125",
+								...this.commonParam,
 								operationCode: item.operationCode,
-								workScene: "SURVEY_SCENE", // 子工序对应的场景编码
 								executionFrequency: item.executionFrequency,
-								beginTime: currentTime
+								beginTime: currentTime,
+								craftCode: this.commonParam.craftId
 							})
 						})
-						queryBatchRecord([{
-							"workCode": "20220705093359824311000301954583",
-							"craftCode": "20231125",
-							"operationCode": "5",
-							"workScene": "SURVEY_SCENE",
-							"executionFrequency": "0",
-							"beginTime": "2023-12-05 19:30:47"
-						}, {
-							"workCode": "20220705093359824311000301954583",
-							"craftCode": "20231125",
-							"operationCode": "4",
-							"workScene": "SURVEY_SCENE",
-							"executionFrequency": "1",
-							"beginTime": "2023-12-05 19:30:47"
-						}]).then(res => {
-							if (res && res.data && Array.isArray(res.data.value)) {
-								res.data.value.forEach((item, index) => {
-									item.fileList = item.fileList.filter(f => f.fileType === 'jpg')
-								})
-								this.formList = res.data.value || []
-								console.log(res, 'formList', this.formList)
-							}
-						})
+						this.formList = res.data.value || []
+						// 初始化回显，用当前时间批量查询工作内容记录
+						this.getBatchRecord(params)
 					}
 				})
 			},
-			/**
-			 * @method showPre 展示上一条
-			 **/
-			showPre() {
-
+			// 批量获取工作内容记录
+			getBatchRecord(params) {
+				queryBatchRecord(params).then(res => {
+					if (res && res.data && Array.isArray(res.data.value)) {
+						res.data.value.forEach((item, index) => {
+							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
+								'jpg') : []
+						})
+						if (res.data.value.length) {
+							this.formList = res.data.value || []
+							console.log(res, 'formList', this.formList)
+						}
+					}
+				})
 			},
-			/**
-			 * @method showPre 展示下一条
-			 **/
-			showNext() {
-
+			// 获取工步列表用于上下切换
+			getProcessListData(workOrder, intermediateProcess, workStep) {
+				let temp = intermediateProcess.workProcedureCode.split('_');
+				const param = {
+					pageNum: 1,
+					pageSize: 100,
+					workCode: workOrder.id,
+					workProcedureCode: temp[1],
+					workProcedureType: intermediateProcess.workProcedureType, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序
+					workOrderSceneType: intermediateProcess.workOrderSceneType,
+					templateCode: workOrder.procedureTemplateCode
+				}
+				getProcessList(param)
+					.then(res => {
+						if (res && res.data && Array.isArray(res.data.pageList)) {
+							res.data.pageList.forEach((item, index) => {
+								if (item.workProcedureCode === workStep.workProcedureCode) {
+									this.activeIndex = index;
+								}
+							})
+							this.productionList = res.data.pageList || [];
+						}
+					})
 			},
-			/**
-			 * @method showProveSheet 显示复核面板
-			 **/
-			showProveSheet() {
-				this.isShowProvePicker = true
-			},
-			hourConfirm() {},
+			// 复核面板确认
 			proveConfirm(value) {
 				const param = {
+					...this.commonParam,
 					craftId: this.craftId || 1,
 					pass: value.indexs[0], // 0：复核不通过，1：复核通过
+					isProblem: value.indexs[1] // 0:不加入 1:加入
 				}
-				proveConfirmApi(param).then(res => {
-					debugger
-					if (res) {
-
-					}
+				proveConfirmApi(param).then(() => {
+					uni.$u.toast('复核成功')
+				}).finally(() => {
+					this.isShowProvePicker = false
 				})
 			},
+			// 处理签到签退
 			handleSign(type) {
 				if (type === 'signIn') {
 					this.signInTime = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -236,10 +282,29 @@
 					this.signOutTime = moment().format('YYYY-MM-DD HH:mm:ss');
 				}
 			},
+			// 跳转增加问题页面
 			handleAddIssue() {
 				uni.navigateTo({
-					url: '/pages/orderDetail/addIssue'
+					// url: '/pages/orderDetail/addIssue',
+					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.commonParam.workProcedureCode}&workScene=${this.commonParam.workScene}&workProcedureType=${3}`
 				});
+			},
+			// 处理开工
+			handleStarWork() {
+				const param = {
+					workCode: this.commonParam.workCode,
+					workScene: this.commonParam.workScene,
+					isStart: this.isStart,
+					operator: localStorage.getItem('hb_dq_mes_user_info').username
+				}
+				reportWorderStatus(param).then(res => {
+					if (res) {
+						uni.$u.toast('操作成功')
+						uni.navigateBack({
+							delta: 1
+						})
+					}
+				})
 			}
 		},
 	};
@@ -358,7 +423,7 @@
 			}
 
 			.right-btn {
-				width: 300rpx;
+				width: 200rpx;
 				height: 60rpx;
 				line-height: 60rpx;
 				background-color: #3a62d7;

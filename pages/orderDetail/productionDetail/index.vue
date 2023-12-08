@@ -143,6 +143,7 @@
 			this.productionDetailInfo.groupPerson = deputyLeaderName;
 			this.productionDetailInfo.subGroupPerson = leaderName;
 			this.productionDetailInfo.member = memberName;
+			this.workOrderSceneType = workOrderSceneType;
 			this.getData();
 		},
 		methods: {
@@ -228,7 +229,7 @@
 			},
 			handleAddIssue() {
 				uni.navigateTo({
-					url: '/pages/orderDetail/addIssue'
+					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.workProcedureCode}&workScene=${this.workOrderSceneType}&workProcedureType=${2}`
 				});
 			},
 			skipSubProductDetail(item) {

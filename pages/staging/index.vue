@@ -37,12 +37,11 @@
 			@close="showSearchPanel = false">
 			<view class="search-pop">
 				<u-search v-model="searchKey" inputAlign="center" height="70" shape="round" :clearabled="true"
-					placeholder="请输入关键字" actionText='搜索' :showAction="true" @search="getListData"
-					@clear="handleClearSearchKey">
+					placeholder="请输入关键字" actionText='搜索' :showAction="true" @custom="getListData('search')"
+					@search="getListData('search')" @clear="handleClearSearchKey">
 				</u-search>
 			</view>
 		</u-popup>
-		<u-toast ref="uToast"></u-toast>
 	</view>
 </template>
 
@@ -52,7 +51,7 @@
 	import {
 		getWorkOrderPageData,
 		getOverhaulPageData,
-		getIssuePageList
+		queryProcedureProblem
 	} from "@/https/staging/index.js";
 	import {
 		CARD_FIELD_MAP,
@@ -84,14 +83,8 @@
 				searchKey: "",
 				// 颜色值与状态映射
 				statusMapColor: ['#fbefe9', '#e3ebfb', '#e9ecee'],
-				// 展示返回按钮
-				showBack: false,
 				// 展示页面类型 workOrder-勘查工单 overhaul-检修页面、issue-问题页面
 				showType: "workOrder",
-				// 列表加载状态
-				loading: false,
-				// 加载完成
-				finished: false,
 				// 刷新
 				refreshing: false,
 				// 列表数据总数
@@ -160,10 +153,10 @@
 			}
 		},
 		onLoad(params) {
-			this.getListData();
 			// 路由激活时，重新获取数据
 			this.showType = params.type || 'workOrder'
 			params.id && this.handleRouterChange(params.id);
+			this.getListData();
 		},
 		methods: {
 			/**
@@ -173,72 +166,77 @@
 				const param = {
 					pageNum: this.pageNum,
 					pageSize: 10,
-					projName: this.searchKey,
+
 				};
 				if (this.selectOrderStatu) {
 					param.orderStatusList = [this.selectOrderStatu]
 				}
 				let result = {};
 				let listData = [];
+				if (type === 'scrolltoupper') {
+					this.searchKey = param.projName = '';
+					this.refreshing = true;
+				} else if (type === 'scrolltolower') {
+					param.pageNum++;
+				}
 				if (this.showType === "issue") {
-					const {
-						data
-					} = await getIssuePageList({
-						pageNum: 1,
-						pageSize: 10,
-						searchKey: this.searchKey
-					});
-					console.log(data, 'getIssuePageList')
-					this.total = data && data.total;
-					this.allListData = [...data.pageList]
-					listData = data.pageList.map(item => ({
-						title: item.projName,
-						prodNumber: item.prodNumber,
-						projManagerName: item.projManagerName,
-						planStartTime: item.planStartTime,
-						planEndTime: item.planEndTime,
-					}))
+					const ims_workOrder = JSON.parse(localStorage.getItem("ims_workOrder")).data
+					param.workCode = ims_workOrder.id;
+					param.workScene = ims_workOrder.workScene || "SURVEY_SCENE";
+					param.searchKey = this.searchKey;
+					queryProcedureProblem(param).then(res => {
+						if (res.data && Array.isArray(res.data.pageList)) {
+							this.total = res.data.total;
+							this.allListData = [...res.data.pageList]
+							listData = this.allListData.map(item => ({
+								title: item.problemProcedureOwn,
+								imgList: item.pictureUrl && item.pictureUrl.split('|'),
+								videoList: item.videoUrl && item.videoUrl.split("|"),
+								...item
+							}))
+							this.handleDataByType(listData, type)
+						}else{
+							this.cardList = []
+						}
+					})
 				} else {
+					param.projName = this.searchKey;
 					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
-					const {
-						data
-					} = await getWorkOrderPageData(param);
-					this.total = data && data.total;
-					this.allListData = [...data.pageList]
-					listData = data.pageList.map(item => ({
-						status: item.orderStatus,
-						title: item.projName,
-						...item
-					}))
+					getWorkOrderPageData(param).then(res => {
+						if (res.data && Array.isArray(res.data.pageList)) {
+							this.total = res.data.total;
+							this.allListData = JSON.parse(JSON.stringify(res.data.pageList))
+							listData = this.allListData.map(item => ({
+								status: item.orderStatus,
+								title: item.projName,
+								...item
+							}))
+							this.handleDataByType(listData, type)
+						}
+					})
 				}
-				let message = '已经刷新'
-				if (type === 'scrolltolower') {
-					if (this.cardList.length < this.total) {
-						this.cardList.push(...listData)
-						this.status = 'loadmore'
-						this.pageNum++
-					} else {
-						message = '已经没有更多数据'
-						this.status = 'nomore'
-					}
-				} else {
-					this.pageNum = 1;
+
+			},
+			/**
+			 * @method handleDataByType 处理接口返回数据
+			 **/
+			handleDataByType(listData, type) {
+				if (type === 'search') {
 					this.cardList = listData
-					this.refreshing = true
 				}
-				setTimeout(() => {
-					this.refreshing = false
-				}, 200)
-				this.$refs.uToast.show({
-					message
-				})
+				if (this.cardList.length < this.total) {
+					this.cardList.push(...listData)
+					this.status = 'loadmore'
+				} else {
+					this.status = 'nomore'
+				}
+				this.refreshing = false
+				console.log(this.cardList, 'cardList')
 			},
 			/**
 			 * @method handleRouterChange 处理路由改变-问题页面
 			 **/
 			handleRouterChange(issueId) {
-				console.log(issueId, 'handleRouterChange')
-				this.showBack = true;
 				this.showType = "issue";
 				this.cardList = [];
 				this.getListData();
@@ -270,9 +268,11 @@
 				card.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
 					id: card.id
 				});
-				uni.navigateTo({
-					url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
-				});
+				setTimeout(() => {
+					uni.navigateTo({
+						url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
+					});
+				}, 200)
 			},
 			/**
 			 * @method handleClearSearchKey 点击清楚搜索框
@@ -286,7 +286,6 @@
 			 * @method handleConfirmFilter 筛选面板选择时
 			 **/
 			handleConfirmFilter(action) {
-				console.log(action, "handleConfirmFilter");
 				this.selectOrderStatu = action.value;
 				this.cardList = [];
 				this.getListData();

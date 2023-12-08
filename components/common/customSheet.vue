@@ -26,11 +26,15 @@
 			},
 			title: {
 				type: String,
+			},
+			isHourSelect: {
+				type: Boolean,
+				default: false
 			}
 		},
 		data() {
 			return {
-				selecedList: []
+				selecedList: this.selects
 			}
 		},
 		methods: {
@@ -38,14 +42,21 @@
 				this.$emit('close', this.selects.filter(item => item.isCheck))
 			},
 			handleCheck(item, index) {
-				this.$emit('handleCheck', index)
+				if(this.isHourSelect){
+					this.selecedList = []
+				}
+				this.selecedList[index].isCheck = !item.isCheck
 			},
 			reset() {
 				this.$emit('reset')
 			},
 			handleConfirm() {
 				const selectedList = this.selects.filter(item => item.isCheck)
-				this.$emit('customSheetConfirm', selectedList)
+				if (this.isHourSelect) {
+					this.$emit('selectHourConfirm', selectedList)
+				}else{
+					selectedList.length && this.$emit('customSheetConfirm', selectedList)
+				}
 			}
 		}
 	}
@@ -54,6 +65,7 @@
 <style lang='less' scoped>
 	.multi-select {
 		max-height: 400px;
+		overflow-y: auto;
 		display: flex;
 		justify-content: space-around;
 		flex-wrap: wrap;

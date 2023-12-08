@@ -2,16 +2,16 @@
 <template>
 	<view class="full-wrapper">
 		<!-- 卡片列表 -->
-		<u-list v-model="loading" finished-text="没有更多了" class="card-list" offset="40" :finished="finished"
-			@load="getListData">
-			<view class="card-item" v-for="(card, index) in cardList" :key="index" @tap="handleShowDetail(card)">
-				<Card :fieldMapText="fieldMapText" :cardInfo="card" :showBottomRadius='false'>
-					<view class="progress">
-						<Progress :progress='card.progress' />
-					</view>
-				</Card>
+		<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
+			:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
+			:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
+			@scrolltolower="getListData('scrolltolower')">
+			<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
+				<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
 			</view>
-		</u-list>
+			<u-loadmore :status="status" v-if="cardList.length > 4" />
+		</scroll-view>
+		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else></u-empty>
 	</view>
 </template>
 <script>
@@ -54,17 +54,14 @@
 				},
 				// 数据列表
 				cardList: [],
-				// 列表加载状态
-				loading: false,
-				// 加载完成
-				finished: false,
 				// 刷新
 				refreshing: false,
 				// 页面参数
-				page: {
-					pageSize: 20,
-					pageNum: 1
-				}
+				pageNum: 1,
+				// 列表刷新状态
+				status: "nomore",
+				// 列表刷新状态
+				status: "nomore"
 			};
 		},
 		mounted() {
@@ -74,20 +71,36 @@
 			/**
 			 * @method getListData 获取列表数据
 			 **/
-			getListData() {
+			getListData(type) {
+				// 判断是上拉还是上滑事件
+				if (type === 'scrolltoupper') {
+					this.refreshing = true;
+				} else if (type === 'scrolltolower') {
+					this.pageNum++;
+				}
 				const param = {
-					...this.page,
-					// workCode: this.orderInfo.id ,
-					workCode: 1001,
+					pageSize: 10,
+					pageNum: this.pageNum,
+					workCode: this.orderInfo.id,
 					workProcedureType: 0, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序,
 				};
 				getProcessList(param).then(res => {
 					if (res.data && res.data.pageList) {
-						this.cardList = res.data.pageList.map(item => ({
+						const listData = res.data.pageList.map(item => ({
 							title: item.workProcedureName,
 							...item
 						}))
+
+						const total = res.data.total || 0;
+						if (this.cardList.length < total) {
+							this.cardList.push(...listData)
+							this.status = 'loadmore'
+						} else {
+							this.status = 'nomore'
+						}
 					}
+				}).finally(() => {
+					this.refreshing = false
 				})
 			},
 			handleShowDetail(card) {
@@ -101,6 +114,7 @@
 </script>
 <style lang="scss" scoped>
 	.full-wrapper {
+		height: 100%;
 		overflow-y: auto;
 		font-size: 12rpx;
 		color: #657685;
@@ -118,5 +132,10 @@
 				}
 			}
 		}
+	}
+
+	/deep/ .uni-scroll-view-refresher {
+		background: url("@/assets/imgs/staging/staging-bg.png") no-repeat center;
+		background-size: 100% 100%;
 	}
 </style>

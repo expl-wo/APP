@@ -5,9 +5,10 @@
 				<u-form-item :label="item.operationName" :prop="item.operationCode" @click="showAction(item)"
 					ref="item1" :ref="`item${index}`">
 					<text class="description">{{item.operationDescription}}</text>
+					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容" v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
+					<u-number-box :min="lowerLimit" :max="upperLimit" v-model="formData[item.operationCode]" v-else-if="item.operationType ==='1'"></u-number-box>
 					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
-						border="none" v-if="item.operationType!=='0'"></u--input>
-					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容" v-else></u--textarea>
+						border="none" v-else></u--input>
 					<u-icon slot="right" name="arrow-right" v-if="item.operationType!=='0'"></u-icon>
 				</u-form-item>
 				<!-- 执行频率 -->
@@ -15,14 +16,14 @@
 					<view class='picker-tag' v-if="item.executionFrequency !== '2'">
 						<text class="tip">执行频率:</text>
 						<view class="time-select-box" v-if="item.executionFrequency === '0'">
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">请选择天</text>
-							<text class="time-type">{{item.time}}</text>
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'hour')">请选择小时</text>
-							<text class="time-type">{{item.time}}</text>
+							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">选择天</text>
+							<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+							<text class="btn-link" @click="showTimeActionSheet(item,index,'hour')">选择小时</text>
+							<text class="time-type">{{ showTimeList[index] && showTimeList[index].hourTime}}</text>
 						</view>
 						<view class="time-select-box" v-else-if="item.executionFrequency === '1'">
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">请选择天</text>
-							<text class="time-type">{{item.time}}</text>
+							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">选择天</text>
+							<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
 						</view>
 					</view>
 				</view>
@@ -37,23 +38,29 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<view class="save btn" @click="submit">保存</view>
+				<view class="save btn">
+					<u-button  @click="submit" text="保存" :disabled="!isStart"></u-button>
+				</view>
 				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
 				<view style="display: flex;margin-top: 10px;">
 					<button @click="computedWidth('minus')" style="margin-right:5px;">减少</button>
 					<button @click="computedWidth('plus')">增加</button>
 				</view>
-				<view class="report btn" @click="handleReport">报工</view>
+				<view class="report btn">
+					<u-button  @click="handleReport" text="报工" :disabled="!isStart"></u-button>
+				</view>
 			</view>
 		</u--form>
 		<u-action-sheet :show="showSingalAction" :actions="actions" title="请选择" @close="showSingalAction = false"
 			@select="singleSelect">
 		</u-action-sheet>
-		<CustomSheet :show='showCustomSheet' :title="customSheetTitle" :selects='selectHours' @close='closeCustomSheet'
-			@handleCheck='handleCheck' @reset='reset' @customSheetConfirm='customSheetConfirm'>
+		<CustomSheet :show='isShowCustomSheet' :title="customSheetTitle" :selects='selectHours'
+			:isHourSelect='isHourSelect' @close='closeCustomSheet' @handleCheck='handleCheck' @reset='reset'
+			@selectHourConfirm='selectHourConfirm'>
 		</CustomSheet>
 		<u-calendar confirmDisabledText="请选择日期" :formatter="formatter" :show="isShowCalendar" :maxDate="maxDate"
-			:closeOnClickOverlay='true' @confirm="confirmCalendar" ref="calendar" @close='isShowCalendar = false'>
+			:minDate='minDate' :closeOnClickOverlay='true' @confirm="confirmCalendar" ref="calendar"
+			@close='isShowCalendar = false'>
 		</u-calendar>
 	</view>
 </template>
@@ -64,7 +71,8 @@
 	import {
 		queryBatchRecord,
 		reportWorkContent,
-		queryHistoryRecordByTime
+		queryHistoryRecordByTime,
+		reportWork
 	} from "@/https/staging/index.js";
 	export default {
 		name: "From",
@@ -77,6 +85,14 @@
 				type: Array,
 				default: () => []
 			},
+			isStart:{
+				type:Boolean,
+				default:false
+			},
+			commonParam:{
+				type:Object,
+				default:()=>({})
+			}
 		},
 		watch: {
 			formList(val) {
@@ -101,8 +117,8 @@
 			const selectHours = [];
 			for (let i = 0; i < 24; i++) {
 				selectHours.push({
-					value: i,
-					label: `${i}时`,
+					value: `${i}:00:00`,
+					label: `${i}:00~${i+1}:00`,
 					isCheck: false
 				})
 			};
@@ -125,13 +141,14 @@
 				],
 				// 表单验证规则
 				rules: {},
-				showCustomSheet: false,
+				isShowCustomSheet: false,
 				// 表格提交数据
 				submitFormData: [],
 				// 展示日历选择
 				isShowCalendar: false,
 				// 最大日期限制
-				maxDate: `${year}-${month}-${date + 10}`,
+				maxDate: `${year}-${month}-${date}`,
+				minDate: `${year}-${month}-${date -30}`,
 				// 展示单选操作面板
 				showSingalAction: false,
 				// 当前操作的记录项=下标
@@ -141,7 +158,13 @@
 				// 自定义面板标题
 				customSheetTitle: '小时选择',
 				// 报工进度
-				percentage: 2
+				percentage: 0,
+				// 已经填写内容的时间列表
+				selectedTimeList: [],
+				// 是否是选择小时-只能选中一个时间点
+				isHourSelect: false,
+				// 显示的时间列表
+				showTimeList:[]
 			}
 		},
 		methods: {
@@ -178,26 +201,44 @@
 				})
 			},
 			submit() {
+				console.log(this.formData,'formData',this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
-					uni.$u.toast('校验通过')
-
+					this.submitFormData.forEach((item,index)=>{
+						item.contentInfo = this.formData[item.operationCode];
+						const time = this.selectHours.filter(item=>item.label == this.showTimeList[index].hourTime);
+						console.log(this.selectHours, this.showTimeList[index].hourTime, ' this.showTimeList[index].hourTime',time);
+						if(item.executionFrequency === '0'){
+							item.workPlanTime = this.showTimeList[index].date + " " + time[0].value;
+						}else if(item.executionFrequency === '1'){
+							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + time[0].value;
+						}
+					})
+					const param = {
+						...this.commonParam,
+						craftCode:this.commonParam.craftId,
+						list: this.submitFormData
+					}
+					reportWorkContent(param).then(res => {
+						if (res) {
+							uni.$u.toast('保存成功')
+						}
+					}).catch(() => {
+						uni.$u.toast('保存失败')
+					})
 				}).catch(errors => {
 					uni.$u.toast('校验失败')
 				})
 			},
 			// 删除图片
 			deletePic(event, index) {
-				debugger
 				this.submitFormData[index].fileList.splice(event.index, 1)
 			},
 			// 新增图片
 			async afterRead(event, index) {
-				debugger
 				// 当设置 multiple 为 true 时, file 为数组格式，否则为对象格式
 				const idx = index;
 				let lists = [].concat(event.file)
 				let fileListLen = this.submitFormData[idx].fileList.length
-				debugger
 				lists.map((item) => {
 					this.submitFormData[idx].fileList.push({
 						...item,
@@ -235,56 +276,25 @@
 			},
 			closeCustomSheet(selectedList) {
 				console.log(selectedList, 'selectedList')
-				this.showCustomSheet = false
+				this.isShowCustomSheet = false
 			},
 			reset() {
 				this.selectHours.forEach(item => {
 					item.isCheck = false
 				})
 			},
-			confirmCalendar(date) {
-				this.submitFormData[this.currentIndex].data = data[0]
-				console.log(date, 'confirmCalendar', this.submitFormData)
-			},
-			// 日历显示已选择的日期
-			formatter(day) {
-				const d = new Date()
-				let month = d.getMonth() + 1
-				const date = d.getDate()
-				if (day.month == month && day.day == date + 3) {
-					day.bottomInfo = '已操作'
-					day.dot = true
-				}
-				return day
-			},
-			handleSave() {
-				console.log('handleSave')
-				const param = {
-					"workCode": "20220705093359824311000301954583",
-					"craftCode": "20231125",
-					"contentCode": "",
-					"workScene": "SURVEY_SCENE",
-					list: this.submitFormData
-				}
-				reportWorkContent(param).then(res => {
-					if (res) {
-						uni.$u.toast('保存成功')
-					}
-				}).catch(() => {
-					uni.$u.toast('保存失败')
-				})
-			},
 			handleReport() {
-				console.log('handleReport')
+				const userInfo = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'))
 				const param = {
-					workCode: 111,
-					workProcedureCode: 111, // 	工步编码
-					workScene: 111, // 工单场景
-					progress: this.progress,
-					isStart: 1, // 是否开工 1: 开工
-					isFinished: 1, // 	是否完工 1:完工
-					operator: 1, // 操作人id
+					progress: this.percentage,
+					workCode:this.commonParam.workCode,
+					workScene:this.commonParam.workScene,
+					workProcedureCode: this.commonParam.craftId,
+					isStart:this.isStart ? 1 : 0 ,
+					// isFinished: 1, // 	是否完工 1:完工
+					operator: userInfo.username
 				}
+				console.log('handleReport',param,userInfo)
 				reportWork(param).then(res => {
 					uni.$u.toast('报工成功')
 				}).catch(error => {
@@ -296,11 +306,53 @@
 				console.log(item.executionFrequency, 'form-item')
 				if (type === 'day') {
 					console.log(this.$refs.calendar, 'calendar')
-					this.isShowCalendar = true
+					this.queryRecordHistoryByTime(item, type)
+					setTimeout(() => {
+						this.isShowCalendar = true
+					}, 500)
 				} else {
-					this.showCustomSheet = true
+					this.isHourSelect = true;
+					// 小时显示单选picker
+					this.isShowCustomSheet = true
 				}
 				this.currentIndex = index
+			},
+			// 日历显示已选择的日期
+			formatter(day) {
+				this.selectedTimeList.forEach(item => {
+					const d = new Date(item)
+					let month = d.getMonth() + 1
+					const date = d.getDate()
+					if (day.month == month && day.day == date) {
+						day.bottomInfo = '已操作'
+						day.dot = true
+					}
+				})
+				return day
+			},
+			// 日历
+			confirmCalendar(date) {
+				this.$set(this.showTimeList[this.currentIndex], 'date', date[0])
+				console.log(date, 'confirmCalendar', this.submitFormData)
+				this.isShowCalendar = false
+			},
+			// 根据当前时间查询
+			queryRecordHistoryByTime(item, type) {
+				const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+				const beginTime =  moment().startOf('month').format('YYYY-MM-DD HH:mm:ss');
+				const param = {
+					workCode:this.commonParam.workCode,
+					craftCode:this.commonParam.craftId,
+					workScene:this.commonParam.workScene,
+					operationCode:item.operationCode,
+					beginTime: beginTime,
+					endTime: currentTime
+				}
+				queryHistoryRecordByTime(param).then(res => {
+					if (res && res.data && Array.isArray(res.data.value)) {
+						this.selectedTimeList = res.data.value || []
+					}
+				})
 			},
 			showAction(item) {
 				console.log(item.operationType, 'showAction')
@@ -311,19 +363,44 @@
 				this.selectHours[index].isCheck = true
 			},
 			initFormData() {
-				this.formList.forEach(item => {
+				this.formList.forEach((item,index) => {
 					this.formData[item.operationCode] = item.contentInfo
+					const tempObj =  {
+						date:item.date || '',
+						hourTime:item.hourTime || '',
+					}
+					this.showTimeList.push(tempObj)
 				})
-				console.log(this.formData, 'initFormData')
+				console.log(this.formData, 'initFormData',this.showTimeList)
 			},
-			customSheetConfirm(selectedList) {
+			// 小时确认框
+			selectHourConfirm(selectedList) {
 				console.log(selectedList, 'selectedList')
+				this.$set(this.showTimeList[this.currentIndex], 'hourTime', selectedList[0].label)
+				this.showTimeList[this.currentIndex]
+				let beginTime = moment().format('YYYY-MM-DD') + " " + selectedList[0].value;
+				if(this.showTimeList[this.currentIndex].date){
+					beginTime = this.showTimeList[this.currentIndex].date + " " + selectedList[0].value
+				}else{
+					uni.$u.toast('请选择日期')
+				}
+				const params = [
+					{
+						workCode:this.commonParam.workCode,
+						craftCode:this.commonParam.craftId,
+						workScene:this.commonParam.workScene,
+						operationCode:this.submitFormData[this.currentIndex].operationCode,
+						beginTime: beginTime,
+						executionFrequency:this.submitFormData[this.currentIndex].executionFrequency
+					}
+				] 
+				this.$emit('getBatchRecord',params)
+				this.isShowCustomSheet = false
 			}
 		},
 		mounted() {
 			//如果需要兼容微信小程序，并且校验规则中含有方法等，只能通过setRules方法设置规则。
 			console.log(this.formList, 'formList', this.submitFormData)
-
 		}
 	}
 </script>
@@ -348,7 +425,7 @@
 
 				.time-type {
 					padding: 0 20rpx;
-					color: #3a62d7;
+					/* color: #3a62d7; */
 				}
 
 				.time-select-box {
@@ -370,7 +447,7 @@
 			.btn {
 				height: 60rpx;
 				line-height: 60rpx;
-				margin: 10rpx 0;
+				margin: 20rpx 0;
 				background-color: #f6f8fb;
 				text-align: center;
 			}

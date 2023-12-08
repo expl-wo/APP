@@ -1,7 +1,7 @@
 <template>
 	<view class="card-root">
 		<view class="card-head">
-			<span class="title ellipse">{{ cardInfo[title] }}</span>
+			<span class="title ellipse">{{ cardInfo[title] || '--' }}</span>
 			<span class="status" v-if="cardInfo['status']"
 				:style="{color:getColor(cardInfo['status']),backgroundColor:getBackgroundColor(cardInfo['status'])}">
 				{{getStatusStr(cardInfo["status"])}}
@@ -19,12 +19,33 @@
 					</view>
 				</view>
 			</template>
+			<!-- 图片列表 -->
+			<view class="img-box" v-if="cardInfo['imgList']">
+				<view class="img-item" v-for="img in cardInfo['imgList']" :key="img">
+					<u--image :showLoading="true" :src="getUrl(img)" width="80px" height="80px"
+						@click="showModal(img,'img')"></u--image>
+				</view>
+			</view>
+			<!-- 视频列表 -->
+			<view class="img-box" v-if="cardInfo['videoList']">
+				<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video"
+					@click="showModal(video,'video')">
+					<video :src="getUrl(video)" controls style="widht:80px;height: 80px;"></video>
+				</view>
+			</view>
 			<view v-if="Object.keys(fieldMapText).length > 4" class="show-more-icon" :title="isShowMore ? '收起' : '展开'"
 				@click.stop="handleShowMore">
 				<u-icon :name="isShowMore ? 'arrow-up' : 'arrow-down'" />
 			</view>
 		</view>
 		<slot></slot>
+		<!-- 展示视频图片模态框 -->
+		<u-modal v-model="isShowModal" width="300px">
+			<view class="slot-content">
+				<u--image :showLoading="true" :src="currentUrl"></u--image>
+				<video :src="currentUrl" controls></video>
+			</view>
+		</u-modal>
 	</view>
 </template>
 
@@ -58,6 +79,9 @@
 		data() {
 			return {
 				isShowMore: false,
+				currentUrl: '',
+				currentUrl: '',
+				isShowModal: true,
 			};
 		},
 		methods: {
@@ -99,6 +123,14 @@
 			getBackgroundColor(status) {
 				return ORDER_STATUS_MAP[status - 1].backgroundColor
 			},
+			getUrl(img) {
+				return 'http://10.16.9.128:9000/' + img;
+			},
+			showModal(item, type) {
+				const url = this.getUrl(item);
+				this.currentUrl = url;
+				this.isShowModal = true;
+			}
 		},
 	};
 </script>
@@ -178,6 +210,22 @@
 				right: 0;
 				bottom: -10rpx;
 				font-size: $bigFontSize;
+			}
+
+			.img-box {
+				display: flex;
+				margin-bottom: 10px;
+
+				.img-item {
+
+					margin-right: 10px;
+				}
+
+				/deep/ .uni-video-container {
+					width: 80px;
+					height: 80px;
+
+				}
 			}
 		}
 

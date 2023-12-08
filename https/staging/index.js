@@ -119,18 +119,50 @@ export function reportWork(data) {
 }
 
 // 获取问题页面
-export function getIssuePageList(data) {
-	return request({
-		url: "/evo-ims-overhaul/problem-base/page",
-		method: 'post',
-		data
-	})
-}
+// export function getIssuePageList(data) {
+// 	return request({
+// 		url: "/evo-ims-overhaul/problem-base/page",
+// 		method: 'post',
+// 		data
+// 	})
+// }
 
 // 审核确认接口
 export function proveConfirmApi(data) {
 	return request({
-		url: "/work-procedure/check",
+		url: "/evo-ims-overhaul/work-procedure/check",
+		method: 'post',
+		data
+	})
+}
+// Andon分类查询
+export function queryCategory(data) {
+	return request({
+		url: "/evo-ims-link/andon/query/category",
+		method: 'get',
+		data
+	})
+}
+// 异常项查询
+export function queryAbnormal(data) {
+	return request({
+		url: "/evo-ims-link/andon/query/abnormal",
+		method: 'get',
+		data
+	})
+}
+// 安灯添加问题接口
+export function addProcedureProblem(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure-problem/add",
+		method: 'post',
+		data
+	})
+}
+// 分页查看问题
+export function queryProcedureProblem(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure-problem/query-page",
 		method: 'post',
 		data
 	})

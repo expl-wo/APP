@@ -2,20 +2,20 @@
 	<view class="full-content">
 		<view class="form-wrapper">
 			<u-form labelPosition="left" labelWidth="auto" :model="issueForm" :rules="rules" ref="issueForm">
-				<u-form-item label="问题类别" prop="type" borderBottom ref="type" @click="showSelect(true, 'type')">
-					<u--input v-model="issueForm.type" disabled disabledColor="#ffffff" placeholder="请选择"
+				<u-form-item label="问题类别" prop="cateName" borderBottom ref="cateName" @click="showSelect(true, 'cate')">
+					<u--input v-model="issueForm.cateName" disabled disabledColor="#ffffff" placeholder="请选择"
 						border="none" />
 					<u-icon slot="right" name="arrow-down" />
 				</u-form-item>
-				<u-form-item label="异常项" prop="abnormalItem" borderBottom ref="abnormalItem"
-					@click="showSelect(true, 'abnormalItem')">
-					<u--input v-model="issueForm.abnormalItem" disabled disabledColor="#ffffff" placeholder="请选择"
+				<u-form-item label="异常项" prop="abnormalName" borderBottom ref="abnormalName"
+					@click="showSelect(true, 'abnormal')">
+					<u--input v-model="issueForm.abnormalName" disabled disabledColor="#ffffff" placeholder="请选择"
 						border="none" />
 					<u-icon slot="right" name="arrow-down" />
 				</u-form-item>
-				<u-form-item label="问题通知人" prop="notifier" borderBottom ref="notifier"
+				<u-form-item label="问题通知人" prop="notifierName" borderBottom ref="notifierName"
 					@click="showSelect(true, 'notifier')">
-					<u--input v-model="issueForm.notifier" disabled disabledColor="#ffffff" placeholder="请选择"
+					<u--input v-model="issueForm.notifierName" disabled disabledColor="#ffffff" placeholder="请选择"
 						border="none" />
 					<u-icon slot="right" name="arrow-down" />
 				</u-form-item>
@@ -23,14 +23,14 @@
 					<u--textarea v-model="issueForm.desc" placeholder="请输入内容" count />
 				</u-form-item>
 				<u-form-item label="图片附件" borderBottom ref="imgUpload">
-					<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="imageList"
-						:maxCount="3" @beforeRead="beforeRead($event, 'image')" @afterRead="afterRead($event, 'image')"
-						@delete="deleteFile($event, 'image')" />
+					<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="pictureList"
+						:maxCount="3" @beforeRead="beforeRead($event, 'picture')"
+						@afterRead="afterRead($event, 'picture')" @delete="deleteFile($event, 'picture')" />
 				</u-form-item>
 				<u-form-item label="视频附件" borderBottom ref="videoUpload">
 					<u-upload name="videoUpload" multiple accept="video" :useBeforeRead="true" :fileList="videoList"
-						:maxCount="1" :previewFullImage="true" @beforeRead="beforeRead($event, 'video')" @afterRead="afterRead($event, 'video')"
-						@delete="deleteFile($event, 'video')" />
+						:maxCount="1" :previewFullImage="true" @beforeRead="beforeRead($event, 'video')"
+						@afterRead="afterRead($event, 'video')" @delete="deleteFile($event, 'video')" />
 				</u-form-item>
 				<view class="tip">
 					注：最多可上传3张图片、1个视频,单张图片20M以内，视频200M以内
@@ -49,7 +49,7 @@
 
 <script>
 	const MAX_SIZE = {
-		image: {
+		picture: {
 			label: '图片',
 			maxSize: 20 * 1024 * 1024
 		},
@@ -58,67 +58,130 @@
 			maxSize: 200 * 1024 * 1024
 		}
 	};
+	import {
+		queryCategory,
+		queryAbnormal,
+		addProcedureProblem
+	} from "@/https/staging/index.js";
+	import uploadHttp from '@/https/_public/upload';
+	import {
+		getToken,
+		setToken
+	} from '@/utils/auth.js';
 	export default {
 		data() {
 			return {
 				issueForm: {
-					type: '',
-					typeId: '',
-					abnormalItem: '',
-					abnormalItemId: '',
-					notifier: '',
+					cateName: '',
+					cateId: '',
+					abnormalName: '',
+					abnormalId: '',
+					notifierName: '',
 					notifierId: '',
 					desc: ''
 				},
 				rules: {
-					type: [
-						{
-							required: true, 
-							message: '请选择问题类别',
-							trigger: ['change','blur'],
-						}
-					],
-					abnormalItem: [
-						{
-							required: true, 
-							message: '请选择异常项',
-							trigger: ['change','blur'],
-						}
-					],
-					notifier: [
-						{
-							required: true, 
-							message: '请选择通知人',
-							trigger: ['change','blur'],
-						}
-					]
+					cateName: [{
+						required: true,
+						message: '请选择问题类别',
+						trigger: ['change', 'blur'],
+					}],
+					abnormalName: [{
+						required: true,
+						message: '请选择异常项',
+						trigger: ['change', 'blur'],
+					}],
+					notifierName: [{
+						required: true,
+						message: '请选择通知人',
+						trigger: ['change', 'blur'],
+					}]
 				},
-				imageList: [],
+				pictureList: [],
 				videoList: [],
 				currentField: '',
 				showFlag: false,
-				actions: [{
-						name: '选项一',
-						id: 1
-					},
-					{
-						name: '选项二',
-						id: 2
-					},
-					{
-						name: '选项三',
-						id: 2
-					}
-				]
+				actions: [],
+				// 问题类别列表
+				typeList: [],
+				// 当前选择的问题类别id
+				cateId: '',
+				// 异常项列表
+				abnormalList: [],
+				// 通知人列表
+				notifierList: [],
+				param: {
+					workCode: '', // 工单编码
+					workScene: '', // 工单场景
+					workProcedureCode: '', // 上报问题的工序id
+					workProcedureType: '', //上报问题的工序类型 1:标准工序 2:中工序 3:工步
+				}
 			}
 		},
+		onLoad(options) {
+			const {
+				workProcedureCode,
+				workScene,
+				workProcedureType
+			} = options;
+			this.param.workProcedureCode = workProcedureCode;
+			this.param.workScene = workScene;
+			this.param.workProcedureType = workProcedureType;
+			this.param.workCode = JSON.parse(localStorage.getItem("ims_workOrder")).data.id;
+		},
+		mounted() {
+			this.initSelectData()
+		},
 		methods: {
+			initSelectData() {
+				queryCategory().then(res => {
+					if (res && res.data && Array.isArray(res.data.value)) {
+						this.typeList = res.data.value.map(item => ({
+							id: item.id,
+							name: item.cateName
+						}))
+						const id = this.cateId || this.typeList[0].id
+						console.log(this.typeList, this.cateId, 'cateId', id);
+						queryAbnormal({
+							cateId: id
+						}).then(res => {
+							if (res && res.data && Array.isArray(res.data.value)) {
+								res.data.value.forEach(item => {
+									item.id = item.cateId;
+									item.name = item.abnormalName;
+								});
+								this.abnormalList = res.data.value || []
+							}
+						})
+					}
+				})
+			},
 			showSelect(flag, type) {
 				this.currentField = type;
+				if (type === 'cate') {
+					this.actions = [...this.typeList]
+				} else if (type === 'abnormal') {
+					this.actions = [...this.abnormalList]
+				} else if (type === 'notifier') {
+					this.actions = [...this.notifierList]
+				}
 				this.showFlag = flag;
 			},
 			selectItem(item) {
-				this.issueForm[this.currentField] = item.name;
+				if (this.currentField === 'cate') {
+					if (this.cateId === item.id) return;
+					this.cateId = item.id;
+					this.issueForm.abnormalName = '';
+					this.issueForm.abnormalId = '';
+					this.issueForm.notifierName = '';
+					this.issueForm.notifierId = '';
+					this.initSelectData()
+				} else if (this.currentField === 'abnormal') {
+					this.issueForm.notifierName = '';
+					this.issueForm.notifierId = '';
+					this.notifierList = this.abnormalList.filter(item => item.id === item.id)[0].responders
+				}
+				this.issueForm[`${this.currentField}Name`] = item.name;
 				this.issueForm[`${this.currentField}Id`] = item.id;
 			},
 			beforeRead(event, type) {
@@ -147,7 +210,29 @@
 				})
 			},
 			afterRead(file, type) {
-				this[`${type}List`].push(...file.file);
+				let uploadList = file.file;
+				let uploadTask = [];
+				for (let i = 0; i < uploadList.length; i++) {
+					uploadTask.push(this.uploadFilePromise(uploadList[i].url));
+				}
+				Promise.all(uploadTask)
+					.then(res => {
+						let successList = res.filter(item => item.status === 0);
+						if (successList.length < this.pictureList) {
+							uni.showToast({
+								title: '存在上传失败的图片',
+								duration: 2000
+							});
+						}
+						let uploadedList = successList.map(item => {
+							return {
+								url: `http://10.16.9.128:9000/${item.filePath}`,
+								filePath: item.filePath,
+								fileName: item.fileName
+							}
+						})
+						this[`${type}List`].push(...uploadedList);
+					})
 			},
 			deleteFile(event, type) {
 				let index = event.index;
@@ -159,19 +244,118 @@
 			},
 			back() {
 				uni.navigateBack({
-				    delta: 1
+					delta: 1
 				});
 			},
 			submit() {
-				// TODO
-				this.$refs.issueForm.validate()
-				.then(res => {
-					this.back();
+				console.log(this.pictureList, 'pictureList', this.videoList)
+				this.$refs.issueForm.validate().then((res) => {
+						const hb_dq_mes_user_info = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'));
+						const pictureUrls = this.pictureList.map(item => item.url)
+						const videoUrls = this.videoList.map(item => item.url)
+						const param = {
+							...this.param,
+							...this.issueForm,
+							reporterId: hb_dq_mes_user_info.username,
+							pictureUrl: pictureUrls.join('|'),
+							videoUrl: videoUrls.join('|')
+						}
+						addProcedureProblem(param).then(res => {
+							if (res) {
+								uni.$u.toast('上报问题成功')
+								this.cancel()
+							}
+						})
+						// this.back();
+					})
+					.catch(err => {
+						console.log(err, 'error')
+					})
+			},
+			deleteFile(event, type) {
+				let index = event.index;
+				this[`${type}List`].splice(index, 1);
+			},
+			// 判断是否图片是否超出限制
+			isOverSize(size, type) {
+				return size > MAX_SIZE[type].maxSize;
+			},
+			cancel() {
+				this.pictureList = [];
+				this.videoList = [];
+				this.issueForm = {
+					cateName: '',
+					cateId: '',
+					abnormalName: '',
+					abnormalId: '',
+					notifierName: '',
+					notifierId: '',
+					desc: ''
+				}
+				this.$emit('closePopup', false);
+			},
+			// 添加图片
+			confirm() {
+				if (!this.pictureList.length) {
+					this.$emit('closePopup', false);
+					return;
+				}
+				let {
+					id,
+					workId
+				} = this.bomInfo;
+				let params = {
+					bomId: id,
+					workId,
+					pictureList: this.pictureList.map(item => {
+						return {
+							imgPath: item.filePath,
+							imgName: item.fileName,
+							imgType: this.imgType
+						}
+					})
+				}
+				bindPic(params)
+					.then(res => {
+						if (res.success) {
+							uni.showToast({
+								title: '操作成功',
+								duration: 2000
+							});
+							this.$emit('closePopup', true);
+						} else {
+							uni.showToast({
+								title: res.errMsg,
+								duration: 2000
+							});
+						}
+					})
+				// this.pictureList = [];
+				// this.$emit('closePopup', true);
+			},
+			// 上传图片到服务器
+			uploadFilePromise(url) {
+				return new Promise((resolve, reject) => {
+					uploadHttp.upload({
+						token: getToken(),
+						filePath: url
+					}).then(response => {
+						if (response.code === 200) {
+							setTimeout(() => {
+								return resolve({
+									status: 0,
+									...response.data
+								})
+							}, 150)
+						} else {
+							return resolve({
+								status: 500,
+								msg: '上传失败'
+							});
+						}
+					});
 				})
-				.catch(err => {
-					debugger;
-				})
-			}
+			},
 		}
 	}
 </script>
@@ -194,6 +378,7 @@
 			/deep/ .uni-input-input {
 				text-align: right;
 			}
+
 			.tip {
 				line-height: 30px;
 				font-size: 16px;
@@ -217,4 +402,8 @@
 			}
 		}
 	}
+
+	// /deep/ .u-action-sheet{
+	// 	max-height: 400px;
+	// }
 </style>

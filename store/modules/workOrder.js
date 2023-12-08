@@ -32,13 +32,14 @@ let workOrder = {
 						.split('|');
 					const attachmentUrls = res.data.attachmentUrl && res.data.attachmentUrl.split(
 						"|")
-					attachmentUrls && attachmentNames && attachmentUrls.length && attachmentNames.forEach((
-						item, index) => {
-						fileList.push({
-							name: item,
-							url: attachmentUrls[index]
+					attachmentUrls && attachmentNames && attachmentNames.length && attachmentUrls.length &&
+						attachmentNames.forEach((
+							item, index) => {
+							fileList.push({
+								name: item,
+								url: attachmentUrls[index]
+							})
 						})
-					})
 					projectInfo.fileList = fileList
 					console.log(projectInfo, 'projectInfo', commit)
 					commit("updateWorkOrderDetail", projectInfo)

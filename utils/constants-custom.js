@@ -91,27 +91,27 @@ const CARD_FIELD_MAP = {
 
 // 问题卡片展示字段
 const ISSUE_FILED_MAP = {
-	issue: {
+	abnormalName: {
 		label: "异常项",
 		iconName: "photo"
 	},
-	issueType: {
+	cateName: {
 		label: "问题分类",
 		iconName: "photo"
 	},
-	notifyPerson: {
+	notifierName: {
 		label: "通知人",
 		iconName: "photo"
 	},
-	handlePerson: {
+	reporterName: {
 		label: "问题处理人",
 		iconName: "photo"
 	},
-	createTime: {
+	reporterDate: {
 		label: "问题提交时间",
 		iconName: "photo"
 	},
-	memo: {
+	problemDesc: {
 		label: "问题描述",
 		iconName: "photo"
 	},

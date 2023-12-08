@@ -27,10 +27,9 @@
 			            fontWeight: 'bold',
 			            transform: 'scale(1.05)'
 			        }" :inactiveStyle="{ color: '#657685'}" lineWidth='0'></u-tabs>
-					<view class="comp-wrapper">
-						<component :is="componentName"
-							:orderInfo='routeParam' />
-					</view>
+				<view class="comp-wrapper">
+					<component :is="componentName" :orderInfo='routeParam' />
+				</view>
 
 			</view>
 		</view>
@@ -73,6 +72,7 @@
 			return {
 				// 详情信息
 				projectInfo: {},
+				// tab列表
 				tabData: [{
 						index: 0,
 						name: "工序列表",
@@ -104,21 +104,14 @@
 		computed: {
 			...mapState("workOrder", ['workOrderDatialInfo'])
 		},
-		watch: {
-			workOrderDatialInfo: {
-				handler(newV, oldV) {
-					if (newV.id !== oldV.id) {
-						this.getDetailInfo()
-					}
-				},
-				immdiate: true
-			}
-		},
 		onLoad(options) {
 			console.log(options, '111111111')
 			this.routeParam = {
 				...options
 			};
+		},
+		created() {
+			this.getDetailInfo()
 		},
 		methods: {
 			/**
@@ -154,7 +147,7 @@
 			 * @method handleSkipToIssue 跳转到问题页面
 			 **/
 			handleSkipToIssue() {
-				const url = `/pages/staging/index?type=issue&id=${1}`
+				const url = `/pages/staging/index?type=issue`
 				uni.navigateTo({
 					url
 				})
@@ -166,6 +159,9 @@
 				console.log(item, 'item')
 				this.componentName = item.cName;
 			},
+			getUrl(url) {
+				return 'http://10.16.9.128:9000/' + url;
+			},
 			/**
 			 * @method handleDownFile 下载文件
 			 * @param {Object} 文件对象
@@ -175,9 +171,9 @@
 				uni.showLoading({
 					title: '下载中'
 				})
-				// 文件下载功能
+				文件下载功能
 				uni.downloadFile({
-					url: file.url,
+					url: this.getUrl(file.url),
 					success: (res) => {
 						if (res.status === 200) {
 							const filePath = res.temFilePath;
@@ -344,6 +340,7 @@
 		.less-content {
 			height: calc(100% - 217px);
 		}
+
 		.comp-wrapper {
 			height: calc(100% - 50px);
 		}
