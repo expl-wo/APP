@@ -1,23 +1,22 @@
 <template>
 	<view class="return-item">
 		<view class="item-top">
-			<text>{{ dataInfo.name || '--' }}</text>
+			<text>{{ dataInfo.materialTypeName || '--' }}</text>
 			<text class="status fs-12"
-				:class="[dataInfo.status ? '' : 'uncheck']">{{ dataInfo.status ? '已复核' : '待审核' }}</text>
-			<u-icon class="icon" name="scan" color="#3a62d7" size="40rpx" @tap="isShowProveModal = true" />
+				:class="[+dataInfo.examineStatus ? 'check' : 'uncheck']">{{ +dataInfo.examineStatus ? '已复核' : '待复核' }}</text>
+			<u-icon v-if="!(+dataInfo.examineStatus)" class="icon" name="scan" color="#3a62d7" size="40rpx" @click="checkBom" />
 		</view>
 		<view class="item-bottom">
 			<view class="text-box">
-				<text class="text">生产号：{{ dataInfo.productNo || '--' }}</text>
-				<text class="text">父节点流水码：{{ dataInfo.parentSrialCode || '--' }}</text>
+				<text class="text">生产号：{{ dataInfo.prodNumber || '--' }}</text>
+				<text class="text">父节点流水码：{{ dataInfo.parentSerialCode || '--' }}</text>
 			</view>
 			<view class="text-box">
-				<text class="text">流水码：{{ dataInfo.srialCode || '--' }}</text>
-				<text class="text">父节点分类名：{{ dataInfo.parentCategory || '--' }}</text>
+				<text class="text">流水码：{{ dataInfo.serialCode || '--' }}</text>
+				<text class="text">父节点分类名：{{ dataInfo.parentMaterialTypeName || '--' }}</text>
 			</view>
+			<view class="text">全路径: {{ (dataInfo.bomLevelName.split(',') || []).reverse().join('->') || '--' }}</view>
 		</view>
-		<u-modal :show="isShowProveModal" title="复核确认" content='确认复核吗？' :closeOnClickOverlay="true"
-			@confirm='handleProveConfirm' @close='isShowProveModal = false'></u-modal>
 	</view>
 </template>
 <script>
@@ -30,27 +29,12 @@
 		},
 		data() {
 			return {
-				isLoading: false,
-				isShowProveModal: false
 			}
 		},
 		methods: {
-			onRefresh() {
-				debugger;
-			},
-			handleProveConfirm() {
-				console.log(this.dataInfo, 'handleProveConfirm')
-			},
-			cancel() {
-				debugger;
-			},
-			beforeClose(action, done) {
-				if (action === 'cancel') {
-					done()
-				} else {
-					// done();
-					this.$emit('check', this.dataInfo);
-				}
+			// 复核BOM
+			checkBom() {
+				this.$emit('checkBom', this.dataInfo);
 			},
 		}
 	}
@@ -59,7 +43,7 @@
 	@import '@/assets/css/staging/index.scss';
 
 	.return-item {
-		height: 200rpx;
+		// height: 200rpx;
 		padding: 16rpx 20rpx;
 		border-bottom: 2rpx solid #7175752c;
 
@@ -81,7 +65,7 @@
 		}
 
 		.item-bottom {
-			height: 40rpx;
+			// height: 60rpx;
 			line-height: 40rpx;
 			font-size: 24rpx;
 			color: #657685;
@@ -95,10 +79,17 @@
 			}
 		}
 	}
-
+	.status {
+		padding: 2px 8px;
+		border-radius: 2px;
+	}
 	.uncheck {
 		background-color: #fbefe9;
 		color: #ff6b00;
+	}
+	.check {
+		background-color: #d2fbd1;
+		color: #007e04;
 	}
 
 	.fs-12 {

@@ -165,8 +165,6 @@
 						});	
 					}
 				})
-				// this.imageList = [];
-				// this.$emit('closePopup', true);
 			},
 			// 上传图片到服务器
 			uploadFilePromise(url) {

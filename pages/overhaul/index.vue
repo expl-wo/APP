@@ -31,10 +31,6 @@
 		<view class="message-content">
 			<view class="message-head">
 				<view class="head-title">消息通知</view>
-				<!-- 				<view class="more" @click="showMoreMessage">
-					<text>更多</text>
-					<u-icon name="arrow-right"></u-icon>
-				</view> -->
 			</view>
 			<u-search v-model="searchKey" class="search-wrapper" placeholder="请输入搜索内容" shape="square" bgColor="#eee"
 				@search="onSearch"></u-search>
@@ -42,16 +38,30 @@
 				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 				:refresher-triggered="refreshing" @refresherrefresh="getMessageList('scrolltoupper')"
 				@scrolltolower="getMessageList('scrolltolower')">
-				<view class="message-item" v-for="(item, index) in messageList" :key="index">
+				<view class="message-item" v-for="(item, index) in messageList" :key="index" @click="showDetail(item)">
+<!-- 					<u-swipe-action :autoClose="true">
+						<u-swipe-action-item :options="getOptions(item.noticeStatus)" :autoClose="true"
+							@click="changeStatus(item)">
+							<view class="message-type">
+								<text class="type"
+									:class="[item.noticeStatus ? '' : 'unread']">{{ messageTypeMap[item.noticeType] }}</text>
+							</view>
+							<view class="memo">
+								<view class="memo-text ellipsis">{{ item.noticeContent }}</view>
+								<view class="time">{{ item.createTime }}</view>
+							</view>
+						</u-swipe-action-item>
+					</u-swipe-action> -->
 					<view class="message-type">
-						<text class="type">{{ messageTypeMap[item.noticeType] }}</text>
+						<text class="type"
+							:class="[item.noticeStatus ? '' : 'unread']">{{ messageTypeMap[item.noticeType] }}</text>
 					</view>
 					<view class="memo">
-						<text class="memo-text ellipse">{{ item.noticeContent }}</text>
-						<text>{{ item.createTime }}</text>
+						<view class="memo-text ellipsis">{{ item.noticeContent }}</view>
+						<view class="time">{{ item.createTime }}</view>
 					</view>
 				</view>
-				<u-loadmore :status="status" :nomoreText="nomoreText" />
+				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 			</scroll-view>
 		</view>
 		<u-toast ref="uToast"></u-toast>
@@ -76,7 +86,8 @@
 	import UserInfo from '@/components/common/user-info.vue';
 	import {
 		getSignInData,
-		getMessageList
+		getMessageList,
+		setStatus
 	} from '@/https/overhaul/clockIn';
 	import {
 		getUserInfo
@@ -95,14 +106,18 @@
 				// 当前日期对应下标
 				activeIndex: 0,
 				// 签到信息列表
-				signList: new Array(7).fill({ time: '', label: '' }),
+				signList: new Array(7).fill({
+					time: '',
+					label: ''
+				}),
 				scrollTop: 0,
 				searchKey: '',
 				status: 'nomore',
 				pageNum: 1,
 				pageSize: 20,
 				hasNextPage: false,
-				refreshing: false
+				refreshing: false,
+				showLoading: false,
 			}
 		},
 		computed: {
@@ -124,11 +139,27 @@
 			},
 			nomoreText() {
 				return this.messageList.length ? '没有更多了' : '暂无数据';
-			}
+			},
+			// getOptions() {
+			// 	return function(isRead) {
+			// 		return isRead ? [{
+			// 			'text': '标为未读',
+			// 			style: {
+			// 				backgroundColor: '#3c9cff'
+			// 			}
+			// 		}] : [{
+			// 			'text': '标为已读',
+			// 			style: {
+			// 				backgroundColor: '#f9ae3d'
+			// 			}
+			// 		}]
+			// 	}
+			// }
 		},
-		onReady() {
+		onShow() {
 			const userInfo = getUserInfo();
-			this.getMessageList();
+			this.onSearch();
+			// this.getMessageList();
 			// let params = {
 			// 	userId: userInfo.username,
 			// 	userName: userInfo.name
@@ -161,6 +192,7 @@
 			getMessageList(type) {
 				if (type === 'scrolltoupper') {
 					this.refreshing = true;
+					this.showLoading = false;
 					this.pageNum = 1;
 					this.messageList = [];
 				} else if (type === 'scrolltolower') {
@@ -192,7 +224,39 @@
 					.finally(() => {
 						this.status = this.hasNextPage ? 'loadmore' : 'nomore';
 						this.refreshing = false;
+						this.showLoading = true;
 					})
+			},
+			// changeStatus(item) {
+			// 	let params = {
+			// 		idList: [item.id],
+			// 		noticeStatus: +(!item.noticeStatus)
+			// 	}
+			// 	setStatus(params)
+			// 		.then(res => {
+			// 			if (res.success) {
+			// 				uni.showToast({
+			// 					icon: 'success',
+			// 					title: res.errMsg || '操作成功',
+			// 					duration: 2000
+			// 				})
+
+			// 				this.onSearch();
+			// 			} else {
+			// 				uni.showToast({
+			// 					icon: 'error',
+			// 					title: res.errMsg || '操作失败',
+			// 					duration: 2000
+			// 				})
+			// 			}
+			// 		})
+			// },
+			showDetail(item) {
+				uni.setStorageSync('ims_notice', item);
+				uni.navigateTo({
+					url: `/pages/overhaul/noticeDetail`
+				});
+			// 	this.changeStatus(item);
 			}
 		}
 	}
@@ -330,11 +394,12 @@
 			.message-list {
 				margin: 0 16px;
 				height: calc(100% - 79px);
+				width: calc(100% - 32px);
 				overflow-y: auto;
 
 				.message-item {
-					width: calc(100% - 32px);
-					height: 66px;
+					padding: 4px 0;
+					height: 74px;
 
 					&:not(:last-child) {
 						border-bottom: 1px solid #cecece;
@@ -351,32 +416,39 @@
 							font-size: 16px;
 							color: #445160;
 
-							&:after {
-								content: "";
-								display: inline-block;
-								position: absolute;
-								right: -12px;
-								top: 0;
-								width: 8px;
-								height: 8px;
-								background-color: #f34b45;
-								border-radius: 50%;
-							}
+						}
+
+						.unread:after {
+							content: "";
+							display: inline-block;
+							position: absolute;
+							right: -12px;
+							top: 0;
+							width: 8px;
+							height: 8px;
+							background-color: #f34b45;
+							border-radius: 50%;
 						}
 					}
 
 					.memo {
 						display: flex;
-						justify-content: space-between;
 						font-size: 14px;
 
 						.memo-text {
-							width: 180px;
+							width: 50%;
+						}
+						.time {
+							width: 50%;
+							text-align: right;
 						}
 					}
 				}
-				/deep/ .uni-scroll-view-refresher {
-					width: calc(100% - 32px);
+
+				.ellipsis {
+					text-overflow: ellipsis; /* 溢出显示省略号 */
+					overflow: hidden; /* 溢出隐藏 */
+					white-space: nowrap;  /* 强制不换行 */
 				}
 			}
 		}

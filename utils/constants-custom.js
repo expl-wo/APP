@@ -224,7 +224,14 @@ const UPLOAD_LIMIT = {
 		maxSize: 200 * 1024 * 1024
 	}
 };
-
+const BOM_STATUS = {
+	0: '待入库',
+	1: '已入库'
+}
+const MESSAGE_TYPE = {
+	1: '任务通知',
+	2: '超时通知'
+}
 export {
 	//检修工单对应的状态
 	ORDER_STATUS_MAP,
@@ -241,5 +248,9 @@ export {
 	// 工序状态
 	WORK_STATUS_MAP,
 	// 图片、视频大小限制
-	UPLOAD_LIMIT
+	UPLOAD_LIMIT,
+	// BOM状态
+	BOM_STATUS,
+	// 消息类型
+	MESSAGE_TYPE
 };

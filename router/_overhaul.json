@@ -8,6 +8,16 @@
 				}
 			}
 		},
+		// 通知详情
+		{
+			"path": "pages/overhaul/noticeDetail",
+			"style": {
+				"navigationBarTitleText": "通知详情",
+				"app-plus": {
+					"titleNView": true
+				}
+			}
+		},
 		{
 			"path": "pages/overhaul/map/index",
 			"style": {

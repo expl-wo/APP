@@ -29,3 +29,10 @@ export function getMessageList(data) {
 		data
 	})
 }
+export function setStatus(data) {
+	return request({
+		url: '/evo-ims-overhaul/person-center/notice/set-status',
+		method: 'post',
+		data
+	})
+}

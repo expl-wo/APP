@@ -9,7 +9,9 @@
 							<text class="name">{{ dataInfo.bomName || '--' }}</text>
 							<view class="icon">
 								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
-									@click.native.stop="scanQrCode($event)" />
+									@click.native.stop="scanQrCode('stationCode')" />
+								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
+									@click.native.stop="scanQrCode('srialCode')" />
 								<u-icon name="photo-fill" color="#3a62d7" size="36rpx"
 									@click.native.stop="takePhoto($event)" />
 							</view>
@@ -81,8 +83,8 @@
 				}
 			},
 			// 扫码
-			scanQrCode() {
-
+			scanQrCode(type) {
+				this.$emit('scanQrCode', this.dataInfo, type);
 			},
 		}
 	}

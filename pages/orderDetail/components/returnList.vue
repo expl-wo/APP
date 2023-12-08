@@ -4,7 +4,7 @@
 			:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 			:refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
 			@scrolltolower="getData('scrolltolower')">
-			<return-item v-for="item in listData" :key="item.id" :dataInfo="item" @check="check" />
+			<return-item v-for="item in listData" :key="item.id" :dataInfo="item" @checkBom="checkBom" />
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 		</scroll-view>
 	</view>
@@ -12,7 +12,8 @@
 <script>
 	import ReturnItem from './returnItem.vue';
 	import {
-		getReturnList
+		getReturnList,
+		checkBom
 	} from '@/https/overhaul/bom';
 	export default {
 		name: 'ReturnList',
@@ -24,66 +25,12 @@
 				scrollTop: 0,
 				refreshing: false,
 				listData: [],
-				fakeData: [{
-						id: 1,
-						name: '物流分类名称1',
-						status: 0,
-						productNo: '生产号1',
-						parentSrialCode: '父节点流水码1',
-						srialCode: '流水码1',
-						parentCategory: '父节点分类名1'
-					},
-					{
-						id: 2,
-						name: '物流分类名称2',
-						status: 0,
-						productNo: '生产号2',
-						parentSrialCode: '父节点流水码2',
-						srialCode: '流水码2',
-						parentCategory: '父节点分类名2'
-					},
-					{
-						id: 3,
-						name: '物流分类名称3',
-						status: 1,
-						productNo: '生产号3',
-						parentSrialCode: '父节点流水码3',
-						srialCode: '流水码3',
-						parentCategory: '父节点分类名3'
-					},
-					{
-						id: 4,
-						name: '物流分类名称4',
-						status: 1,
-						productNo: '生产号4',
-						parentSrialCode: '父节点流水码4',
-						srialCode: '流水码4',
-						parentCategory: '父节点分类名4'
-					},
-					{
-						id: 5,
-						name: '物流分类名称4',
-						status: 1,
-						productNo: '生产号4',
-						parentSrialCode: '父节点流水码4',
-						srialCode: '流水码4',
-						parentCategory: '父节点分类名4'
-					},
-					{
-						id: 6,
-						name: '物流分类名称4',
-						status: 1,
-						productNo: '生产号4',
-						parentSrialCode: '父节点流水码4',
-						srialCode: '流水码4',
-						parentCategory: '父节点分类名4'
-					}
-				],
 				pageNum: 1,
 				pageSize: 20,
 				status: 'nomore',
 				showLoading: true,
-				hasNextPage: false
+				hasNextPage: false,
+				bomInfo: null
 			}
 		},
 		computed: {
@@ -92,12 +39,13 @@
 			}
 		},
 		mounted() {
+			this.pageNum = 1;
+			this.listData = [];
 			this.getData();
 		},
 		methods: {
 			// 获取数据
 			getData(type) {
-				debugger;
 				if (type === 'scrolltoupper') {
 					this.refreshing = true;
 					this.pageNum = 1;
@@ -111,26 +59,77 @@
 					pageNum,
 					pageSize
 				} = this;
+				let { id } = uni.getStorageSync('ims_workOrder');
 				let params = {
 					pageNum,
-					pageSize
+					pageSize,
+					workCode: id
 				};
 				if (type !== 'scrolltoupper') {
 					this.status = 'loading';
 					this.showLoading = true;
 				}
-				setTimeout(() => {
-					this.listData = [...this.listData, ...this.fakeData];
-					this.hasNextPage = true;
+				getReturnList(params)
+				.then(res => {
+					if (res.success && res.data) {
+							let {
+								pageList,
+								hasNextPage
+							} = res.data;
+							let revData = pageList || [];
+						this.listData = [...this.listData, ...revData];
+						this.hasNextPage = hasNextPage;
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: res.errMsg || '数据获取失败',
+							duration: 2000
+						})
+					}
+				})
+				.finally(() => {
 					this.refreshing = false;
-					this.status = 'loadmore';
-
-
-				}, 2000)
+					this.showLoading = true;
+					this.status = this.hasNextPage ? 'loadmore' : 'nomore';
+				})
 			},
 			// 复核
-			check() {
-				//
+			checkBom(info) {
+				this.bomInfo = info;
+				uni.scanCode({
+					onlyFromCamera: true,
+					success: resScanCode => {
+						this.handleScanResult(resScanCode.result)
+					},
+					fail: err => {
+						uni.showToast({
+							icon: 'error',
+							title: '扫码失败',
+							duration: 2000
+						})
+					}
+				})
+			},
+			// 复核
+			handleScanResult(result) {
+				let params = {
+					serialCode: result,
+					examineStatus: 1
+				}
+				checkBom(params)
+				.then(res => {
+					if (res.success) {
+						this.pageNum = 1;
+						this.listData = [];
+						this.getData();
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: res.errMsg || '操作失败',
+							duration: 2000
+						})
+					}
+				})
 			},
 		}
 	}

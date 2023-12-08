@@ -9,17 +9,17 @@ export function getBomDataList(data) {
 }
 export function getReturnList(data) {
 	return request({
-		url: '/evo-ims-overhaul',
+		url: '/evo-ims-overhaul/bom-examine/page',
 		method: 'post',
 		data
 	})
 }
-export function uploadFile(data) {
-    return request({
-        url: '/api/equipment/overHaulFile/api/file/upload',
-        method: 'post',
-        data
-    })
+export function checkBom(data) {
+	return request({
+		url: '/evo-ims-overhaul/bom-examine/initiate',
+		method: 'post',
+		data
+	})
 }
 // 上传图片
 export function bindPic(data) {

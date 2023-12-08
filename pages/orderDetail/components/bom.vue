@@ -5,7 +5,7 @@
 			class="list-wrapper" :refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50"
 			:lower-threshold="30" :refresher-triggered="refreshing" @refresherrefresh="getData()">
 			<bom-item v-for="item in listData" :key="item.id" :dataInfo="item"  :productNo="productNo" @goToNext="nextLevel"
-				@selectChange="selectChange" @showPopover="showPopover" />
+				@selectChange="selectChange" @showPopover="showPopover" @scanQrCode="scanCode" />
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 		</scroll-view>
 		<!-- 其他层级 -->
@@ -28,13 +28,15 @@
 				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 				:refresher-triggered="refreshing" @refresherrefresh="getData">
 				<bom-item class="pd" v-for="item in listData" :key="item.id" :dataInfo="item" :productNo="productNo"
-					 @showPopover="showPopover" @goToNext="nextLevel" @selectChange="selectChange" />
+					 @showPopover="showPopover" @goToNext="nextLevel" @selectChange="selectChange" @scanQrCode="scanCode" />
 					<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 			</scroll-view>
 		</view>
 		<view v-if="selectList.length" class="btn-wrapper">
-			<u-button class="btn" type="primary" text="批量扫码绑定" color="#243d8f" :loading="btnLoading" loadingText="操作中"
-				@click="batchBind" />
+			<u-button class="btn" type="primary" text="批量绑定库位码" color="#243d8f" :loading="btnLoading" loadingText="操作中"
+				@click="batchBind('stationCode')" />
+			<u-button class="btn mt12" type="primary" text="批量绑定流水码" color="#182b62" :loading="btnLoading" loadingText="操作中"
+				@click="batchBind('srialCode')" />
 		</view>
 		<upload-img :visible="popupVisible" :imgType="imgType" :bomInfo="bomInfo" @closePopup="closePopup" />
 		<u-action-sheet title="场景类型" :actions="actions" :round="20" :show="popoverFlag" :closeOnClickOverlay="true"
@@ -124,11 +126,6 @@
 				this.imgType = action.id;
 				this.popupVisible = true;
 			},
-			// takePhoto(info, type) {
-			// 	this.bomInfo = info;
-			// 	this.popupTitle = type === 1 ? '拆解照片' : '厂内生产照片';
-			// 	this.popupVisible = true;
-			// },
 			closePopup(flag) {
 				this.popupVisible = false;
 				flag && this.getData();
@@ -162,14 +159,28 @@
 					this.selectList.push(id);
 				}
 			},
-			// 批量绑定
-			batchBind() {
+			// 批量扫码绑定
+			batchBind(type) {
 				console.log('-----------', this.selectList);
 				this.btnLoading = true;
 				setTimeout(() => {
 					this.btnLoading = false;
 				}, 2000)
-			}
+			},
+			// 扫码
+			scanCode(info, type) {
+				this.bomInfo = info;
+				uni.scanCode({
+					onlyFromCamera: true,
+					success: resScanCode => {
+						this.handleScanResult(resScanCode.result)
+					}
+				})
+			},
+			// 获取到二维码内容做处理
+			handleScanResult() {
+				debugger;
+			},
 		},
 	}
 </script>
@@ -251,12 +262,9 @@
 
 		.btn-wrapper {
 			position: absolute;
-			display: flex;
-			align-items: center;
-			justify-content: center;
 			left: 0;
 			bottom: 0;
-			height: 50px;
+			height: 120px;
 			padding: 0 40rpx;
 			width: 100%;
 
@@ -277,5 +285,8 @@
 	.full-contet {
 		width: 100%;
 		height: 100%;
+	}
+	.mt12 {
+		margin-top: 12px;
 	}
 </style>
