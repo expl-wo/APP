@@ -8,20 +8,20 @@
 						<view class="top">
 							<text class="name">{{ dataInfo.bomName || '--' }}</text>
 							<view class="icon">
-								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
+								<u-icon name="tags" class="mr10" color="#3a62d7" size="36rpx"
 									@click.native.stop="scanQrCode('stationCode')" />
 								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
-									@click.native.stop="scanQrCode('srialCode')" />
+									@click.native.stop="scanQrCode('serialCode')" />
 								<u-icon name="photo-fill" color="#3a62d7" size="36rpx"
 									@click.native.stop="takePhoto($event)" />
 							</view>
 						</view>
 						<view class="bottom">
 							<view class="bottom-item">生产号：{{ productNo || '--' }}</view>
-							<view class="bottom-item">流水码：{{ dataInfo.srialCode || '--' }}</view>
+							<view class="bottom-item">流水码：{{ dataInfo.serialCode || '--' }}</view>
 						</view>
 						<view class="bottom">
-							<view class="bottom-item">工位码：{{ dataInfo.stationCode || '--' }}</view>
+							<view class="bottom-item">库位码：{{ dataInfo.stationCode || '--' }}</view>
 							<view class="bottom-item">
 								待入库状态：{{ dataInfo.bomStatus === null ? '--' : BOM_STATUS[dataInfo.bomStatus] }}</view>
 						</view>

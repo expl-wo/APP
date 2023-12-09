@@ -29,3 +29,19 @@ export function bindPic(data) {
         data
     })
 }
+// 批量绑定库位码
+export function bindStationCode(data) {
+    return request({
+        url: '/evo-ims-overhaul/bom/update-station',
+        method: 'post',
+        data
+    })
+}
+// 绑定流水库位码
+export function bindSerialCode(data) {
+    return request({
+        url: '/evo-ims-overhaul/bom/update-child',
+        method: 'post',
+        data
+    })
+}

@@ -6,11 +6,12 @@
 			<view class="date-box">
 				<view class="date-item" v-for="(item, index) in dateList" :key="index">
 					<view class="week">{{ item.weekDay }}</view>
-					<view class="h28" :class="['date', activeIndex === index ? 'current-time' : undefined]"
+					<view class="h28"
+						:class="['date', activeIndex === index ? activeIndex === activeIndex_c ? 'current-time' : 'current-time1' : undefined]"
 						@click="handleSignIn(item, index)">
 						{{ item.date }}
 					</view>
-					<text class="status-icon" v-if="activeIndex > index"></text>
+					<text class="status-icon" v-if="activeIndex >= index"></text>
 				</view>
 			</view>
 			<view class="sign-info" v-if="signList.length">
@@ -21,9 +22,12 @@
 							:key="signObj.time">
 							<cover-view src="@/assets/imgs/overhaulhome-location-icon.png" alt="" />
 							<text class="sign-status">{{ signObj.label }}</text>
-							<text class="time" v-if="signObj.time">{{ signObj.time }}</text>
+							<text class="time">{{ signObj.time || '--' }}</text>
 						</view>
 					</template>
+					<view class="non-active" v-if="activeIndex_c >= index && activeIndex !== index">
+						<view class="dot" :class="[sign[0].time && sign[1].time ? 'bg-normal' : 'bg-abnormal']"></view>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -39,7 +43,7 @@
 				:refresher-triggered="refreshing" @refresherrefresh="getMessageList('scrolltoupper')"
 				@scrolltolower="getMessageList('scrolltolower')">
 				<view class="message-item" v-for="(item, index) in messageList" :key="index" @click="showDetail(item)">
-<!-- 					<u-swipe-action :autoClose="true">
+					<!-- 					<u-swipe-action :autoClose="true">
 						<u-swipe-action-item :options="getOptions(item.noticeStatus)" :autoClose="true"
 							@click="changeStatus(item)">
 							<view class="message-type">
@@ -105,11 +109,9 @@
 				messageList: [],
 				// 当前日期对应下标
 				activeIndex: 0,
+				activeIndex_c: 0,
 				// 签到信息列表
-				signList: new Array(7).fill({
-					time: '',
-					label: ''
-				}),
+				signList: new Array(7).fill(''),
 				scrollTop: 0,
 				searchKey: '',
 				status: 'nomore',
@@ -129,6 +131,7 @@
 					let date = moment(thisSunday).subtract(6 - index, 'days');
 					if (moment().isSame(date, 'day')) {
 						this.activeIndex = index;
+						this.activeIndex_c = index;
 					}
 					return {
 						weekDay: weekMap[date.isoWeekday()],
@@ -159,24 +162,38 @@
 		onShow() {
 			const userInfo = getUserInfo();
 			this.onSearch();
-			// this.getMessageList();
-			// let params = {
-			// 	userId: userInfo.username,
-			// 	userName: userInfo.name
-			// }
-			// getSignInData(params)
-			// .then(res => {
-			// 	if (res.success) {
-			// 		debugger;
-			// 		let { start, end } = res.data;
-
-			// 	}
-			// })
+			let thisSunday = moment().endOf('isoWeek');
+			let params = {
+				userId: userInfo.username,
+				userName: userInfo.name,
+				startTime: moment(thisSunday).subtract(6, 'days').format('YYYY-MM-DD 00:00:00'),
+				endTime: moment(thisSunday).format('YYYY-MM-DD 23:59:59'),
+			}
+			getSignInData(params)
+				.then(res => {
+					if (res.success && res.data) {
+						let signInData = (res.data.value || []).sort((a, b) => new Date(a.clockInDate) - new Date(b
+							.clockInDate));
+						signInData.forEach((item, index) => {
+							this.$set(this.signList, index, [{
+									label: '签入',
+									time: item.inTime
+								},
+								{
+									label: '签出',
+									time: item.outTime
+								}
+							])
+						})
+					}
+				})
 		},
 		methods: {
 			// 签到
 			handleSignIn(item, index) {
-				if (index === this.activeIndex) {
+				if (index > this.activeIndex_c) return;
+				this.activeIndex = index;
+				if (this.activeIndex === this.activeIndex_c) {
 					uni.navigateTo({
 						url: '/pages/overhaul/map/index'
 					});
@@ -256,7 +273,7 @@
 				uni.navigateTo({
 					url: `/pages/overhaul/noticeDetail`
 				});
-			// 	this.changeStatus(item);
+				// 	this.changeStatus(item);
 			}
 		}
 	}
@@ -303,7 +320,6 @@
 						// background-color: #fff;
 						background: url("@/assets/imgs/overhaul/home-sign-bg.png") no-repeat center;
 						color: #3a62d7;
-
 						&:after {
 							content: "";
 							display: block;
@@ -314,6 +330,17 @@
 							height: 12px;
 							background: url("@/assets/imgs/overhaul/home-sign-text.png") no-repeat center;
 						}
+
+					}
+
+					.current-time1 {
+						width: 52px;
+						height: 28px;
+						position: relative;
+						border-radius: 8px;
+						// background-color: #fff;
+						background: url("@/assets/imgs/overhaul/home-sign-bg.png") no-repeat center;
+						color: #3a62d7;
 					}
 
 					.status-icon {
@@ -329,6 +356,7 @@
 			.sign-info {
 				display: flex;
 				height: 32px;
+				margin: 0 16px;
 				margin-bottom: 10px;
 
 				.flex-center {
@@ -356,7 +384,29 @@
 					}
 
 					.active-time {
-						width: 100px;
+						// 	width: 100px;
+					}
+
+					.non-active {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						width: 100%;
+						height: 100%;
+
+						.dot {
+							height: 4px;
+							width: 4px;
+							border-radius: 50%;
+						}
+
+						.bg-normal {
+							background-color: #13bd21;
+						}
+
+						.bg-abnormal {
+							background-color: #ac3430;
+						}
 					}
 				}
 			}
@@ -438,6 +488,7 @@
 						.memo-text {
 							width: 50%;
 						}
+
 						.time {
 							width: 50%;
 							text-align: right;
@@ -446,9 +497,12 @@
 				}
 
 				.ellipsis {
-					text-overflow: ellipsis; /* 溢出显示省略号 */
-					overflow: hidden; /* 溢出隐藏 */
-					white-space: nowrap;  /* 强制不换行 */
+					text-overflow: ellipsis;
+					/* 溢出显示省略号 */
+					overflow: hidden;
+					/* 溢出隐藏 */
+					white-space: nowrap;
+					/* 强制不换行 */
 				}
 			}
 		}

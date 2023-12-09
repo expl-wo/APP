@@ -17,10 +17,10 @@
 				</view>
 				<view class="bottom parent-left">
 					<view class="bottom-item">生产号：{{ productNo|| '--' }}</view>
-					<view class="bottom-item">流水码：{{ curParentNode.srialCode || '--' }}</view>
+					<view class="bottom-item">流水码：{{ curParentNode.serialCode || '--' }}</view>
 				</view>
 				<view class="bottom parent-left">
-					<view class="bottom-item">工位码：{{ curParentNode.stationCode || '--' }}</view>
+					<view class="bottom-item">库位码：{{ curParentNode.stationCode || '--' }}</view>
 					<view class="bottom-item">待入库状态：{{ curParentNode.bomStatus === null ? '--' : BOM_STATUS[curParentNode.bomStatus] }}</view>
 				</view>
 			</view>
@@ -34,9 +34,9 @@
 		</view>
 		<view v-if="selectList.length" class="btn-wrapper">
 			<u-button class="btn" type="primary" text="批量绑定库位码" color="#243d8f" :loading="btnLoading" loadingText="操作中"
-				@click="batchBind('stationCode')" />
-			<u-button class="btn mt12" type="primary" text="批量绑定流水码" color="#182b62" :loading="btnLoading" loadingText="操作中"
-				@click="batchBind('srialCode')" />
+				@click="batchBind" />
+<!-- 			<u-button class="btn mt12" type="primary" text="批量绑定流水码" color="#182b62" :loading="btnLoading" loadingText="操作中"
+				@click="batchBind('serialCode')" /> -->
 		</view>
 		<upload-img :visible="popupVisible" :imgType="imgType" :bomInfo="bomInfo" @closePopup="closePopup" />
 		<u-action-sheet title="场景类型" :actions="actions" :round="20" :show="popoverFlag" :closeOnClickOverlay="true"
@@ -48,7 +48,9 @@
 	import UploadImg from './uploadImg.vue';
 	import { BOM_STATUS } from '@/utils/constants-custom';
 	import {
-		getBomDataList
+		getBomDataList,
+		bindStationCode,
+		bindSerialCode
 	} from '@/https/overhaul/bom';
 
 	const actions = [{
@@ -103,6 +105,8 @@
 			this.getData();
 		},
 		methods: {
+			bindStationCode,
+			bindSerialCode,
 			// 进入下一层级
 			nextLevel(item) {
 				this.curParentNode = item;
@@ -159,13 +163,21 @@
 					this.selectList.push(id);
 				}
 			},
-			// 批量扫码绑定
-			batchBind(type) {
-				console.log('-----------', this.selectList);
-				this.btnLoading = true;
-				setTimeout(() => {
-					this.btnLoading = false;
-				}, 2000)
+			// 批量扫码绑定库位码
+			batchBind() {
+				uni.scanCode({
+					onlyFromCamera: true,
+					success: resScanCode => {
+						this.btnLoading = true;
+						let params = {
+							workId: uni.getStorageSync('ims_workOrder').id,
+							bomIds: this.selectList,
+							stationCode: resScanCode.result
+						}
+						this.bindStationCodeFunc(params);
+					}
+				})
+
 			},
 			// 扫码
 			scanCode(info, type) {
@@ -173,13 +185,70 @@
 				uni.scanCode({
 					onlyFromCamera: true,
 					success: resScanCode => {
-						this.handleScanResult(resScanCode.result)
+						this.handleScanResult(resScanCode.result, type);
 					}
 				})
 			},
+			// 绑定库位码
+			bindStationCodeFunc(params) {
+				bindStationCode(params)
+				.then(res => {
+					if (res.success) {
+						this.pageNum = 1;
+						this.listData = [];
+						this.getData();
+						uni.showToast({
+							icon: 'success',
+							title: '操作成功',
+							duration: 2000
+						})
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: res.errMsg || '操作失败',
+							duration: 2000
+						})
+					}
+				})
+				.finally(() => {
+					this.selectList = [];
+					this.btnLoading = false;
+				})
+			},
 			// 获取到二维码内容做处理
-			handleScanResult() {
-				debugger;
+			handleScanResult(code, type) {
+				let params = {};
+				if (type === 'serialCode') {
+					params = {
+						...this.bomInfo,
+						serialCode: code
+					}
+				} else {
+					params = {
+						workId: uni.getStorageSync('ims_workOrder').id,
+						bomIds: [this.bomInfo.id],
+						stationCode: code,
+					}
+				}
+				this[type === 'serialCode' ? 'bindSerialCode' : 'bindStationCode'](params)
+				.then(res => {
+					if (res.success) {
+						this.pageNum = 1;
+						this.listData = [];
+						this.getData();
+						uni.showToast({
+							icon: 'success',
+							title: '操作成功',
+							duration: 2000
+						})
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: res.errMsg || '操作失败',
+							duration: 2000
+						})
+					}
+				})
 			},
 		},
 	}
@@ -264,7 +333,7 @@
 			position: absolute;
 			left: 0;
 			bottom: 0;
-			height: 120px;
+			height: 50px;
 			padding: 0 40rpx;
 			width: 100%;
 
