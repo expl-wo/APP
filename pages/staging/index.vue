@@ -96,7 +96,7 @@
 				// 包含所有字段的列表数据
 				allListData: [],
 				// 选中的工单状态
-				selectOrderStatu: ''
+				selectOrderStatus: ''
 			};
 		},
 		computed: {
@@ -167,8 +167,8 @@
 					pageNum: this.pageNum,
 					pageSize: 10,
 				};
-				if (this.selectOrderStatu) {
-					param.orderStatusList = [this.selectOrderStatu]
+				if (this.selectOrderStatus) {
+					param.orderStatusList = [this.selectOrderStatus]
 				}
 				let result = {};
 				let listData = [];
@@ -287,7 +287,7 @@
 			 * @method handleConfirmFilter 筛选面板选择时
 			 **/
 			handleConfirmFilter(action) {
-				this.selectOrderStatu = action.value;
+				this.selectOrderStatus = action.value;
 				this.cardList = [];
 				this.getListData();
 			},
