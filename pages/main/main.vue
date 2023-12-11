@@ -27,8 +27,8 @@
 				<view class="group-title">质量管理</view>
 			</view> -->
 
-			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-purple" @tap="jumpTap6()">
-				<u-icon class="text-xl" size="80" name="../../static/img/icon/sheBei.svg"></u-icon>
+			<view v-show="showList[4]" class="group-warter w-240 my-item tc bg-deep-blue" @tap="jumpTap6()">
+				<u-icon class="text-xl" size="80" name="../../static/img/icon/overhaul.svg"></u-icon>
 				<view class="group-title">检修管理</view>
 			</view>
 		</view>

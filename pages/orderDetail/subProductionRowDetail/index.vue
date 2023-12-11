@@ -20,8 +20,8 @@
 			</UserInfo>
 			<view class="sign-box">
 				<u-button type="primary" class="sign-btn" @click="handleSign('signIn')" :disabled="signBtnEnable"
-					text="签到"></u-button>
-				<u-button type="primary" class="sign-btn" text="签退" :disabled="!signBtnEnable"
+					text="签到" color="#3a62d7"></u-button>
+				<u-button type="primary" class="sign-btn" text="签退" :disabled="!signBtnEnable" color="#3a62d7"
 					@click="handleSign('signOut')"></u-button>
 			</view>
 		</view>
@@ -272,7 +272,7 @@
 			proveConfirm(value) {
 				const param = {
 					...this.commonParam,
-					craftId: this.craftId || 1,
+					craftId: this.craftId || "",
 					pass: value.indexs[0], // 0：复核不通过，1：复核通过
 					isProblem: value.indexs[1] // 0:不加入 1:加入
 				}
