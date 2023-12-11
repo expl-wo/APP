@@ -164,8 +164,6 @@
 			},
 			// 获取工单状态
 			getStatusStr(status) {
-				console.log("sssssss", status)
-				debugger;
 				return WORK_ORDER_STATUS[status] || '-'
 			},
 			/**

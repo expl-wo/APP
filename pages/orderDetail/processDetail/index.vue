@@ -5,7 +5,7 @@
 			<view class="info">
 				<view class="name">{{ processName }}</view>
 				<view class="extra-info">
-					<text class="notice" @click="noticeFlag = true">工序要求</text>
+					<!-- <text class="notice" @click="noticeFlag = true">工序要求</text> -->
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>

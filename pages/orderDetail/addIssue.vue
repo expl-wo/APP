@@ -65,8 +65,7 @@
 	} from "@/https/staging/index.js";
 	import uploadHttp from '@/https/_public/upload';
 	import {
-		getToken,
-		setToken
+		getToken
 	} from '@/utils/auth.js';
 	export default {
 		data() {
@@ -128,7 +127,7 @@
 			this.param.workProcedureCode = workProcedureCode;
 			this.param.workScene = workScene;
 			this.param.workProcedureType = workProcedureType;
-			this.param.workCode = JSON.parse(localStorage.getItem("ims_workOrder")).data.id;
+			this.param.workCode = uni.getStorageSync("ims_workOrder").id;
 		},
 		mounted() {
 			this.initSelectData()
@@ -152,11 +151,11 @@
 								});
 								this.abnormalList = res.data.value || []
 							} else {
-								uni.$u.toast(res.errMsg)
+								uni.$u.toast(res.errMsg || '暂无数据')
 							}
 						})
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -255,7 +254,7 @@
 			},
 			submit() {
 				this.$refs.issueForm.validate().then((res) => {
-					const hb_dq_mes_user_info = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'));
+					const hb_dq_mes_user_info = uni.getStorageSync('hb_dq_mes_user_info');
 					const pictureUrls = this.pictureList.map(item => item.url)
 					const videoUrls = this.videoList.map(item => item.url)
 					const param = {
@@ -270,7 +269,7 @@
 							uni.$u.toast('上报问题成功')
 							this.cancel()
 						} else {
-							uni.$u.toast(res.errMsg)
+							uni.$u.toast(res.errMsg || '暂无数据')
 						}
 					})
 					// this.back();

@@ -181,7 +181,7 @@
 				}
 				param.pageNum = this.pageNum;
 				if (this.showType === "issue") {
-					const ims_workOrder = JSON.parse(localStorage.getItem("ims_workOrder")).data
+					const ims_workOrder = uni.getStorageSync("ims_workOrder")
 					param.workCode = ims_workOrder.id;
 					param.workScene = ims_workOrder.workScene || "SURVEY_SCENE";
 					param.searchKey = this.searchKey;
@@ -198,7 +198,7 @@
 							this.handleDataByType(listData, type)
 						} else {
 							this.cardList = []
-							uni.$u.toast(error.errMsg)
+							uni.$u.toast(res.errMsg)
 						}
 					})
 				} else {
@@ -215,10 +215,8 @@
 							}))
 							this.handleDataByType(listData, type)
 						} else {
-							uni.$u.toast(res.errMsg)
+							uni.$u.toast(res.errMsg || '暂无数据')
 						}
-					}).catch((error) => {
-						uni.$u.toast(error.errMsg)
 					})
 				}
 

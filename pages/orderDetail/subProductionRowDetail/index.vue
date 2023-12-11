@@ -31,13 +31,14 @@
 		<!-- 按钮 -->
 		<view class="btn-box">
 			<view class="left-btn">
-				<view :class="['btn', activeIndex > 0 ?'enable-btn':'disabled-btn']" @click="activeIndex--">
+				<u-button :class="['btn', activeIndex > 0 ?'enable-btn':'disabled-btn']"
+					:disabled="!activeIndex || activeIndex > 0" @click="activeIndex--">
 					<u-icon name="arrow-left" size="30" bold></u-icon>
-				</view>
-				<view :class="['btn', activeIndex < (productionList.length - 1) ?'enable-btn':'disabled-btn']"
-					@click="activeIndex++">
+				</u-button>
+				<u-button :class="['btn', activeIndex < (productionList.length - 1) ?'enable-btn':'disabled-btn']"
+					@click="activeIndex++" :disabled="!activeIndex || activeIndex < (productionList.length - 1)">
 					<u-icon name="arrow-right" size="30" bold></u-icon>
-				</view>
+				</u-button>
 			</view>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="!isStart && isShowProveBtn"
 				text='复核'></u-button>
@@ -75,6 +76,9 @@
 		searchTemplateList,
 		searchStandardById
 	} from "@/https/staging/index.js";
+	import {
+		SUB_PRODUCTION_MAP
+	} from '@/utils/constants-custom.js'
 	export default {
 		name: "ProcessDetail",
 		components: {
@@ -91,20 +95,7 @@
 				// 工步工作内容列表
 				formList: [],
 				// 字段与文本映射
-				fieldMapText: {
-					groupPerson: {
-						label: "组长",
-						iconName: "account-fill"
-					},
-					subGroupPerson: {
-						label: "副组长",
-						iconName: "account-fill"
-					},
-					member: {
-						label: "成员",
-						iconName: "account-fill"
-					}
-				},
+				fieldMapText: SUB_PRODUCTION_MAP,
 				// 当前选中工序名称
 				subProductionRowName: "工序名称",
 				// 工序详情信息
@@ -171,9 +162,9 @@
 			 **/
 			initData() {
 				// 工序详情信息
-				const workOrder = JSON.parse(localStorage.getItem('ims_workOrder')).data || {}
-				const workStep = JSON.parse(localStorage.getItem('ims_workStep')).data || {}
-				const intermediateProcess = JSON.parse(localStorage.getItem('ims_intermediateProcess')).data || {}
+				const workOrder = uni.getStorageSync('ims_workOrder') || {}
+				const workStep = uni.getStorageSync('ims_workStep') || {}
+				const intermediateProcess = uni.getStorageSync('ims_intermediateProcess').data || {}
 				this.commonParam = {
 					workCode: workOrder.id,
 					craftId: workStep.workProcedureCode && workStep.workProcedureCode.split('_')[1],
@@ -223,7 +214,7 @@
 						// 初始化回显，用当前时间批量查询工作内容记录
 						this.getBatchRecord(params)
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -238,7 +229,7 @@
 						})
 						this.formList = res.data.value || []
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -264,7 +255,7 @@
 							})
 							this.productionList = res.data.pageList || [];
 						} else {
-							uni.$u.toast(res.errMsg)
+							uni.$u.toast(res.errMsg || '暂无数据')
 						}
 					})
 			},
@@ -284,7 +275,7 @@
 							url: '/pages/orderDetail/productionDetail/index'
 						})
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				}).finally(() => {
 					this.isShowProvePicker = false
@@ -304,7 +295,7 @@
 						const length = res.data.length;
 						this.signBtnEnable = length % 2 === 0;
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -324,7 +315,7 @@
 						uni.$u.toast('签到成功')
 						this.searchSignInfo();
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -340,7 +331,7 @@
 					workCode: this.commonParam.workCode,
 					workScene: this.commonParam.workScene,
 					isStart: this.isStart,
-					operator: localStorage.getItem('hb_dq_mes_user_info').username
+					operator: uni.getStorageSync('hb_dq_mes_user_info').username
 				}
 				reportWorderStatus(param).then(res => {
 					if (res.success) {
@@ -349,7 +340,7 @@
 							delta: 1
 						})
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			},
@@ -367,11 +358,11 @@
 								this.tip = res.data.content;
 								this.isShowTip = true;
 							} else {
-								uni.$u.toast(res.errMsg)
+								uni.$u.toast(res.errMsg || '暂无数据')
 							}
 						})
 					} else {
-						uni.$u.toast(res.errMsg)
+						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
 			}

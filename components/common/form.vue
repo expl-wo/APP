@@ -100,8 +100,7 @@
 	} from "@/https/staging/index.js";
 	import uploadHttp from '@/https/_public/upload';
 	import {
-		getToken,
-		setToken
+		getToken
 	} from '@/utils/auth.js';
 	import {
 		UPLOAD_LIMIT
@@ -357,7 +356,7 @@
 			},
 			// 处理报工事件
 			handleReport() {
-				const userInfo = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'))
+				const userInfo = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'))
 				const param = {
 					progress: this.percentage,
 					workCode: this.commonParam.workCode,
