@@ -266,7 +266,7 @@
 			 * @method handleShowDetail 点击卡片展示详情
 			 **/
 			handleShowDetail(index) {
-				const card = this.allListData[index]
+				const card = this.allListData[index] || {};
 				// 问题暂无详情
 				if (this.showType === "issue") return;
 				card.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
