@@ -146,8 +146,8 @@
 					overhaulFilters.includes(item.text) && overhaul.push(tempObj)
 				})
 				const obj = {
-					workOrder: workOrder,
-					overhaul: overhaul
+					workOrder,
+					overhaul
 				}
 				return obj[this.showType]
 			}
@@ -162,7 +162,7 @@
 			/**
 			 * @method getListData 获取列表数据
 			 **/
-			async getListData(type) {
+			getListData(type) {
 				const param = {
 					pageNum: this.pageNum,
 					pageSize: 10,
@@ -186,25 +186,26 @@
 					param.workScene = ims_workOrder.workScene || "SURVEY_SCENE";
 					param.searchKey = this.searchKey;
 					queryProcedureProblem(param).then(res => {
-						if (res.data && Array.isArray(res.data.pageList)) {
+						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
 							this.allListData = [...res.data.pageList]
 							listData = this.allListData.map(item => ({
+								...item,
 								title: item.problemProcedureOwn,
 								imgList: item.pictureUrl && item.pictureUrl.split('|'),
 								videoList: item.videoUrl && item.videoUrl.split("|"),
-								...item
 							}))
 							this.handleDataByType(listData, type)
 						} else {
 							this.cardList = []
+							uni.$u.toast(error.errMsg)
 						}
 					})
 				} else {
 					param.projName = this.searchKey;
 					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
 					getWorkOrderPageData(param).then(res => {
-						if (res.data && Array.isArray(res.data.pageList)) {
+						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
 							this.allListData = JSON.parse(JSON.stringify(res.data.pageList))
 							listData = this.allListData.map(item => ({
@@ -213,7 +214,11 @@
 								...item
 							}))
 							this.handleDataByType(listData, type)
+						} else {
+							uni.$u.toast(res.errMsg)
 						}
+					}).catch((error) => {
+						uni.$u.toast(error.errMsg)
 					})
 				}
 
@@ -232,12 +237,11 @@
 					this.status = 'nomore'
 				}
 				this.refreshing = false
-				console.log(this.cardList, 'cardList')
 			},
 			/**
 			 * @method handleRouterChange 处理路由改变-问题页面
 			 **/
-			handleRouterChange(issueId) {
+			handleRouterChange() {
 				this.showType = "issue";
 				this.cardList = [];
 				this.getListData();
@@ -265,7 +269,6 @@
 				const card = this.allListData[index]
 				// 问题暂无详情
 				if (this.showType === "issue") return;
-				//
 				card.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
 					id: card.id
 				});
@@ -366,5 +369,10 @@
 	/deep/ .uni-scroll-view-refresher {
 		background: url("@/assets/imgs/staging/staging-bg.png") no-repeat center;
 		background-size: 100% 100%;
+	}
+
+	/deep/.u-action-sheet__item-wrap {
+		max-height: 200px;
+		overflow-y: auto;
 	}
 </style>

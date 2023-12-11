@@ -8,7 +8,8 @@
 						<u-icon :name="getIconByKey(key)" size="28" class="icon"></u-icon>
 						<view class="info-box">
 							<text class="label">{{getLabelByKey(key)}}：</text>
-							<text>{{item || '--'}}</text>
+							<text v-if="key === 'orderStatus'">{{ getStatusStr(item) }}</text>
+							<text v-else>{{item || '--'}}</text>
 						</view>
 					</view>
 				</template>
@@ -52,7 +53,8 @@
 	import Bom from "./components/bom.vue";
 	import ReturnList from "./components/returnList.vue";
 	import {
-		ORDER_DETAIL_FIELD_MAP
+		ORDER_DETAIL_FIELD_MAP,
+		WORK_ORDER_STATUS
 	} from '@/utils/constants-custom.js'
 	import {
 		getWorkOrderDetailById,
@@ -105,7 +107,6 @@
 			...mapState("workOrder", ['workOrderDatialInfo'])
 		},
 		onLoad(options) {
-			console.log(options, '111111111')
 			this.routeParam = {
 				...options
 			};
@@ -127,7 +128,6 @@
 					planTime: `${obj.planStartTime && obj.planStartTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
 					actualTime: `${obj.createTime && obj.createTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
 				}
-				console.log(this.projectInfo, 'projectInfo')
 			},
 			/**
 			 * @method getLabelByKey 根据字段获取label
@@ -156,18 +156,23 @@
 			 * @method handleTabChange tab切换
 			 **/
 			handleTabChange(item) {
-				console.log(item, 'item')
 				this.componentName = item.cName;
 			},
+			// 获取图片地址
 			getUrl(url) {
 				return 'http://10.16.9.128:9000/' + url;
+			},
+			// 获取工单状态
+			getStatusStr(status) {
+				console.log("sssssss", status)
+				debugger;
+				return WORK_ORDER_STATUS[status] || '-'
 			},
 			/**
 			 * @method handleDownFile 下载文件
 			 * @param {Object} 文件对象
 			 **/
 			handleDownFile(file) {
-				console.log(file, "file");
 				uni.showLoading({
 					title: '下载中'
 				})
@@ -177,12 +182,10 @@
 					success: (res) => {
 						if (res.status === 200) {
 							const filePath = res.temFilePath;
-							console.log(res, 'downloadFile')
 							// 保存文件
 							uni.saveFile({
 								tempFilePath: filePath,
 								success: function(res) {
-									console.log(res, 'saveFile')
 									const savedFilePath = res.savedFilePath;
 									// 预览文件
 									uni.openDocument({
@@ -191,7 +194,6 @@
 										success: (res) => {
 											if (res) {
 												uni.hideLoading()
-												console.log(res)
 											}
 										}
 									})
@@ -233,10 +235,14 @@
 		}
 
 		.name {
+			width: 90%;
 			padding: 0 32rpx;
 			height: 30px;
 			line-height: 30px;
 			font-size: $titleFontSize;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
 		.more-icon {

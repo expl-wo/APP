@@ -98,6 +98,8 @@
 							this.status = 'nomore';
 						}
 					}
+				}).catch((error) => {
+					uni.$u.toast(error.errMsg)
 				}).finally(() => {
 					this.refreshing = false
 				})

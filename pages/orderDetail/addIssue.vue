@@ -136,24 +136,27 @@
 		methods: {
 			initSelectData() {
 				queryCategory().then(res => {
-					if (res && res.data && Array.isArray(res.data.value)) {
+					if (res.success && res.data && Array.isArray(res.data.value)) {
 						this.typeList = res.data.value.map(item => ({
 							id: item.id,
 							name: item.cateName
 						}))
 						const id = this.cateId || this.typeList[0].id
-						console.log(this.typeList, this.cateId, 'cateId', id);
 						queryAbnormal({
 							cateId: id
 						}).then(res => {
-							if (res && res.data && Array.isArray(res.data.value)) {
+							if (res.success && res.data && Array.isArray(res.data.value)) {
 								res.data.value.forEach(item => {
 									item.id = item.cateId;
 									item.name = item.abnormalName;
 								});
 								this.abnormalList = res.data.value || []
+							} else {
+								uni.$u.toast(res.errMsg)
 							}
 						})
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
@@ -233,6 +236,8 @@
 							}
 						})
 						this[`${type}List`].push(...uploadedList);
+					}).catch((error) => {
+						uni.$u.toast(error.errMsg)
 					})
 			},
 			deleteFile(event, type) {
@@ -249,29 +254,27 @@
 				});
 			},
 			submit() {
-				console.log(this.pictureList, 'pictureList', this.videoList)
 				this.$refs.issueForm.validate().then((res) => {
-						const hb_dq_mes_user_info = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'));
-						const pictureUrls = this.pictureList.map(item => item.url)
-						const videoUrls = this.videoList.map(item => item.url)
-						const param = {
-							...this.param,
-							...this.issueForm,
-							reporterId: hb_dq_mes_user_info.username,
-							pictureUrl: pictureUrls.join('|'),
-							videoUrl: videoUrls.join('|')
+					const hb_dq_mes_user_info = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'));
+					const pictureUrls = this.pictureList.map(item => item.url)
+					const videoUrls = this.videoList.map(item => item.url)
+					const param = {
+						...this.param,
+						...this.issueForm,
+						reporterId: hb_dq_mes_user_info.username,
+						pictureUrl: pictureUrls.join('|'),
+						videoUrl: videoUrls.join('|')
+					}
+					addProcedureProblem(param).then(res => {
+						if (res.success) {
+							uni.$u.toast('上报问题成功')
+							this.cancel()
+						} else {
+							uni.$u.toast(res.errMsg)
 						}
-						addProcedureProblem(param).then(res => {
-							if (res) {
-								uni.$u.toast('上报问题成功')
-								this.cancel()
-							}
-						})
-						// this.back();
 					})
-					.catch(err => {
-						console.log(err, 'error')
-					})
+					// this.back();
+				})
 			},
 			deleteFile(event, type) {
 				let index = event.index;
@@ -330,9 +333,9 @@
 								duration: 2000
 							});
 						}
+					}).catch((error) => {
+						uni.$u.toast(error.errMsg)
 					})
-				// this.pictureList = [];
-				// this.$emit('closePopup', true);
 			},
 			// 上传图片到服务器
 			uploadFilePromise(url) {
@@ -354,7 +357,9 @@
 								msg: '上传失败'
 							});
 						}
-					});
+					}).catch((error) => {
+						uni.$u.toast(error.errMsg)
+					})
 				})
 			},
 		}
@@ -404,7 +409,8 @@
 		}
 	}
 
-	// /deep/ .u-action-sheet{
-	// 	max-height: 400px;
-	// }
+	/deep/.u-action-sheet__item-wrap {
+		max-height: 200px;
+		overflow-y: auto;
+	}
 </style>

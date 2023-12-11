@@ -161,7 +161,7 @@
 			}
 		},
 		created() {
-			// this.initData();
+			this.initData();
 			// 查询签到签退信息
 			this.searchSignInfo()
 		},
@@ -176,7 +176,7 @@
 				const intermediateProcess = JSON.parse(localStorage.getItem('ims_intermediateProcess')).data || {}
 				this.commonParam = {
 					workCode: workOrder.id,
-					craftId: workStep.workProcedureCode.split('_')[1],
+					craftId: workStep.workProcedureCode && workStep.workProcedureCode.split('_')[1],
 					workScene: workStep.workOrderSceneType,
 				}
 				this.detailInfo = {
@@ -186,11 +186,10 @@
 				}
 				// 工步名称
 				this.subProductionRowName = workStep.workProcedureName
-				console.log(workOrder, 'localstorage', workStep, this.commonParam)
-				// 是否开工
-				this.isStart = !workStep.workStatus === 1
+				// 是否开工   0-未开工 
+				this.isStart = !workStep.workStatus === 0
 				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
-				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus];
+				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus] || '开工';
 				this.isShowProveBtn = !workOrder.reviewStatus
 				// 获取工步工作内容
 				this.getWorkStepContent()
@@ -201,10 +200,9 @@
 			// 获取工步内容
 			getWorkStepContent() {
 				setMesWorkContent({
-					// craftId: this.commonParam.craftId
-					craftId: 6
+					craftId: this.commonParam.craftId
 				}).then(res => {
-					if (res && res.data) {
+					if (res.success && res.data) {
 						const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 						const params = []
 						res.data.value.forEach(item => {
@@ -224,25 +222,29 @@
 						this.formList = res.data.value || []
 						// 初始化回显，用当前时间批量查询工作内容记录
 						this.getBatchRecord(params)
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
 			// 批量获取工作内容记录
 			getBatchRecord(params) {
 				queryBatchRecord(params).then(res => {
-					if (res && res.data && Array.isArray(res.data.value)) {
+					if (res.success && res.data && Array.isArray(res.data.value)) {
 						res.data.value.forEach((item, index) => {
 							// 筛选图片，暂不支持文件
 							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
 								'jpg') : []
 						})
 						this.formList = res.data.value || []
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
 			// 获取工步列表用于上下切换
 			getProcessListData(workOrder, intermediateProcess, workStep) {
-				let temp = intermediateProcess.workProcedureCode.split('_');
+				let temp = intermediateProcess.workProcedureCode && intermediateProcess.workProcedureCode.split('_');
 				const param = {
 					pageNum: 1,
 					pageSize: 100,
@@ -254,13 +256,15 @@
 				}
 				getProcessList(param)
 					.then(res => {
-						if (res && res.data && Array.isArray(res.data.pageList)) {
+						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							res.data.pageList.forEach((item, index) => {
 								if (item.workProcedureCode === workStep.workProcedureCode) {
 									this.activeIndex = index;
 								}
 							})
 							this.productionList = res.data.pageList || [];
+						} else {
+							uni.$u.toast(res.errMsg)
 						}
 					})
 			},
@@ -272,12 +276,16 @@
 					pass: value.indexs[0], // 0：复核不通过，1：复核通过
 					isProblem: value.indexs[1] // 0:不加入 1:加入
 				}
-				proveConfirmApi(param).then(() => {
-					uni.$u.toast('复核成功');
-					// 返回中工序页面
-					uni.redirectTo({
-						url: '/pages/orderDetail/productionDetail/index'
-					})
+				proveConfirmApi(param).then((res) => {
+					if (res.success) {
+						uni.$u.toast('复核成功');
+						// 返回中工序页面
+						uni.redirectTo({
+							url: '/pages/orderDetail/productionDetail/index'
+						})
+					} else {
+						uni.$u.toast(res.errMsg)
+					}
 				}).finally(() => {
 					this.isShowProvePicker = false
 				})
@@ -287,14 +295,16 @@
 				const userInfo = getUserInfo();
 				const param = {
 					userId: userInfo.username,
-					workId: this.commonParam.workCode || '2222',
-					sceneType: this.commonParam.workScene || '2222',
-					workProcedureId: this.commonParam.craftId || '222',
+					workId: this.commonParam.workCode || '',
+					sceneType: this.commonParam.workScene || '',
+					workProcedureId: this.commonParam.craftId || '',
 				}
 				searchSignInfoApi(param).then(res => {
-					if (res && Array.isArray(res.data)) {
+					if (res.success && Array.isArray(res.data)) {
 						const length = res.data.length;
 						this.signBtnEnable = length % 2 === 0;
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
@@ -310,9 +320,11 @@
 					userId: getUserInfo().username
 				}
 				saveSignInfoApi(param).then(res => {
-					if (res && res.success) {
+					if (res.success) {
 						uni.$u.toast('签到成功')
 						this.searchSignInfo();
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
@@ -331,12 +343,13 @@
 					operator: localStorage.getItem('hb_dq_mes_user_info').username
 				}
 				reportWorderStatus(param).then(res => {
-					if (res) {
+					if (res.success) {
 						uni.$u.toast('操作成功')
-						// uni.reLaunch({
 						uni.redirectTo({
 							delta: 1
 						})
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			},
@@ -345,16 +358,20 @@
 				searchTemplateList({
 					type: 0
 				}).then(res => {
-					if (res && res.data && Array.isArray(res.data.value)) {
-						const id = res.data.value[0].contentStr;
+					if (res.success && res.data && Array.isArray(res.data.value)) {
+						const id = res.data.value[0].docId;
 						searchStandardById({
 							docId: id
 						}).then(res => {
-							if (res) {
+							if (res.success) {
 								this.tip = res.data.content;
 								this.isShowTip = true;
+							} else {
+								uni.$u.toast(res.errMsg)
 							}
 						})
+					} else {
+						uni.$u.toast(res.errMsg)
 					}
 				})
 			}
@@ -388,6 +405,10 @@
 				line-height: 40px;
 
 				.name {
+					flex: 1;
+					overflow: hidden;
+					white-space: nowrap;
+					text-overflow: ellipsis;
 					// font-size: $fontSize;
 					font-size: 20px;
 				}
@@ -398,8 +419,13 @@
 					justify-content: center;
 
 					.notice {
+						margin-right: 10rpx;
 						color: #3a62d7;
 						font-size: $smallFontSize;
+					}
+
+					.icon {
+						padding: 0 10rpx;
 					}
 				}
 			}
