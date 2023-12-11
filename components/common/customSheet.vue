@@ -1,7 +1,7 @@
 <template>
 	<u-action-sheet :title="title" :round='true' :show="show" :closeOnClickOverlay='true' @close='close'>
 		<view class="multi-select">
-			<view :class="['select-item', item.isCheck?'active-item':undefined]" v-for="(item,index) in selects"
+			<view :class="['select-item', item.isCheck?'active-item':undefined]" v-for="(item,index) in showList"
 				:key="item.value" @click="handleCheck(item,index)">
 				<text>{{item.label}}</text>
 			</view>
@@ -34,7 +34,14 @@
 		},
 		data() {
 			return {
-				selecedList: this.selects
+				showList: []
+			}
+		},
+		watch: {
+			selects(val) {
+				if (val.length) {
+					this.showList = val;
+				}
 			}
 		},
 		methods: {
@@ -42,19 +49,18 @@
 				this.$emit('close', this.selects.filter(item => item.isCheck))
 			},
 			handleCheck(item, index) {
-				if(this.isHourSelect){
-					this.selecedList = []
-				}
-				this.selecedList[index].isCheck = !item.isCheck
+				this.showList[index].isCheck = !item.isCheck
 			},
 			reset() {
-				this.$emit('reset')
+				this.showList.forEach(item => {
+					item.isCheck = false
+				})
 			},
 			handleConfirm() {
-				const selectedList = this.selects.filter(item => item.isCheck)
+				const selectedList = this.showList.filter(item => item.isCheck)
 				if (this.isHourSelect) {
 					this.$emit('selectHourConfirm', selectedList)
-				}else{
+				} else {
 					selectedList.length && this.$emit('customSheetConfirm', selectedList)
 				}
 			}

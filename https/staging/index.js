@@ -167,3 +167,35 @@ export function queryProcedureProblem(data) {
 		data
 	})
 }
+// 查询工步签到签退
+export function searchSignInfoApi(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure/query-execute-record",
+		method: 'post',
+		data
+	})
+}
+// 保存签到签退时间
+export function saveSignInfoApi(data) {
+	return request({
+		url: "/evo-ims-overhaul/work-procedure/execute-record-save",
+		method: 'post',
+		data
+	})
+}
+// 按类型查询文档模板
+export function searchTemplateList(data) {
+	return request({
+		url: `/evo-ims-overhaul/template-manage/query-by-type?type=${data.type}`,
+		method: 'get',
+		data
+	})
+}
+// 根据id查看文档模板详情
+export function searchStandardById(data) {
+	return request({
+		url: `/evo-ims-overhaul/template-manage/query-by-id?docId=${data.docId}`,
+		method: 'get',
+		data
+	})
+}

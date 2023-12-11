@@ -145,9 +145,9 @@
 			// 检修
 			jumpTap6() {
 				uni.navigateTo({
-					url: '/pages/staging/index'
+					// url: '/pages/staging/index'
 					// url: '/pages/orderDetail/productionDetail/index'
-					// url: `/pages/orderDetail/subProductionRowDetail/index`,
+					url: `/pages/orderDetail/subProductionRowDetail/index`,
 				});
 			},
 			tapMsg() {

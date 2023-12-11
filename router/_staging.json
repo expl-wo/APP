@@ -39,7 +39,7 @@
 	}, {
 		"path": "pages/orderDetail/subProductionRowDetail/index",
 		"style": {
-			"navigationBarTitleText": "子工序行详情",
+			"navigationBarTitleText": "工步详情",
 			"app-plus": {
 				"titleNView": true
 			}

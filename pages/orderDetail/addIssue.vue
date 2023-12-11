@@ -124,6 +124,7 @@
 				workScene,
 				workProcedureType
 			} = options;
+			// 提交问题需要的工单、工序（工序类型）、场景参数
 			this.param.workProcedureCode = workProcedureCode;
 			this.param.workScene = workScene;
 			this.param.workProcedureType = workProcedureType;

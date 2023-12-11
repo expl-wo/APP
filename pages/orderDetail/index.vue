@@ -171,7 +171,7 @@
 				uni.showLoading({
 					title: '下载中'
 				})
-				文件下载功能
+				// 文件下载功能
 				uni.downloadFile({
 					url: this.getUrl(file.url),
 					success: (res) => {
@@ -289,7 +289,7 @@
 			}
 
 			100% {
-				height: 280rpx;
+				height: 120px;
 				opacity: 1;
 			}
 		}
@@ -297,7 +297,7 @@
 		@keyframes showLess {
 			0% {
 				opacity: 1;
-				height: 280rpx;
+				height: 120px;
 			}
 
 			1% {

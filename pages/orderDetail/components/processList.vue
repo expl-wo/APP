@@ -90,13 +90,12 @@
 							title: item.workProcedureName,
 							...item
 						}))
-
 						const total = res.data.total || 0;
 						if (this.cardList.length < total) {
-							this.cardList.push(...listData)
-							this.status = 'loadmore'
+							this.cardList.push(...listData);
+							this.status = 'loadmore';
 						} else {
-							this.status = 'nomore'
+							this.status = 'nomore';
 						}
 					}
 				}).finally(() => {

@@ -5,7 +5,7 @@
 			<view class="info">
 				<view class="name">{{ processName }}</view>
 				<view class="extra-info">
-					<text class="notice" @click="showNotice">工序要求</text>
+					<text class="notice" @click="noticeFlag = true">工序要求</text>
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
@@ -17,27 +17,29 @@
 				:refresher-triggered="refreshing" :refresher-enabled="true" :refresher-threshold="80"
 				:upper-threshold="50" :lower-threshold="30" @refresherrefresh="getData('scrolltoupper')"
 				@scrolltolower="getData('scrolltolower')">
-					<view class="list-item" v-for="(item, index) in listData" :key="index"
-						@click="skipProductionDetail(item)">
-						<view class="title">
-							<view class="name">{{ item.workProcedureName }}</view>
-							<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
-								{{ WORK_STATUS_MAP[item.workStatus].label }}
-							</view>
-						</view>
-						<view class="progress">
-							<Progress :percentage="item.workStatus + '%'" />
+				<view class="list-item" v-for="(item, index) in listData" :key="index"
+					@click="skipProductionDetail(item)">
+					<view class="title">
+						<view class="name">{{ item.workProcedureName }}</view>
+						<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
+							{{ WORK_STATUS_MAP[item.workStatus].label }}
 						</view>
 					</view>
+					<view class="progress">
+						<Progress :percentage="item.workStatus + '%'" />
+					</view>
+				</view>
 				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 			</scroll-view>
 		</view>
+		<notice :show="noticeFlag" title="工序要求" :content="tip" @closeNotice="noticeFlag = false" />
 	</view>
 </template>
 
 <script>
 	import ProductionInfo from "@/components/common/productionInfo.vue";
 	import Progress from "@/components/common/progress.vue";
+	import Notice from '@/components/common/notice.vue';
 	import {
 		getProcessList
 	} from "@/https/staging/index.js";
@@ -53,6 +55,7 @@
 		components: {
 			ProductionInfo,
 			Progress,
+			Notice
 		},
 		computed: {
 			...mapState("workOrder", [
@@ -110,7 +113,11 @@
 				status: 'nomore',
 				hasNextPage: false,
 				// 工单场景
-				workOrderSceneType: ''
+				workOrderSceneType: '',
+				// 工序要求弹窗展示
+				noticeFlag: false,
+				// 工序标准弹窗展示内容
+				tip: "<h4>测试</h4><br>",
 			};
 		},
 		computed: {
@@ -177,7 +184,11 @@
 				}
 				let extraParams = {};
 				let workOrder = uni.getStorageSync('ims_workOrder');
-				let { id, workOrderType, procedureTemplateCode } = workOrder;
+				let {
+					id,
+					workOrderType,
+					procedureTemplateCode
+				} = workOrder;
 				extraParams.workCode = id;
 				// 勘察工单
 				if (workOrderType === 1) {
@@ -188,7 +199,10 @@
 				if (type !== 'scrolltoupper') {
 					this.status = 'loading';
 				}
-				getProcessList({...params, ...extraParams})
+				getProcessList({
+						...params,
+						...extraParams
+					})
 					.then(res => {
 						if (res.data) {
 							let {
@@ -282,6 +296,7 @@
 					}
 				}
 			}
+
 			/deep/ .u-tabs {
 				border-top: 1px solid rgba(101, 118, 133, 0.11);
 				border-bottom: 1px solid rgba(101, 118, 133, 0.11);
@@ -317,12 +332,14 @@
 						margin-bottom: 16px;
 						font-size: 16px;
 						color: #445160;
+
 						.name {
 							flex: 1;
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
 						}
+
 						.status {
 							margin-left: auto;
 						}

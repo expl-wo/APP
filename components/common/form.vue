@@ -2,44 +2,65 @@
 	<view class="form">
 		<u--form labelPosition="left" :model="formData" :rules="rules" ref="uForm">
 			<view class="form-item" v-for="(item,index) in submitFormData" :key="index">
-				<u-form-item :label="item.operationName" :prop="item.operationCode" @click="showAction(item)"
-					ref="item1" :ref="`item${index}`">
-					<text class="description">{{item.operationDescription}}</text>
-					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容" v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
-					<u-number-box :min="lowerLimit" :max="upperLimit" v-model="formData[item.operationCode]" v-else-if="item.operationType ==='1'"></u-number-box>
-					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
-						border="none" v-else></u--input>
-					<u-icon slot="right" name="arrow-right" v-if="item.operationType!=='0'"></u-icon>
-				</u-form-item>
-				<!-- 执行频率 -->
-				<view class="execute">
-					<view class='picker-tag' v-if="item.executionFrequency !== '2'">
-						<text class="tip">执行频率:</text>
-						<view class="time-select-box" v-if="item.executionFrequency === '0'">
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">选择天</text>
-							<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'hour')">选择小时</text>
-							<text class="time-type">{{ showTimeList[index] && showTimeList[index].hourTime}}</text>
+				<view class="title">
+					<view class="operation-name">
+						<view class="name">
+							{{item.operationName}}
 						</view>
-						<view class="time-select-box" v-else-if="item.executionFrequency === '1'">
-							<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">选择天</text>
-							<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+						<!-- 执行频率 -->
+						<view class="execute">
+							<view class='picker-tag' v-if="item.executionFrequency !== '2'">
+								<!-- <text class="tip">频率:</text> -->
+								<view class="time-select-box" v-if="item.executionFrequency === '0'">
+									<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">
+										<u-icon name="arrow-down"></u-icon>
+									</text>
+									<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+									<text class="btn-link" @click="showTimeActionSheet(item,index,'hour')">
+										<u-icon name="arrow-down"></u-icon>
+									</text>
+									<text
+										class="time-type">{{ showTimeList[index] && showTimeList[index].hourTime}}</text>
+								</view>
+								<view class="time-select-box" v-else-if="item.executionFrequency === '1'">
+									<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">
+										<u-icon name="arrow-down"></u-icon>
+									</text>
+									<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+								</view>
+							</view>
 						</view>
 					</view>
+					<view class="operation-description" v-if="item.operationDescription">
+						{{item.operationDescription}}
+					</view>
 				</view>
+				<!-- 表单项 -->
+				<u-form-item :prop="item.operationCode" :ref="`item${index}`" @click="showAction(item,index)">
+					<text class="description">选项:</text>
+					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
+						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
+					<u-number-box :min="item.lowerLimit" :max="item.upperLimit" v-model="formData[item.operationCode]"
+						v-else-if="item.operationType ==='1'"></u-number-box>
+					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
+						border="none" v-else></u--input>
+					<u-icon slot="right" name="arrow-right" v-if="!['0','1'].includes(item.operationType)"></u-icon>
+				</u-form-item>
+
+				<!-- 图片上传 -->
 				<view class="photo">
-					<u-cell>
-						<view slot="title" class="u-slot-title">
-							<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
-								@afterRead="afterRead($event,index)" @delete="deletePic($event,index)" name="1"
-								multiple></u-upload>
-						</view>
-					</u-cell>
+					<text class="tip">图片:</text>
+					<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
+						@afterRead="afterRead($event,index)" @beforeRead="beforeRead($event, 'image')"
+						@delete="deletePic($event,index)" name="1" multiple></u-upload>
+					<view slot="title" class="u-slot-title">
+					</view>
 				</view>
 			</view>
 			<view class="save-btn">
 				<view class="save btn">
-					<u-button  @click="submit" text="保存" :disabled="!isStart"></u-button>
+					<!-- <u-button @click="submit" text="保存" :disabled="!isStart"></u-button> -->
+					<u-button @click="submit" text="保存" color="#3a62d7"></u-button>
 				</view>
 				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
 				<view style="display: flex;margin-top: 10px;">
@@ -47,21 +68,24 @@
 					<button @click="computedWidth('plus')">增加</button>
 				</view>
 				<view class="report btn">
-					<u-button  @click="handleReport" text="报工" :disabled="!isStart"></u-button>
+					<u-button @click="handleReport" text="报工" :disabled="!isStart" color="#3a62d7"></u-button>
 				</view>
 			</view>
 		</u--form>
-		<u-action-sheet :show="showSingalAction" :actions="actions" title="请选择" @close="showSingalAction = false"
+		<!-- 操作面板 -->
+		<u-action-sheet :show="showSingleAction" :actions="actions" title="请选择" @close="showSingleAction = false"
 			@select="singleSelect">
 		</u-action-sheet>
-		<CustomSheet :show='isShowCustomSheet' :title="customSheetTitle" :selects='selectHours'
-			:isHourSelect='isHourSelect' @close='closeCustomSheet' @handleCheck='handleCheck' @reset='reset'
-			@selectHourConfirm='selectHourConfirm'>
+		<CustomSheet :show='isShowCustomSheet' :title="customSheetTitle" :selects='selects' :isHourSelect='isHourSelect'
+			@close='closeCustomSheet' @selectHourConfirm='selectHourConfirm' @customSheetConfirm='customSheetConfirm'>
 		</CustomSheet>
 		<u-calendar confirmDisabledText="请选择日期" :formatter="formatter" :show="isShowCalendar" :maxDate="maxDate"
 			:minDate='minDate' :closeOnClickOverlay='true' @confirm="confirmCalendar" ref="calendar"
 			@close='isShowCalendar = false'>
 		</u-calendar>
+		<u-datetime-picker :show="isShowDatePicker" v-model="dateValue" mode="datetime" :closeOnClickOverlay='true'
+			@close='isShowDatePicker = false' @cancel='isShowDatePicker = false'
+			@confirm='handleDateTimePicker'></u-datetime-picker>
 	</view>
 </template>
 
@@ -74,6 +98,14 @@
 		queryHistoryRecordByTime,
 		reportWork
 	} from "@/https/staging/index.js";
+	import uploadHttp from '@/https/_public/upload';
+	import {
+		getToken,
+		setToken
+	} from '@/utils/auth.js';
+	import {
+		UPLOAD_LIMIT
+	} from '@/utils/constants-custom';
 	export default {
 		name: "From",
 		components: {
@@ -85,13 +117,14 @@
 				type: Array,
 				default: () => []
 			},
-			isStart:{
-				type:Boolean,
-				default:false
+			// 是否开工-开工才能操作
+			isStart: {
+				type: Boolean,
+				default: false
 			},
-			commonParam:{
-				type:Object,
-				default:()=>({})
+			commonParam: {
+				type: Object,
+				default: () => ({})
 			}
 		},
 		watch: {
@@ -104,10 +137,10 @@
 					// 设置验证规则
 					this.setRules()
 				}
-
 			}
 		},
 		data() {
+			// 设置日历最大日期
 			const d = new Date()
 			const year = d.getFullYear()
 			let month = d.getMonth() + 1
@@ -141,6 +174,7 @@
 				],
 				// 表单验证规则
 				rules: {},
+				// 显示自定义面板
 				isShowCustomSheet: false,
 				// 表格提交数据
 				submitFormData: [],
@@ -150,10 +184,11 @@
 				maxDate: `${year}-${month}-${date}`,
 				minDate: `${year}-${month}-${date -30}`,
 				// 展示单选操作面板
-				showSingalAction: false,
+				showSingleAction: false,
 				// 当前操作的记录项=下标
 				currentIndex: 0,
-				// 选择小时的列表
+				// 选择小时的列表-多选列表
+				selects: [],
 				selectHours,
 				// 自定义面板标题
 				customSheetTitle: '小时选择',
@@ -164,17 +199,24 @@
 				// 是否是选择小时-只能选中一个时间点
 				isHourSelect: false,
 				// 显示的时间列表
-				showTimeList:[]
+				showTimeList: [],
+				// 日期时间选择
+				isShowDatePicker: false,
+				// 日期值
+				dateValue: Number(new Date()),
 			}
 		},
 		methods: {
-			// 进度条增减操作
-			computedWidth(type) {
-				if (type === 'plus') {
-					this.percentage = uni.$u.range(0, 100, this.percentage + 10)
-				} else {
-					this.percentage = uni.$u.range(0, 100, this.percentage - 10)
-				}
+			// 初始化表单数据
+			initFormData() {
+				this.formList.forEach((item, index) => {
+					this.formData[item.operationCode] = item.contentInfo || "";
+					const tempObj = {
+						date: item.date || '',
+						hourTime: item.hourTime || '',
+					}
+					this.showTimeList.push(tempObj);
+				})
 			},
 			// 根据数据生成表单验证规则
 			setRules() {
@@ -192,30 +234,25 @@
 				console.log(this.rules, 'setRules')
 				this.$refs.uForm.setRules(this.rules)
 			},
-			singleSelect(e) {
-				this.actions.forEach(item => {
-					if (item.name === e.name) {
-						this.formData.userInfo.sex = item.value
-						this.$refs.uForm.validateField('userInfo.sex')
-					}
-				})
-			},
 			submit() {
-				console.log(this.formData,'formData',this.submitFormData)
+				console.log(this.formData, 'formData', this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
-					this.submitFormData.forEach((item,index)=>{
+					this.submitFormData.forEach((item, index) => {
 						item.contentInfo = this.formData[item.operationCode];
-						const time = this.selectHours.filter(item=>item.label == this.showTimeList[index].hourTime);
-						console.log(this.selectHours, this.showTimeList[index].hourTime, ' this.showTimeList[index].hourTime',time);
-						if(item.executionFrequency === '0'){
+						const time = this.selectHours.filter(item => item.label == this.showTimeList[index]
+							.hourTime);
+						console.log(this.selectHours, this.showTimeList[index].hourTime,
+							' this.showTimeList[index].hourTime', time);
+						if (item.executionFrequency === '0') {
 							item.workPlanTime = this.showTimeList[index].date + " " + time[0].value;
-						}else if(item.executionFrequency === '1'){
-							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + time[0].value;
+						} else if (item.executionFrequency === '1') {
+							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + time[0]
+								.value;
 						}
 					})
 					const param = {
 						...this.commonParam,
-						craftCode:this.commonParam.craftId,
+						craftCode: this.commonParam.craftId,
 						list: this.submitFormData
 					}
 					reportWorkContent(param).then(res => {
@@ -233,68 +270,104 @@
 			deletePic(event, index) {
 				this.submitFormData[index].fileList.splice(event.index, 1)
 			},
+			// 判断是否图片是否超出限制
+			isOverSize(size, type) {
+				return size > UPLOAD_LIMIT[type].maxSize;
+			},
+			// 图片上传之前事件
+			beforeRead(event, type) {
+				let {
+					file
+				} = event;
+				return new Promise((resolve, reject) => {
+					let eligibleFile = file.filter(item => {
+						return !this.isOverSize(item.size, type)
+					})
+					if (!eligibleFile.length) {
+						uni.showToast({
+							title: `所选${UPLOAD_LIMIT[type].label}大小不符合要求`,
+							duration: 2000
+						});
+						reject();
+					}
+					if (eligibleFile.length && eligibleFile.length < file.length) {
+						uni.showToast({
+							title: `已自动过滤不符合条件的${UPLOAD_LIMIT[type].label}`,
+							duration: 2000
+						});
+						resolve(eligibleFile, type);
+					}
+					resolve(file, type);
+				})
+			},
 			// 新增图片
 			async afterRead(event, index) {
-				// 当设置 multiple 为 true 时, file 为数组格式，否则为对象格式
-				const idx = index;
-				let lists = [].concat(event.file)
-				let fileListLen = this.submitFormData[idx].fileList.length
-				lists.map((item) => {
-					this.submitFormData[idx].fileList.push({
-						...item,
-						// status: 'uploading',
-						// message: '上传中'
-					})
-				})
-				for (let i = 0; i < lists.length; i++) {
-					const result = await this.uploadFilePromise(lists[i].url)
-					let item = this.submitFormData[idx].fileList[fileListLen]
-					this.submitFormData[idx].fileList.splice(fileListLen, 1, Object.assign(item, {
-						status: 'success',
-						message: '',
-						url: result
-					}))
-					fileListLen++
+				let uploadList = event.file;
+				let uploadTask = [];
+				for (let i = 0; i < uploadList.length; i++) {
+					uploadTask.push(this.uploadFilePromise(uploadList[i].url));
 				}
+				Promise.all(uploadTask)
+					.then(res => {
+						let successList = res.filter(item => item.status === 0);
+						if (successList.length < this.imageList) {
+							uni.showToast({
+								title: '存在上传失败的图片',
+								duration: 2000
+							});
+						}
+						let uploadedList = successList.map(item => {
+							return {
+								imgUrl: `http://10.16.9.128:9000/${item.filePath}`,
+								url: item.filePath,
+								name: item.fileName,
+								type: fileName.spilt(".")[1]
+							}
+						})
+						this.submitFormData[index].fileList.push(...uploadedList)
+					})
 			},
+			// 上传图片接口
 			uploadFilePromise(url) {
 				return new Promise((resolve, reject) => {
-					let a = uni.uploadFile({
-						url: 'http://192.168.2.21:7001/upload', // 仅为示例，非真实的接口地址
-						filePath: url,
-						name: 'file',
-						formData: {
-							user: 'test'
-						},
-						success: (res) => {
+					uploadHttp.upload({
+						token: getToken(),
+						filePath: url
+					}).then(response => {
+						if (response.code === 200) {
 							setTimeout(() => {
-								resolve(res.data.data)
-							}, 1000)
+								return resolve({
+									status: 0,
+									...response.data
+								})
+							}, 150)
+						} else {
+							return resolve({
+								status: 500,
+								msg: '上传失败'
+							});
 						}
 					});
 				})
 			},
+			// 关掉自定义面板（多选-小时操作面板）
 			closeCustomSheet(selectedList) {
 				console.log(selectedList, 'selectedList')
 				this.isShowCustomSheet = false
 			},
-			reset() {
-				this.selectHours.forEach(item => {
-					item.isCheck = false
-				})
-			},
+			// 处理报工事件
 			handleReport() {
 				const userInfo = JSON.parse(localStorage.getItem('hb_dq_mes_user_info'))
 				const param = {
 					progress: this.percentage,
-					workCode:this.commonParam.workCode,
-					workScene:this.commonParam.workScene,
+					workCode: this.commonParam.workCode,
+					workScene: this.commonParam.workScene,
 					workProcedureCode: this.commonParam.craftId,
-					isStart:this.isStart ? 1 : 0 ,
+					isStart: this.isStart ? 1 : 0,
 					// isFinished: 1, // 	是否完工 1:完工
 					operator: userInfo.username
 				}
-				console.log('handleReport',param,userInfo)
+				console.log('handleReport', param, userInfo)
 				reportWork(param).then(res => {
 					uni.$u.toast('报工成功')
 				}).catch(error => {
@@ -311,6 +384,7 @@
 						this.isShowCalendar = true
 					}, 500)
 				} else {
+					this.selects = this.selectHours;
 					this.isHourSelect = true;
 					// 小时显示单选picker
 					this.isShowCustomSheet = true
@@ -330,21 +404,21 @@
 				})
 				return day
 			},
-			// 日历
+			// 日历确认框
 			confirmCalendar(date) {
 				this.$set(this.showTimeList[this.currentIndex], 'date', date[0])
 				console.log(date, 'confirmCalendar', this.submitFormData)
 				this.isShowCalendar = false
 			},
-			// 根据当前时间查询
+			// 根据当前时间查询工作内容
 			queryRecordHistoryByTime(item, type) {
 				const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
-				const beginTime =  moment().startOf('month').format('YYYY-MM-DD HH:mm:ss');
+				const beginTime = moment().startOf('month').format('YYYY-MM-DD HH:mm:ss');
 				const param = {
-					workCode:this.commonParam.workCode,
-					craftCode:this.commonParam.craftId,
-					workScene:this.commonParam.workScene,
-					operationCode:item.operationCode,
+					workCode: this.commonParam.workCode,
+					craftCode: this.commonParam.craftId,
+					workScene: this.commonParam.workScene,
+					operationCode: item.operationCode,
 					beginTime: beginTime,
 					endTime: currentTime
 				}
@@ -354,24 +428,55 @@
 					}
 				})
 			},
-			showAction(item) {
+			// 展示选择操作面板
+			showAction(item, index) {
+				this.currentIndex = index;
 				console.log(item.operationType, 'showAction')
-				if (item.operationType === '0') return;
-				this.showSingalAction = true;
-			},
-			handleCheck(index) {
-				this.selectHours[index].isCheck = true
-			},
-			initFormData() {
-				this.formList.forEach((item,index) => {
-					this.formData[item.operationCode] = item.contentInfo
-					const tempObj =  {
-						date:item.date || '',
-						hourTime:item.hourTime || '',
+				if (item.operationType === '0' || item.operationType === '1') {
+					return
+				} else if (item.operationType === '2') {
+					this.isShowDatePicker = true;
+				} else if (item.operationType === '3') {
+					this.showSingleAction = true;
+					this.actions = item.dictionaryContent
+				} else if (item.operationType === '4') {
+					if (item.dictionaryContent && item.dictionaryContent.length) {
+						const list = [];
+						item.dictionaryContent.forEach(item => {
+							list.push({
+								value: item.code,
+								label: item.name,
+								isCheck: false
+							})
+						})
+						this.selects = list;
+						console.log(this.selects, 'selects')
+						this.customSheetTitle = item.operationName + '选择';
+						this.isShowCustomSheet = true;
 					}
-					this.showTimeList.push(tempObj)
-				})
-				console.log(this.formData, 'initFormData',this.showTimeList)
+				}
+			},
+			// 日期时间选择确认-区别日期选择
+			handleDateTimePicker(dateObj) {
+				const date = moment(dateObj.value).format('YYYY-MM-DD HH:mm:ss')
+				const currentItem = this.submitFormData[this.currentIndex];
+				this.formData[currentItem.operationCode] = date;
+				this.$refs.uForm.validateField(currentItem.operationCode);
+				this.isShowDatePicker = false;
+			},
+			// 单选面板确认事件
+			singleSelect(e) {
+				const currentItem = this.submitFormData[this.currentIndex];
+				this.formData[currentItem.operationCode] = e.name;
+				this.$refs.uForm.validateField(currentItem.operationCode);
+			},
+			// 多选面板确认
+			customSheetConfirm(list) {
+				const currentItem = this.submitFormData[this.currentIndex];
+				const contentInfo = list.map(item => item.label).join(',');
+				this.formData[currentItem.operationCode] = contentInfo;
+				this.$refs.uForm.validateField(currentItem.operationCode);
+				this.isShowCustomSheet = false;
 			},
 			// 小时确认框
 			selectHourConfirm(selectedList) {
@@ -379,65 +484,89 @@
 				this.$set(this.showTimeList[this.currentIndex], 'hourTime', selectedList[0].label)
 				this.showTimeList[this.currentIndex]
 				let beginTime = moment().format('YYYY-MM-DD') + " " + selectedList[0].value;
-				if(this.showTimeList[this.currentIndex].date){
+				if (this.showTimeList[this.currentIndex].date) {
 					beginTime = this.showTimeList[this.currentIndex].date + " " + selectedList[0].value
-				}else{
+				} else {
 					uni.$u.toast('请选择日期')
 				}
-				const params = [
-					{
-						workCode:this.commonParam.workCode,
-						craftCode:this.commonParam.craftId,
-						workScene:this.commonParam.workScene,
-						operationCode:this.submitFormData[this.currentIndex].operationCode,
-						beginTime: beginTime,
-						executionFrequency:this.submitFormData[this.currentIndex].executionFrequency
-					}
-				] 
-				this.$emit('getBatchRecord',params)
+				const params = [{
+					workCode: this.commonParam.workCode,
+					craftCode: this.commonParam.craftId,
+					workScene: this.commonParam.workScene,
+					operationCode: this.submitFormData[this.currentIndex].operationCode,
+					beginTime: beginTime,
+					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
+				}]
+				this.$emit('getBatchRecord', params)
 				this.isShowCustomSheet = false
-			}
-		},
-		mounted() {
-			//如果需要兼容微信小程序，并且校验规则中含有方法等，只能通过setRules方法设置规则。
-			console.log(this.formList, 'formList', this.submitFormData)
+			},
+			// 进度条增减操作
+			computedWidth(type) {
+				if (type === 'plus') {
+					this.percentage = uni.$u.range(0, 100, this.percentage + 10)
+				} else {
+					this.percentage = uni.$u.range(0, 100, this.percentage - 10)
+				}
+			},
 		}
 	}
 </script>
 
 <style lang='scss' scoped>
 	.form {
-		height: calc(100% - 280px);
+		height: calc(100% - 260px);
 		overflow-y: auto;
 		margin: 0 16rpx;
 		background-color: #fff;
 		border-radius: 10rpx;
 
 		.form-item {
-			.picker-tag {
-				flex: 1;
+			.tip {
+				margin-right: 10rpx;
+				font-size: 14px;
+			}
+
+			.title {
 				margin-left: 20rpx;
+				margin-top: 10rpx;
 
-				.tip {
-					margin-right: 10rpx;
-					font-size: 12px;
-				}
+				.operation-name {
+					display: flex;
+					justify-content: space-between;
+					font-size: 20px;
+					margin-bottom: 10rpx;
 
-				.time-type {
-					padding: 0 20rpx;
-					/* color: #3a62d7; */
-				}
+					.picker-tag {
+						display: flex;
+						margin-bottom: 10rpx;
+						margin-left: 20rpx;
 
-				.time-select-box {
-					display: inline-block;
+						.time-type {
+							padding: 0 12rpx;
+							color: #3a62d7;
+						}
 
-					.btn-link {
-						color: #3a62d7;
+						.time-select-box {
+							display: flex;
+
+							.btn-link {
+								margin-top: 5px;
+								color: #3a62d7;
+							}
+						}
 					}
+				}
+
+				.operation-description {
+					font-size: 14px;
 				}
 			}
 
-
+			.photo {
+				display: flex;
+				padding-left: 20rpx;
+				border-bottom: 1px solid #cecece;
+			}
 		}
 
 		.save-btn {

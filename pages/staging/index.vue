@@ -9,7 +9,7 @@
 			</view>
 			<view class="search-box">
 				<u-icon name="search" size="30" style="margin: 0 10rpx" @click="showSearchPanel = true"></u-icon>
-				<u-icon v-if="showType !== 'issue'" name="map-fill" size="30" style="margin: 0 10rpx"
+				<u-icon v-if="showType !== 'issue'" name="list-dot" size="30" style="margin: 0 10rpx"
 					@click="showFilterPanel= true">
 				</u-icon>
 			</view>
@@ -166,7 +166,6 @@
 				const param = {
 					pageNum: this.pageNum,
 					pageSize: 10,
-
 				};
 				if (this.selectOrderStatu) {
 					param.orderStatusList = [this.selectOrderStatu]
@@ -176,9 +175,11 @@
 				if (type === 'scrolltoupper') {
 					this.searchKey = param.projName = '';
 					this.refreshing = true;
+					this.pageNum = 1;
 				} else if (type === 'scrolltolower') {
-					param.pageNum++;
+					this.pageNum++;
 				}
+				param.pageNum = this.pageNum;
 				if (this.showType === "issue") {
 					const ims_workOrder = JSON.parse(localStorage.getItem("ims_workOrder")).data
 					param.workCode = ims_workOrder.id;
@@ -195,7 +196,7 @@
 								...item
 							}))
 							this.handleDataByType(listData, type)
-						}else{
+						} else {
 							this.cardList = []
 						}
 					})
@@ -338,11 +339,7 @@
 				height: 100%;
 
 				.card-item {
-					margin: 0 20rpx 12rpx;
-
-					&:not(:last-child) {
-						margin-bottom: 12rpx;
-					}
+					margin: 0 20rpx;
 				}
 			}
 		}

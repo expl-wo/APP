@@ -19,18 +19,20 @@
 					</view>
 				</view>
 			</template>
-			<!-- 图片列表 -->
-			<view class="img-box" v-if="cardInfo['imgList']">
-				<view class="img-item" v-for="img in cardInfo['imgList']" :key="img">
-					<u--image :showLoading="true" :src="getUrl(img)" width="80px" height="80px"
-						@click="showModal(img,'img')"></u--image>
+			<view class="extra">
+				<!-- 图片列表 -->
+				<view class="img-box" v-if="cardInfo['imgList']">
+					<view class="img-item" v-for="img in cardInfo['imgList']" :key="img">
+						<u--image :showLoading="true" :src="getUrl(img)" width="80px" height="80px"
+							@click="showModal(img,'img')"></u--image>
+					</view>
 				</view>
-			</view>
-			<!-- 视频列表 -->
-			<view class="img-box" v-if="cardInfo['videoList']">
-				<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video"
-					@click="showModal(video,'video')">
-					<video :src="getUrl(video)" controls style="widht:80px;height: 80px;"></video>
+				<!-- 视频列表 -->
+				<view class="img-box" v-if="cardInfo['videoList']">
+					<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video"
+						@click="showModal(video,'video')">
+						<video :src="getUrl(video)" controls style="widht:80px;height: 80px;"></video>
+					</view>
 				</view>
 			</view>
 			<view v-if="Object.keys(fieldMapText).length > 4" class="show-more-icon" :title="isShowMore ? '收起' : '展开'"
@@ -212,19 +214,20 @@
 				font-size: $bigFontSize;
 			}
 
-			.img-box {
+			.extra {
 				display: flex;
-				margin-bottom: 10px;
 
-				.img-item {
+				.img-box {
+					margin-bottom: 10px;
+					.img-item {
+						margin-right: 10px;
+					}
 
-					margin-right: 10px;
-				}
+					/deep/ .uni-video-container {
+						width: 80px;
+						height: 80px;
 
-				/deep/ .uni-video-container {
-					width: 80px;
-					height: 80px;
-
+					}
 				}
 			}
 		}

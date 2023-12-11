@@ -5,23 +5,24 @@
 			<view class="info">
 				<view class="name">{{ subProductionRowName }}</view>
 				<view class="extra-info">
-					<text class="notice" @click="isShowTip = true">工序要求</text>
+					<text class="notice" @click="showTip">工序要求</text>
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
 			<!-- 工单详情 -->
 			<ProductionInfo :fieldMapText="fieldMapText" :infoObj="detailInfo" style="height: auto;" />
 			<!-- 用户信息 -->
-			<UserInfo style="padding: 16px" fontColor='#000' :userInfo="userInfo">
-				<view class="sign-time">
+			<UserInfo style="padding: 16px" fontColor='#000'>
+				<!-- <view class="sign-time">
 					<text :title='signInTime' v-if='signInTime' style="margin-right: 10px;">签到：{{signInTime}}</text>
 					<text v-if='signOutTime'>签退：{{signOutTime}}</text>
-				</view>
+				</view> -->
 			</UserInfo>
 			<view class="sign-box">
-				<u-button type="primary" class="sign-btn" @click="handleSign('signIn')" :disabled="!!signInTime"
+				<u-button type="primary" class="sign-btn" @click="handleSign('signIn')" :disabled="signBtnEnable"
 					text="签到"></u-button>
-				<u-button type="primary" class="sign-btn" text="签退" @click="handleSign('signOut')"></u-button>
+				<u-button type="primary" class="sign-btn" text="签退" :disabled="!signBtnEnable"
+					@click="handleSign('signOut')"></u-button>
 			</view>
 		</view>
 		<!-- 自定义表单 -->
@@ -68,7 +69,11 @@
 		proveConfirmApi,
 		queryBatchRecord,
 		reportWorderStatus,
-		getProcessList
+		getProcessList,
+		saveSignInfoApi,
+		searchSignInfoApi,
+		searchTemplateList,
+		searchStandardById
 	} from "@/https/staging/index.js";
 	export default {
 		name: "ProcessDetail",
@@ -108,19 +113,15 @@
 					subGroupPerson: "",
 					member: "",
 				},
-				// 工序标准
-				tip: "sssss",
 				isShowActionSheet: false,
 				// 操作面板对象
 				actionSheetObj: {},
 				// 按钮文字-根据用户信息显示不同操作
 				btnText: '开工',
-				// 用户信息
-				userInfo: {},
-				// 签出时间
-				signInTime: '',
+				// 签到时间
+				// signInTime: '',
 				// 签退时间
-				signOutTime: '',
+				// signOutTime: '',
 				// 展示审核面板
 				isShowProvePicker: false,
 				// 问题审核
@@ -144,7 +145,9 @@
 				// 工步列表
 				productionList: [],
 				// 当前选中的工步下标
-				activeIndex: 0
+				activeIndex: 0,
+				// 签到按钮是否可用
+				signBtnEnable: false
 			};
 		},
 		watch: {
@@ -158,15 +161,11 @@
 			}
 		},
 		created() {
-			// 获取用户信息
-			const userInfo = getUserInfo();
-			this.getParamData();
-			this.initData();
+			// this.initData();
+			// 查询签到签退信息
+			this.searchSignInfo()
 		},
 		methods: {
-			getParamData() {
-
-			},
 			/**
 			 * @method initData 初始化数据
 			 **/
@@ -189,7 +188,7 @@
 				this.subProductionRowName = workStep.workProcedureName
 				console.log(workOrder, 'localstorage', workStep, this.commonParam)
 				// 是否开工
-				this.isStart = !workStep.workStatus === 0
+				this.isStart = !workStep.workStatus === 1
 				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
 				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus];
 				this.isShowProveBtn = !workOrder.reviewStatus
@@ -198,10 +197,12 @@
 				// 获取工步列表数据用于上下页
 				this.getProcessListData(workOrder, intermediateProcess, workStep)
 			},
+
 			// 获取工步内容
 			getWorkStepContent() {
 				setMesWorkContent({
-					craftId: this.commonParam.craftId
+					// craftId: this.commonParam.craftId
+					craftId: 6
 				}).then(res => {
 					if (res && res.data) {
 						const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -215,6 +216,11 @@
 								craftCode: this.commonParam.craftId
 							})
 						})
+						res.data.value.forEach((item, index) => {
+							// 筛选图片，暂不支持文件
+							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
+								'jpg') : []
+						})
 						this.formList = res.data.value || []
 						// 初始化回显，用当前时间批量查询工作内容记录
 						this.getBatchRecord(params)
@@ -226,13 +232,11 @@
 				queryBatchRecord(params).then(res => {
 					if (res && res.data && Array.isArray(res.data.value)) {
 						res.data.value.forEach((item, index) => {
+							// 筛选图片，暂不支持文件
 							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
 								'jpg') : []
 						})
-						if (res.data.value.length) {
-							this.formList = res.data.value || []
-							console.log(res, 'formList', this.formList)
-						}
+						this.formList = res.data.value || []
 					}
 				})
 			},
@@ -269,23 +273,52 @@
 					isProblem: value.indexs[1] // 0:不加入 1:加入
 				}
 				proveConfirmApi(param).then(() => {
-					uni.$u.toast('复核成功')
+					uni.$u.toast('复核成功');
+					// 返回中工序页面
+					uni.redirectTo({
+						url: '/pages/orderDetail/productionDetail/index'
+					})
 				}).finally(() => {
 					this.isShowProvePicker = false
 				})
 			},
+			// 搜索签到信息
+			searchSignInfo() {
+				const userInfo = getUserInfo();
+				const param = {
+					userId: userInfo.username,
+					workId: this.commonParam.workCode || '2222',
+					sceneType: this.commonParam.workScene || '2222',
+					workProcedureId: this.commonParam.craftId || '222',
+				}
+				searchSignInfoApi(param).then(res => {
+					if (res && Array.isArray(res.data)) {
+						const length = res.data.length;
+						this.signBtnEnable = length % 2 === 0;
+					}
+				})
+			},
 			// 处理签到签退
 			handleSign(type) {
-				if (type === 'signIn') {
-					this.signInTime = moment().format('YYYY-MM-DD HH:mm:ss');
-				} else {
-					this.signOutTime = moment().format('YYYY-MM-DD HH:mm:ss');
+				let date = ''
+				date = moment().format('YYYY-MM-DD HH:mm:ss');
+				const param = {
+					workId: this.commonParam.workCode,
+					sceneType: this.commonParam.workScene,
+					workProcedureId: this.commonParam.craftId,
+					type: type === 'signIn' ? 1 : 2,
+					userId: getUserInfo().username
 				}
+				saveSignInfoApi(param).then(res => {
+					if (res && res.success) {
+						uni.$u.toast('签到成功')
+						this.searchSignInfo();
+					}
+				})
 			},
 			// 跳转增加问题页面
 			handleAddIssue() {
 				uni.navigateTo({
-					// url: '/pages/orderDetail/addIssue',
 					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.commonParam.workProcedureCode}&workScene=${this.commonParam.workScene}&workProcedureType=${3}`
 				});
 			},
@@ -300,8 +333,27 @@
 				reportWorderStatus(param).then(res => {
 					if (res) {
 						uni.$u.toast('操作成功')
-						uni.navigateBack({
+						// uni.reLaunch({
+						uni.redirectTo({
 							delta: 1
+						})
+					}
+				})
+			},
+			// 展示工序要求
+			showTip() {
+				searchTemplateList({
+					type: 0
+				}).then(res => {
+					if (res && res.data && Array.isArray(res.data.value)) {
+						const id = res.data.value[0].contentStr;
+						searchStandardById({
+							docId: id
+						}).then(res => {
+							if (res) {
+								this.tip = res.data.content;
+								this.isShowTip = true;
+							}
 						})
 					}
 				})
@@ -348,11 +400,6 @@
 					.notice {
 						color: #3a62d7;
 						font-size: $smallFontSize;
-					}
-
-					.icon {
-						margin-left: 16rpx;
-						color: #3a62d7;
 					}
 				}
 			}
