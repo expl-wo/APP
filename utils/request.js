@@ -58,7 +58,8 @@ const request = ({
 	format,
 	moreParams = {},
 	header = {
-		'content-type': 'application/json'
+		'content-type': 'application/json',
+		'clientType': 'APP'
 	}
 }) => {
 	console.log(JSON.stringify(data))

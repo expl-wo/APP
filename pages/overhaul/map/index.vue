@@ -30,8 +30,8 @@
 		</view>
 		<map id="map" class="map-container" :latitude="latitude" :longitude="longitude" :markers="markers">
 			<cover-view class="btn-wrapper">
-				<cover-view class="btn" @click="signIn">
-					打卡
+				<cover-view class="btn" :class="[isLoading ? 'clockining' : undefined]" @click="signIn">
+					{{ isLoading ? '打卡中...' : '打卡' }}
 				</cover-view>
 			</cover-view>
 		</map>
@@ -42,6 +42,11 @@
 	import UserInfo from '@/components/common/user-info.vue';
 	import { getProjectList, getSignInData, signIn } from '@/https/overhaul/clockIn';
 	import { getUserInfo  } from '@/utils/auth.js';
+	import {
+		CLOCKIN_STATUS
+	} from '@/utils/constants-custom'
+	import moment from 'moment';
+	
 	export default {
 		components: {
 			UserInfo
@@ -53,27 +58,7 @@
 				longitude: '',
 				markers: [],
 				// tabs列表
-				tabs: Object.freeze([{
-						name: "在公司",
-						value: 1
-					},
-					{
-						name: "休假中",
-						value: 2
-					},
-					{
-						name: "去现场",
-						value: 3
-					},
-					{
-						name: "现场",
-						value: 4
-					},
-					{
-						name: "返程中",
-						code: 5
-					}
-				]),
+				tabs: Object.freeze(CLOCKIN_STATUS),
 				// 当前选中tab
 				activeIndex: 0,
 				show: false,
@@ -90,7 +75,8 @@
 				],
 				selectProject: null,
 				address: '',
-				projectList: []
+				projectList: [],
+				isLoading: false
 			}
 		},
 		computed: {
@@ -132,6 +118,7 @@
 				uni.getSubNVueById('picker')[showFlag ? 'show' : 'hide']();
 				if (showFlag) {
 					uni.$emit('sendList', {data: this.projectList});
+				// uni.$emit('sendList', {data: [{clockInProjName: '测试下拉选择', workOrderId: 1}]});
 				}
 			},
 			// 获取当前位置信息
@@ -198,37 +185,44 @@
 			getSignInfo() {
 				let params = {
 					userId: this.userInfo.username,
-					userName: this.userInfo.name
+					userName: this.userInfo.name,
+					startTime: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+					endTime: moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
 				}
 				// 获取当日签到信息
 				getSignInData(params)
 				.then(res => {
 					if (res.success && res.data) {
-						let { start, end } = res.data;
-						if (start) {
-							this.$set(this.signList, 0, { time: start.time, address: start.address, label: '签入' });
-						}
-						if (end) {
-							this.$set(this.signList, 1, { time: end.time, address: end.address, label: '签出' });
-						}
+						let signInData = (res.data.value && res.data.value[0]) || {};
+						this.$set(this.signList, 0, { time: signInData.inTime, address: signInData.inAddress, label: '签入' });
+						this.$set(this.signList, 1, { time: signInData.outTime, address: signInData.outAddress, label: '签出' });
 					}
 				})
 			},
 			// 签到
 			signIn() {
+				if (this.isLoading) return;
+				if (this.selectProject.id) {
+					uni.showToast({
+						icon: 'error',
+						title: '请选择打卡项目'
+					})
+					return;
+				}
+				this.isLoading = true;
 				let params = {
 					userId: this.userInfo.username,
 					userName: this.userInfo.name,
 					clockInType: this.activeIndex + 1,
-					clockInLocation: '112.650253,26.840432',
-					clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
-					// clockInLocation: `${this.longitude},${this.latitude}`,
-					// clockInAddress: this.address,
-					// clockInProjNo: this.selectProject.id,
-					// clockInProjName: this.selectProject.name,
+					clockInLocation: `${this.longitude},${this.latitude}`,
+					clockInAddress: this.address,
+					clockInProjNo: this.selectProject.id,
+					clockInProjName: this.selectProject.name,
 					// 接口测试数据
-					clockInProjNo: 3002,
-					clockInProjName: '测试多条数据'
+					// clockInLocation: '112.650253,26.840432',
+					// clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
+					// clockInProjNo: 3002,
+					// clockInProjName: '测试多条数据'
 				}
 				signIn(params)
 				.then(res => {
@@ -237,7 +231,15 @@
 							title: '打卡成功'
 						})
 						this.getSignInfo();
+					} else {
+						uni.showToast({
+							icon: 'error',
+							title: res.errMsg || '操作失败'
+						})
 					}
+				})
+				.finally(() => {
+					this.isLoading = false;
 				})
 			},
 			tabChange(index) {
@@ -359,6 +361,9 @@
 				background-color: #375cd7;
 				padding: 10px 20px 0 20px;
 				box-sizing: border-box;
+			}
+			.clockining {
+				background-color: #416dff;
 			}
 		}
 

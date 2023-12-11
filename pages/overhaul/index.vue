@@ -37,7 +37,7 @@
 				<view class="head-title">消息通知</view>
 			</view>
 			<u-search v-model="searchKey" class="search-wrapper" placeholder="请输入搜索内容" shape="square" bgColor="#eee"
-				@search="onSearch"></u-search>
+				@search="onSearch" @custom="onSearch"></u-search>
 			<scroll-view :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true" class="message-list"
 				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 				:refresher-triggered="refreshing" @refresherrefresh="getMessageList('scrolltoupper')"

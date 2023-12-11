@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<u-action-sheet round="8" :actions="list" :title="title" :show="true" @click="select" @close="close"></u-action-sheet>
+		<u-action-sheet round="8" :actions="list" :title="title" :show="true" @select="select" @close="close"></u-action-sheet>
 	</view>
 </template>
 
@@ -27,8 +27,8 @@
 			uni.$off('sendList');
 		},
 		methods: {
-			select(index) {
-				this.selectItem = this.list[index];
+			select(item) {
+				this.selectItem = item;
 			},
 			close() {
 				uni.$emit('handlePicker', {show: false, selectItem: this.selectItem});

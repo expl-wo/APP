@@ -232,6 +232,28 @@ const MESSAGE_TYPE = {
 	1: '任务通知',
 	2: '超时通知'
 }
+const CLOCKIN_STATUS = [
+	{
+		name: "在公司",
+		value: 1
+	},
+	{
+		name: "休假中",
+		value: 2
+	},
+	{
+		name: "去现场",
+		value: 3
+	},
+	{
+		name: "现场",
+		value: 4
+	},
+	{
+		name: "返程中",
+		value: 5
+	}
+]
 export {
 	//检修工单对应的状态
 	ORDER_STATUS_MAP,
@@ -252,5 +274,7 @@ export {
 	// BOM状态
 	BOM_STATUS,
 	// 消息类型
-	MESSAGE_TYPE
+	MESSAGE_TYPE,
+	// 打卡状态
+	CLOCKIN_STATUS
 };
