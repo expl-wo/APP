@@ -5,7 +5,7 @@ export function getDeviceMaintence(data) {
 	// console.log(data)
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/mtcPlan',
+			url: '/equipment/eqpMtc/mtcPlan',
 			data: data,
 			method: 'get'
 		}).then(res => {
@@ -18,7 +18,7 @@ export function getDeviceMaintence(data) {
 export function getDeviceMaintenceItems(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/opInit',
+			url: '/equipment/eqpMtc/opInit',
 			data: data,
 			method: 'get'
 		}).then(res => {
@@ -31,7 +31,7 @@ export function getDeviceMaintenceItems(data) {
 export function keepMaintenceRec(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/keepMtcRec',
+			url: '/equipment/eqpMtc/keepMtcRec',
 			data: data,
 			method: 'post'
 		}).then(res => {
@@ -44,7 +44,7 @@ export function keepMaintenceRec(data) {
 export function maintenceSubmit(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/mtcSubmit',
+			url: '/equipment/eqpMtc/mtcSubmit',
 			data: data,
 			method: 'post'
 		}).then(res => {
@@ -58,7 +58,7 @@ export function getAcceptInfo(data) {
 	// console.log("data：", data)
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/acceptInfo',
+			url: '/equipment/eqpMtc/acceptInfo',
 			data: data,
 			method: 'get'
 		}).then(res => {
@@ -71,7 +71,7 @@ export function getAcceptInfo(data) {
 export function acceptUser(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/acceptUser',
+			url: '/equipment/eqpMtc/acceptUser',
 			data: data,
 			method: 'post'
 		}).then(res => {
@@ -84,7 +84,7 @@ export function acceptUser(data) {
 export function acceptFinish(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/acceptMtc',
+			url: '/equipment/eqpMtc/acceptMtc',
 			data: data,
 			method: 'post'
 		}).then(res => {
@@ -98,7 +98,7 @@ export function sparePartList(data) {
 	// console.log("data111:", data)
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/sparePart',
+			url: '/equipment/eqpMtc/sparePart',
 			data: data,
 			method: 'get'
 		}).then(res => {
@@ -112,7 +112,7 @@ export function sparePartUse(data) {
 	// console.log("data:", data);
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/sparePartUse',
+			url: '/equipment/eqpMtc/sparePartUse',
 			data: data,
 			method: 'post'
 		}).then(res => {
@@ -123,7 +123,7 @@ export function sparePartUse(data) {
 export function sparePartUseRecord(data) {
 	return new Promise((resolve, reject) => {
 		request({
-			url: '/pbequipment/eqpMtc/sparePartUseRecord',
+			url: '/equipment/eqpMtc/sparePartUseRecord',
 			data: data,
 			method: 'get'
 		}).then(res => {

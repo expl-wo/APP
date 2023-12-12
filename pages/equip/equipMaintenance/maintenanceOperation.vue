@@ -1,6 +1,14 @@
 <template>
 	<view class="content">
-		<view>{{deviceItem.eqpName}}</view>
+		<view class="app-containerR navbar">
+			<view class="titleCls">
+				设备名称:{{deviceItem.eqpName}};
+				设备ID:{{deviceItem.eqpId}};
+				使用部门:{{deviceItem.usingDepName}};待点检项：
+			</view>
+			<button class="andonButton" type="primary" size="mini" @click="andonButtonClick">Andon</button>
+		</view>
+		
 		<view class="app-containerC wp table-zdy">
 		       <view class="th-group">
 					<view class="th">步骤</view>
@@ -19,18 +27,24 @@
 						<image class="wp hp" :src="item.illId" @click="previewImg(item.illId)"></image>
 					</view> -->
 					<view class="td">
-						<u-input :height="40" placeholder-style="font-size: 12px;" type="textarea" v-model="item.record" v-if="item.needText === 1"></u-input>
+						<u-input input-align="center" :height="40" 
+						placeholder-style="font-size: 12px;" type="textarea" 
+						v-model="item.record" 
+						v-if="item.needText === 1"></u-input>
 					</view>
 					<view class="td" >
-						<u-upload v-if="item.needPhoto === 1"
-								:fileList="fileList[index]"
-								@afterRead="afterRead($event,item,index)"
-								@delete="deletePic($event,item,index)"
-								name="1"									
-								accept = "image"
-								:maxCount="1"
-								:previewFullImage="true"
-							></u-upload>	
+						<view class="btn app-containerC" v-if="item.needPhoto === 1" >
+							<u-upload v-if="item.needPhoto === 1"
+									:fileList="fileList[index]"
+									@afterRead="afterRead($event,item,index)"
+									@delete="deletePic($event,item,index)"
+									name="1"									
+									accept = "image"
+									:maxCount="1"
+									:previewFullImage="true"
+								></u-upload>	
+						</view>
+						
 					</view>
 <!-- 					<view class="td">
 						<image class="wp hp" :src="item.imageToShow" @click="previewImg(item.imageToShow)"></image>
@@ -129,7 +143,7 @@
 			return {
 				maintenanceItemSData:'',  //所有保养项内容
 				mtcDspId:'', //保养单主键id，提交保养单的时候传给后台
-				deviceItem:'', //上个页面传过来的数据
+				deviceItem:{}, //上个页面传过来的数据
 				//上传视频
 				title: 'chooseVideo',
 				sourceTypeIndex: 2,
@@ -149,9 +163,13 @@
 		onLoad:function(option){
 			this.maintenanceItemSData = []
 			//点击某台设备进行保养，传过来的参数
-			this.deviceItem = JSON.parse(option.deviceItem)
-			this.deviceItem.mtcId = this.deviceItem.ckOrMtcId
-			this.deviceItem.mtcDspId = this.deviceItem.attribute1
+			let item = JSON.parse(option.deviceItem)
+			console.log(item);
+			this.deviceItem.mtcId = item.ckOrMtcId
+			this.deviceItem.eqpId = item.eqpId
+			this.deviceItem.eqpName = item.eqpName
+			this.deviceItem.usingDepName = item.usingDepName
+			this.deviceItem.mtcDspId = item.recordId
 			// console.log('para',this.deviceItem)
 			//获取该台设备的所有保养项内容
 			getDeviceMaintenceItems(this.deviceItem).then(res=>{
@@ -167,7 +185,7 @@
 					}
 				})
 				console.log('保养项数据',res,this.maintenanceItemSData)
-				this.querySparePart()
+				// this.querySparePart()
 			})
 		},
 		methods:{
@@ -264,21 +282,31 @@
 				})				
 				for (let i = 0; i < lists.length; i++) {
 					const result = await this.uploadFilePromise(lists[i].url)
-					value.imageToShow = result
 					
-					
-					let item = this.fileList[index][fileListLen]
-					this.fileList[index].splice(fileListLen, 1, Object.assign(item, {
-						status: 'success',
-						message: '',
-						url: result
-					}))
-					
-					fileListLen++;
-					let url = getFileServerUrl()  + result;
-					this.fileList[index] = [{
-						url
-					}];
+					if(result.status == 200){
+						value.imageToShow = result.data
+						let item = this.fileList[index][fileListLen]
+						this.fileList[index].splice(fileListLen, 1, Object.assign(item, {
+							status: 'success',
+							message: '',
+							url: result
+						}))
+						
+						fileListLen++;
+						let url = getFileServerUrl()  + result.data;
+						console.log(url);
+						this.fileList[index] = [{
+							url
+						}];
+					}else{
+						
+						this.fileList[index].splice(fileListLen, 1)
+						uni.showToast({
+							title: '上传失败',
+							icon: 'none',
+							duration: 1000
+						});
+					}															
 				}
 			},
 			
@@ -286,13 +314,18 @@
 				return new Promise((resolve, reject) => {
 					uploadHttp.upload({token: getToken(),filePath: url}).then(response => {
 						if (response.code === 200) {
-							setTimeout(() => {return resolve(response.data.filePath)}, 150)
-							} else {
+							setTimeout(() => {return resolve( {data:response.data.filePath,status: 200} )}, 150)
+						} else {
 							return resolve({
 							status: 500,
 							msg: '上传失败'
-							});
+						});
 						}
+					}).catch( ()=>{
+						return resolve({
+						status: 500,
+						msg: '上传失败'
+						});
 					});
 				})
 			},
@@ -422,4 +455,21 @@
 </script>
 
 <style>
+	.titleCls {
+		color: #0081ff;
+		font-size: 20px;
+		margin-left: 20px;
+		margin-top: 15px;
+	}
+	.andonButton {
+		margin-top: 15px;
+		margin-right: 20px;
+		font-size: 13px;
+	}
+	.navbar{
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		margin-bottom: 10px;
+	}
 </style>

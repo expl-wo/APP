@@ -192,7 +192,7 @@
 			//点击某台设备进行保养，传过来的参数
 			this.deviceItem = JSON.parse(option.deviceItem)
 			this.deviceItem.mtcId = this.deviceItem.ckOrMtcId
-			this.deviceItem.mtcDspId = this.deviceItem.attribute1
+			this.deviceItem.mtcDspId = this.deviceItem.recordId
 			// console.log('para',this.deviceItem)
 			//获取该台设备的所有保养项内容
 			getAcceptInfo(this.deviceItem).then(res => {
@@ -249,6 +249,13 @@
 					console.log(res)
 					if (res.err_code === 10000) {
 						uni.navigateBack()
+					}else{
+						uni.showToast({
+							title: res.err_msg,
+							icon: 'none',
+							duration: 1000
+						});
+
 					}
 				})
 			},

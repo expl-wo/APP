@@ -4,12 +4,12 @@
 		</u-empty>
 		<view class="app-containerR app-containerWrap">
 			<view class="group-warter w-240 tc text bg-blue" v-for="(item,index) of spotcheckListData"
-				@click="tap(item)" :key="item.EQPID||item.eqpId">
+				@click="tap(item)" :key="index">
 				<view class="group-title">设备名称：{{item.EQPNAME||item.eqpName}}</view>
 				<view class="group-bomtitle tc">使用部门：{{item.USINGDEPNAME||item.usingDepName}}</view>
 				<view class="group-bomtitle tc">设备编码：{{item.EQPID||item.eqpId}}</view>
-				<view class="group-bomtitle tc">班组：{{item.INSTALLSITE||tem.installSite}}</view>
-				<view class="group-bomtitle tc">点检配置名称：{{item.CHECKNAME || item.checkName}}</view>
+				<view class="group-bomtitle tc">班组：{{item.INSTALLSITE||item.installSite}}</view>
+				<view class="group-bomtitle tc">点检配置名称：{{item.ckOrMtcName || item.ckOrMtcName}}</view>
 				<!-- <view class="group-bomtitle tc">下次点检时间：{{item.NEXTCHECKDT || item.nextCheckDt}}</view> -->
 			</view>
 		</view>

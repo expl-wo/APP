@@ -14,7 +14,8 @@ const url = {
 	//  查询照片	 GET
 	queryFile: '/slm/photo/query',
 	// 删除照片	 POST
-	deleteFile: '/slm/photo/delete'
+	deleteFile: '/slm/photo/delete',
+	rootUrl: '/file/rooturl',
 }
 
 
@@ -54,6 +55,13 @@ export default {
 			data: params
 		})
 	},
+	getRootUrl() {
+		return request(
+		{
+			url: url.rootUrl,
+			method: 'get',
+		})
+	},
 	upload(params) {
 		return new Promise((resolve, reject)=>{
 			uni.uploadFile({
@@ -86,4 +94,5 @@ export default {
 			})
 		})
 	},
+	
 }

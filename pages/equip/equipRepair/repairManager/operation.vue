@@ -4,14 +4,14 @@
 			<view class="app-containerC">
 				<button type="primary" class="m-20" size="mini" @click="repairStartClick"
 					:disabled="whiteStstus.indexOf(status) === -1 ">维修开始</button>
-				<button type="primary" class="m-20" size="mini" @click="completeRepair">维修结束</button>
-				<button type="primary" class="m-20" size="mini" @click="waitStartClick">等待开始</button>
-				<button type="primary" class="m-20" size="mini" @click="waitEndClick">等待结束</button>
+				<button :disabled="status !== 3 " type="primary" class="m-20" size="mini" @click="completeRepair">维修结束</button>
+				<button type="primary" class="m-20" size="mini"  :disabled="status !== 3 " @click="waitStartClick">等待开始</button>
+				<button type="primary" class="m-20" size="mini"  :disabled="status !== 4 " @click="waitEndClick">等待结束</button>
 <!-- 				<button type="success" class="m-20" size="mini" @click="consumptionClick">消耗备件记录</button>
 				<button type="success" class="m-20" size="mini" @click="saveSparePartRecord">保存消耗备件记录</button> -->
 			</view>
-			<view class="app-containerR bg-white cc">
-				<view style="width: 900px;">
+			<view class="app-containerR bg-white ">
+				<view style="width: 900px;	">
 					<u-form labelWidth="150px" labelAlign="center" class="myform" :rules="rules" :model="showForm"
 						ref="uForm">
 						<u-form-item label="维修单号">
@@ -29,13 +29,13 @@
 						<u-form-item label="维修开始时间">
 							<u-input v-model="repStartTime" type="text" disabled=""></u-input>
 						</u-form-item>
-						<u-form-item label="故障现象及部位">
-							<u-input placeholder="请输入故障现象及部位" v-model="locationText" type="text"></u-input>
+						<u-form-item label="故障现象及部位"  prop="locationText">
+							<u-input placeholder="请输入故障现象及部位" v-model="showForm.locationText" type="text"></u-input>
 						</u-form-item>
-						<u-form-item label="维修过程分析描述">
-							<u-input placeholder="请输入维修过程分析描述" v-model="analysisText" type="text"></u-input>
+						<u-form-item label="维修过程分析描述" prop="analysisText">
+							<u-input placeholder="请输入维修过程分析描述" v-model="showForm.analysisText" type="text"></u-input>
 						</u-form-item>
-<!-- 						<u-form-item label="备品备件消耗">
+<!-- 					<u-form-item label="备品备件消耗">
 							<view style="width: 100%; margin-right: 10%;">
 								<view>
 									<button type="success" size="mini" @click="consumptionClick">添加</button>
@@ -49,7 +49,7 @@
 										<uni-th>使用数量</uni-th>
 									</uni-tr>
 									<uni-tr v-for="item in selectedPart" :key="item.id">
-										<uni-td>{{item.materialName }}</uni-td>
+										<uni-td>{{ item.materialName }}</uni-td>
 										<uni-td>{{ item.materialCode }}</uni-td>
 										<uni-td><input type="number" border v-model="item.usedQuantity"></uni-td>
 									</uni-tr>
@@ -74,15 +74,9 @@
 							<button class="myButonCls" slot="right" type="primary" size="mini"
 								@click="repairShow = true">请选择</button>
 						</u-form-item>
-						<u-form-item label="上传图片" class="upload-group" prop="compPic">
-							<view v-for="(item,index) in showForm.localImages" :key="index" width="200px" height="200px"
-								class="img" @longpress="touchstart(index)" @tap="previewPictures(item)">
-								<u-image :src="item" width="200px" height="200px" class="img"></u-image>
-							</view>
-							<view class="btn app-containerC" @click="takePhoto">
-								<u-icon name="plus" size="40"></u-icon>
-								<view>选择图片</view>
-							</view>
+						<u-form-item label="上传图片" class="upload-group" prop="localImages">
+							<u-upload :fileList="fileList" @afterRead="afterRead" @delete="deletePic" accept="image"
+								multiple :maxCount="3" :previewFullImage="true"></u-upload>
 						</u-form-item>
 
 					</u-form>
@@ -119,13 +113,13 @@
 				</view>
 			</scroll-view>
 		</u-popup>
+		
 		<u-modal @close="close" :show="repairShow" title="用户选择" :show-cancel-button="true" :show-title="false"
 			:confirm-style="{'margin': '-20px','font-size':'20px'}" :closeOnClickOverlay="true"
 			:cancel-style="{'margin': '-20px','font-size':'20px'}" style="height: 70%;" @confirm="confirmRepairMan"
 			@cancel="close" :mask-close-able="true">
 			<cv-transfer v-model="selectValue" :data="selectData" :titles="titles"></cv-transfer>
 		</u-modal>
-
 		<!--备件消耗弹窗-->
 		<u-popup mode="bottom" @close="close" :show="dialogSparePartVisible" heigth="50%">
 			<view class="content xui-reset">
@@ -176,6 +170,8 @@
 		repairSt,
 		repairSave
 	} from '@/https/equip/equipRepair.js'
+	import uploadHttp from '@/https/_public/upload';
+	import {getFileServerUrl} from '@/utils/config.js'
 	import {
 		sparePartList,
 		sparePartUse,
@@ -185,8 +181,9 @@
 		getRepairMans
 	} from '@/https/equip/equipReport.js'
 	import {
-		uploadSingleFileCommonUrl
-	} from '@/https/_public/common.js'
+		getToken,
+		setToken
+	} from '@/utils/auth.js';
 	import cvTransfer from "@/uni_modules/cv-transfer/components/cv-transfer/cv-transfer.vue"
 	export default {
 		data() {
@@ -204,25 +201,22 @@
 				faultCateShow: false,
 				faultFactorData: [], //故障因素：k是id,v是名称
 				faultFactorShow: false,
-				locationText: '',
-				analysisText: '',
+				fileList: [],
 				//展示给用户看的form
 				showForm: {
 					faultCateId: [],
 					faultFactorName: '',
 					localImages: [],
-					images: '',
-					repairMans: ''
-				},
-				requestForm: { //上传给后台的form
 					faultFactorId: '',
-					requestImages: [],
+					repairMans: '',
+					locationText:'',
+					analysisText:'',
 				},
 				repairShow: false,
 				selectData: [],
 				selectValue: [],
 				titles: ['可选用户', '已选用户'],
-				whiteStstus: ['响应检测中', '可继续使用、待二次维修'],
+				whiteStstus: [1, 2,7],
 				rules: {
 					faultCateId: [{
 						type: 'array',
@@ -237,11 +231,9 @@
 						message: '请选择设备故障因素',
 						trigger: ['change', 'blur'],
 					}],
-					images: [{
-						required: true,
-						message: '请上传图片',
-						trigger: ['change', 'blur'],
-					}],
+					locationText: {required: true, message: '请填写故障现象及部位', trigger: ['change','blur'],},
+					analysisText: {required: true, message: '请填写维修过程分析描述', trigger: ['change','blur'],},
+					localImages: [{required: true, type:'array', message: '请上传图片', trigger: ['change','blur'],}],
 					repairMans: [{
 						required: true,
 						message: '请选择维修人',
@@ -268,7 +260,7 @@
 			this.$refs.uForm.setRules(this.rules);
 		},
 		onLoad: function(option) {
-			// console.log(option);
+
 			this.faultCateData = []
 			this.faultFactorData = []
 			this.repairmgtId = option.repairId
@@ -281,15 +273,19 @@
 				getDoRepairInit({
 					id: this.repairmgtId
 				}).then(res => {
-
 					this.repStartTime = res.data.repStartTime
 					this.eqpName = res.data.eqpName
 					this.orderNum = res.data.orderNum
 					// this.
 					this.status = res.data.status
-					this.eqpId = res.data.eqpId
-					this.locationText = res.data.repairInfo.phenomenon
-					this.analysisText = res.data.repairInfo.analysisDesc
+					this.eqpId  = res.data.eqpId
+					res.data.compPic.forEach(item => {
+						this.fileList.push({url: getFileServerUrl()+item})
+					})
+					console.log(this.fileList);
+					this.showForm.localImages = res.data.compPic
+					this.showForm.locationText = res.data.repairInfo.phenomenon
+					this.showForm.analysisText = res.data.repairInfo.analysisDesc
 					let faultCateId = [];
 					res.data.faultCate.forEach(item => {
 						if (res.data.repairInfo.faultCateId.indexOf(item.k) >= 0) {
@@ -307,15 +303,15 @@
 					}
 					this.showForm.faultCateId = faultCateId;
 					this.showForm.faultFactorName = res.data.repairInfo.faultFactorName
-					this.requestForm.faultFactorId = res.data.repairInfo.faultFactorId
+					this.showForm.faultFactorId = res.data.repairInfo.faultFactorId
 					this.queryRepairMans(res.data.eqpId, this.repairmgtId)
-					this.querySparePart()
+					// this.querySparePart()
 				})
 			},
 			// 选择故障因素
 			saveFaultFactorData(item) {
 				this.showForm.faultFactorName = item.v
-				this.requestForm.faultFactorId = item.k
+				this.showForm.faultFactorId = item.k
 				this.faultFactorShow = false
 			},
 			close() {
@@ -335,7 +331,6 @@
 					repairmgtId: this.repairmgtId,
 					waitReason: this.reasonsForWaiting
 				}).then(res => {
-					// console.log('待件开始',res)
 					uni.showToast({
 						title: '待件开始',
 						success() {
@@ -349,11 +344,15 @@
 				waitEd({
 					id: this.repairmgtId
 				}).then(res => {
-					// console.log('待件结束',res)
-					uni.showToast({
-						icon: 'none',
-						title: '待件结束'
-					})
+					if(res.err_code === 10000){
+						this.status = 3
+						uni.showToast({
+							icon: 'none',
+							title: '待件结束'
+						})
+					}
+					
+					
 				})
 			},
 			// 维修完成
@@ -362,12 +361,13 @@
 					var param = {
 						repSubmitInfo: {
 							id: this.repairmgtId,
-							analysisDesc: this.analysisText,
-							phenomenon: this.locationText
+							analysisDesc: this.showForm.analysisText,
+							phenomenon: this.showForm.locationText
 						},
 						cateId: this.showForm.faultCateId,
-						factorId: this.requestForm.faultFactorId,
-						compPic: this.requestForm.requestImages
+						factorId: this.showForm.faultFactorId,
+						compPic: this.showForm.localImages,
+						repairMan: this.selectValue
 					}
 					repairSubmit(param).then(res => {
 						if (res.err_code == 10000) {
@@ -386,7 +386,6 @@
 						}
 					})
 				}).catch(errors => {
-					console.log(errors);
 					uni.$u.toast('校验失败')
 				})
 			},
@@ -394,30 +393,81 @@
 			cancelClick() {
 				uni.navigateBack()
 			},
-			//上传图片
-			takePhoto() {
-				uni.chooseImage({
-					success: (chooseImageRes) => {
-						const tempFilePathsArray = chooseImageRes.tempFilePaths;
-						this.showForm.localImages = this.showForm.localImages.concat(tempFilePathsArray)
-						this.showForm.images = this.showForm.localImages.toString()
-						this.requestForm.requestImages = this.showForm.localImages
-						// for (let i = 0; i < tempFilePathsArray.length; i++) {
-						// 	this.requestForm.requestImages.push(tempFilePathsArray[i])
-						// }
-						// console.log('图片',this.showForm.localImages, this.requestForm.requestImages)
-					},
-				})
+			deletePic(event) {
+				// value.imageToShow = ''
+				this.fileList.splice(event.index, 1)
+				this.showForm.localImages.splice(event.index, 1)
 			},
-			//图片放大
-			previewPictures(item) {
-				uni.previewImage({
-					current: item,
-					urls: this.showForm.localImages
+			// 新增图片
+			async afterRead(event, value, index) {
+				// 当设置 multiple 为 true 时, file 为数组格式，否则为对象格式
+				let lists = [].concat(event.file)
+				// #ifdef H5
+				const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img', 'gif']
+				var isSuffix = false
+				lists.forEach(item => {
+					const fileSuffix = item.name.substring(item.name.lastIndexOf('.') + 1)
+					isSuffix = whiteList.indexOf(fileSuffix.toLowerCase()) === -1
+				})
+				if (isSuffix) {
+					uni.showToast({
+						icon: 'none',
+						title: "请选择图片",
+					});
+					return;
+				}
+				// #endif
+				let fileListLen = this.fileList.length
+				lists.map((item) => {
+					this.fileList.push({
+						...item,
+						status: 'uploading',
+						message: '上传中'
+					})
+				})
+				
+				for (let i = 0; i < lists.length; i++) {
+					const result = await this.uploadFilePromise(lists[i].url)				
+					if(result.status == 200){
+						this.showForm.localImages.push(result.data)
+						let item = this.fileList[fileListLen]
+						let url = getFileServerUrl()  + result.data;
+						this.fileList.splice(fileListLen, 1, Object.assign(item, {
+							status: 'success',
+							message: '',
+							url: url
+						}))						
+						fileListLen++;
+					}else{				
+						this.fileList.splice(fileListLen, 1)
+						uni.showToast({
+							title: '上传失败',
+							icon: 'none',
+							duration: 1000
+						});
+					}															
+				}
+			},
+			uploadFilePromise(url) {
+				return new Promise((resolve, reject) => {
+					uploadHttp.upload({token: getToken(),filePath: url}).then(response => {
+						if (response.code === 200) {
+							setTimeout(() => {return resolve( {data:response.data.filePath,status: 200} )}, 150)
+						} else {
+							return resolve({
+							status: 500,
+							msg: '上传失败'
+						});
+						}
+					}).catch( ()=>{
+						return resolve({
+						status: 500,
+						msg: '上传失败'
+						});
+					});
 				})
 			},
 			queryRepairMans(id, repairmgtId) {
-				console.log(repairmgtId);
 				getRepairMans({
 					id: id,
 					repId: repairmgtId
@@ -439,10 +489,6 @@
 					return item.label
 				}).join(",");
 				let chosedMan = this.selectData.filter(item => this.selectValue.includes(item.id))
-				this.repairMan = []
-				chosedMan.forEach(item => {
-					this.repairMan.push(item.id)
-				})
 			},
 			transferDataInit(data) {
 				data.forEach(item => {
@@ -471,13 +517,13 @@
 				let data = {
 					repSubmitInfo: {
 						id: this.repairmgtId,
-						analysisDesc: this.analysisText,
-						phenomenon: this.locationText
+						analysisDesc: this.showForm.analysisText,
+						phenomenon: this.showForm.locationText
 					},
 					cateId: this.showForm.faultCateId,
-					factorId: this.requestForm.faultFactorId,
-					compPic: this.requestForm.requestImages,
-					repairMan: this.repairMan
+					factorId: this.showForm.faultFactorId,
+					compPic: this.showForm.localImages,
+					repairMan: this.selectValue
 				}
 				repairSave(data).then(res => {
 					this.rePairInit();
@@ -526,12 +572,9 @@
 						})
 						if (res.data) {
 							let list = res.data
-							console.log(res.data);
 							list.forEach(item => {
 								this.sparePartData.forEach(data => {
-									if (item.materialCode == data
-										.materialCode) {
-										console.log(data);
+									if (item.materialCode == data){
 										data.checked = true
 										data.usedQuantity = item.quantity
 										this.checkedPart(data)
@@ -556,7 +599,6 @@
 				})
 			},
 			handleChangeSingle(params) {
-				console.log(params);
 				this.selectedPart = [];
 				var index = params.detail.index
 				index.forEach(i => {
@@ -630,30 +672,6 @@
 						}
 					})
 				}
-			},
-			touchstart(index) {
-				let that = this
-				uni.showModal({
-					title: '删除',
-					content: '请问要删除本条消息吗？',
-					success: function(res) {
-						if (res.confirm) {
-							that.requestForm.requestImages.splice(index, 1)
-							that.showForm.localImages.splice(index, 1)
-							uni.showToast({
-								icon: 'none',
-								title: '删除成功',
-								duration: 2000
-							})
-						} else if (res.cancel) {
-							uni.showToast({
-								icon: 'none',
-								title: '取消成功',
-								duration: 2000
-							})
-						}
-					}
-				});
 			},
 
 
