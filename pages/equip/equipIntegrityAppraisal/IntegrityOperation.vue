@@ -55,11 +55,15 @@
 										auto-height="true" style="width: 100%;text-align: center;" />
 								</uni-th>
 								<uni-th style="height: auto;width: 150px;" align="center">
-									<radio-group @change="handleChange($event, item)" v-model="item.isError">
-										<radio :value="'1'" :checked="item.isError == null || item.isError == 1" />
-										<text>是</text>
-										<radio :value="'2'" :checked="item.isError == 2" /><text>否</text>
-									</radio-group>
+									<u-radio-group v-model="item.isError">
+										<u-radio :name="1" :checked="item.isError == null || item.isError == 1">
+											是
+										</u-radio>
+										<u-radio :name="2">
+											否
+										</u-radio>
+									</u-radio-group>
+
 								</uni-th>
 								<uni-th style="height: auto" align="center">
 									<textarea v-model="item.errorMsg" v-if="item.isError == 2" :clearable="false"
@@ -75,46 +79,50 @@
 							<view class="main-form">
 								<view class="de-form" style="margin-right: 30px;">
 									<view style="align-self: center;">鉴定责任人</view>
-									<u-input v-model="checkData.personLiable" style="margin-left: 10px;min-width: 80px;"
+									<u-input v-model="checkData.personLiable" 
+										style="margin-left: 10px;"
 										:disabled="true" placeholder="" height="40px" />
-									<button size="mini" class="btn" type="primary" style="margin-left: 10px;"
+									<button class="btn" type="primary" style="margin-left: 10px;"
 										@click="scan('personLiable')">扫码</button>
 								</view>
 								<view class="de-form">
 									<view style="align-self: center;">使用部门验收</view>
 									<u-input v-model="checkData.userDepartment"
-										style="margin-left: 10px;min-width: 80px;" :disabled="true" placeholder=""
+										style="margin-left: 10px;" :disabled="true" placeholder=""
 										height="40px" />
-									<button size="mini" type="primary" class="btn" style="margin-left: 10px;"
+									<button  type="primary" class="btn" style="margin-left: 10px;"
 										@click="scan('userDepartment')">扫码</button>
 								</view>
 								<view class="de-form" style="margin-right: 30px;">
 									<view style="align-self: center;">工艺部验收</view>
 									<u-input v-model="checkData.technologyPerson"
-										style="margin-left: 10px;min-width: 80px;" :disabled="true" placeholder=""
+										style="margin-left: 10px;" :disabled="true" placeholder=""
 										height="40px" />
-									<button size="mini" class="btn" style="margin-left: 10px;" type="primary"
+									<button  class="btn" style="margin-left: 10px;" type="primary"
 										@click="scan('technologyPerson')">扫码</button>
 								</view>
 								<view class="de-form">
 									<view style="align-self: center;">设备部验收</view>
 									<u-input v-model="checkData.equipmentPerson"
-										style="margin-left: 10px;min-width: 80px;" :disabled="true" placeholder=""
+										style="margin-left: 10px;" :disabled="true" placeholder=""
 										height="40px" />
-									<button size="mini" class="btn" style="margin-left: 10px;" type="primary"
+									<button class="btn" style="margin-left: 10px;" type="primary"
 										@click="scan('equipmentPerson')">扫码</button>
 								</view>
 							</view>
-							<view class="main-form"
-								style="padding-top: 25px; justify-content: center; flex-wrap: nowrap;">
-								<view><button size="mini" class="btn" type="primary"
-										@click="saveOrFinish(1)">保存</button></view>
-								<view style="margin-left: 100px;"><button size="mini" @click="cancel()" class="btn"
-										type="primary">取消</button></view>
-								<view v-if="task.status == 2" style="margin-left: 100px;"><button size="mini"
-										class="btn" type="primary" @click="saveOrFinish(3)">验收完成</button></view>
-								<view v-else style="margin-left: 100px;"><button size="mini" class="btn" type="primary"
-										@click="saveOrFinish(2)">鉴定完成</button></view>
+							<view class="main-form" style="padding-top: 25px; justify-content: center; flex-wrap: nowrap;">
+								<view>
+									<button  class="m-20" type="primary" @click="saveOrFinish(1)">保存</button>
+								</view>
+								<view style="margin-left: 100px;">
+									<button  @click="cancel()" class="m-20"type="primary">取消</button>
+									</view>
+								<view v-if="task.status == 2" style="margin-left: 100px;">
+									<button class="m-20" type="primary" @click="saveOrFinish(3)">验收完成</button>
+								</view>
+								<view v-else style="margin-left: 100px;">
+									<button class="m-20" type="primary"	@click="saveOrFinish(2)">鉴定完成</button>
+								</view>
 							</view>
 						</view>
 					</view>
@@ -189,6 +197,7 @@
 						getUserData({
 							code: sp[1]
 						}).then(rp => {
+							console.log(rp);
 							var data = rp.data
 							that.task[type] = data.id
 							if (type == 'personLiable') {
@@ -203,7 +212,7 @@
 							if (type == 'equipmentPerson') {
 								that.task.equipmentTime = new Date()
 							}
-							that.checkData[type] = data.name
+							that.checkData[type] = data.uName
 						})
 					},
 					fail: function(e) {
@@ -215,7 +224,7 @@
 			saveOrFinish(status) {
 				let flag = true;
 				if (status == 2) {
-					this.task.details.forEach(item => {
+					this.taskDetails.forEach(item => {
 						if (item.isError == 2 && (item.errorMsg == null || item.errorMsg == '')) {
 							uni.showToast({
 								title: '请输入异常信息',
@@ -227,6 +236,7 @@
 						if (item.actualValue == null || item.actualValue == '') {
 							uni.showToast({
 								title: '有项目未鉴定',
+								icon: 'none',
 								duration: 1000
 							});
 							flag = false
@@ -237,24 +247,28 @@
 					if (this.task.equipmentPerson == null || this.task.equipmentPerson == '') {
 						uni.showToast({
 							title: '设备部未验收',
+							icon: 'none',
 							duration: 1000
 						});
 						return;
 					} else if (this.task.userDepartment == null || this.task.userDepartment == '') {
 						uni.showToast({
 							title: '使用部门未验收',
+							icon: 'none',
 							duration: 1000
 						});
 						return;
 					} else if (this.task.technologyPerson == null || this.task.technologyPerson == '') {
 						uni.showToast({
 							title: '工艺部未验收',
+							icon: 'none',
 							duration: 1000
 						});
 						return;
 					} else if (this.task.personLiable == null || this.task.personLiable == '') {
 						uni.showToast({
 							title: '鉴定责任人未验收',
+							icon: 'none',
 							duration: 1000
 						});
 						return;
@@ -263,11 +277,11 @@
 
 				if (flag) {
 					this.task.status = status
-					this.task.details.forEach(item => {
-						if (item.pictures != null) {
-							item.pictures = item.pictures.toString();
-						}
-					})
+					// this.task.details.forEach(item => {
+					// 	if (item.pictures != null) {
+					// 		item.pictures = item.pictures.toString();
+					// 	}
+					// })
 					saveOrFinishTask({
 						'task': this.task,
 						'taskDeList': this.taskDetails
@@ -288,9 +302,9 @@
 								title: title + '失败',
 								duration: 1000
 							});
-							this.task.details.forEach(item => {
-								item.pictures = item.pictures.split(",");
-							})
+							// this.task.details.forEach(item => {
+							// 	item.pictures = item.pictures.split(",");
+							// })
 						}
 					})
 				}
@@ -375,7 +389,8 @@
 	}
 
 	.btn {
-		font-size: 13px;
+		font-size: 15px;
+		text-align: center;
 		height: 40px;
 	}
 

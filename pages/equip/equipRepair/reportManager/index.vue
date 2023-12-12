@@ -2,15 +2,15 @@
 	<view class="content">
 		<view class="hp app-containerR">
 			<view class="app-containerC" style="width: 140px;padding-left: 20px;">
-				<button type="primary" class="btn m-10" size="mini" @click="reportRepair">设备报修</button>
-				<button type="primary" class="btn m-10" size="mini" @click="orderRepair">预约维修</button>
+				<button type="primary" class="btn m-10" size="mini" @click="reportRepair">设备报修</button>			
 			</view>
 			<view class="line"></view>
 			<view class="app-containerC">
 				<view class="titleCls">已报修设备：</view>
-				<view class="app-containerR app-containerWrap">
-					<view class="group-warter w-240 tc text bg-blue" v-for="(item,index) of repairData"
-					@click="itemClick(item)" :key="item.repairmgtId">
+				<view class="app-containerR ">
+					<view class="group-warter w-240 tc text bg-blue" 
+						v-for="(item,index) of repairData"
+						@click="itemClick(item)" :key="item.repairmgtId">
 						<view class="group-title">设备编号：{{item.number}}</view>
 						<view class="group-bomtitle tc">设备名称：{{item.name}}</view>
 						<view class="group-bomtitle tc" :class="{'text-red':item.status==0}">维修状态：{{item.repairStatus}}</view>

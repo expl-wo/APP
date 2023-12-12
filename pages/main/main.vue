@@ -87,7 +87,7 @@
 		data() {
 			return {
 				codeList: ['0703_Andon', '0702_production', '0701_equipment', '0704_quality', 'pad-saoMa1005'],
-				showList: [false, false, false, false, true],
+				showList: [false, false, true, false, true],
 				msgSize: 0,
 				timeoutObj: {},
 				scanId: '',

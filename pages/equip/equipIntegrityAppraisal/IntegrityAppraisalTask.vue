@@ -2,8 +2,8 @@
 	<view class="content">
 		<u-empty mode="list" text="无任务" v-show="dataList.length == 0">
 		</u-empty>
-		<view class="app-containerR app-containerWrap">
-			<view class="group-warter w-240 tc text bg-blue" v-for="(item,index) of dataList" 
+		<view class="app-containerR app-containerWrap ">
+			<view  :class="{'bg-blue group-warter w-240 tc text':item.status==0,'bg-orange group-warter w-240 tc text':item.status==1||item.status==2,'bg-green group-warter w-240 tc text':item.status==3}" v-for="(item,index) of dataList" 
 			@click="tap(item)" :key="item.id">
 				<view class=" group-title ">鉴定单号：{{item.billNum}}</view>
 				<view class="group-bomtitle tc">设备名称：{{item.eName}}</view>	

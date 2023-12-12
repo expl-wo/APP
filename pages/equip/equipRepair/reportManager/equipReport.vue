@@ -12,11 +12,25 @@
 					<u-form-item label="设备类型" prop="equipName" required>
 						<u-input placeholder="请选择设备类型" v-model="showForm.className" type="text" disabled=""></u-input>
 					</u-form-item>
+					<u-form-item label="是否停机" prop="isStop">
+						<u-radio-group v-model="showForm.isStop">
+							<u-radio :name="1">
+								是
+							</u-radio>
+							<u-radio :name="0">
+								否
+							</u-radio>
+						</u-radio-group>
+					</u-form-item>
+					<u-form-item label="预约时间" prop="showTime" v-if="showForm.isStop == 0">
+						<uni-datetime-picker ref="datetimePicker" width="120px" type="datetime"
+							v-model="showForm.showTime"></uni-datetime-picker>
+					</u-form-item>
 					<u-form-item label="故障类型" prop="faultNames" required>
 						<u-checkbox-group v-model="showForm.faultNames">
-							<u-checkbox  :size="'18px'" :label-size="'14px'" iconSize="16px"
-							  v-for="(item, index) in faultData" :key="item.k"
-								:name="item.k" :label="item.v"></u-checkbox>
+							<u-checkbox :size="'18px'" :label-size="'14px'" iconSize="16px"
+								v-for="(item, index) in faultData" :key="item.k" :name="item.k"
+								:label="item.v"></u-checkbox>
 						</u-checkbox-group>
 					</u-form-item>
 					<u-form-item label="维修人" prop="repairMans" required>
@@ -61,8 +75,7 @@
 			<view class="content">
 				<u-form>
 					<u-form-item style="width: 30%;">
-						<u-search placeholder="请输入设备编码/名称"
-							v-model="keyWord" :show-action="false"></u-search>
+						<u-search placeholder="请输入设备编码/名称" v-model="keyWord" :show-action="false"></u-search>
 						<button slot="right" size="mini" type="primary" @click="queryEqpAll()">搜索</button>
 					</u-form-item>
 				</u-form>
@@ -103,9 +116,9 @@
 					</view>
 				</scroll-view>
 			</view>
-		</u-popup> 
-		<u-modal :show="repairShow" @close="close" title="用户选择" width="660px" :show-cancel-button="true" :show-title="false"
-			:confirm-style="{'margin': '-20px','font-size':'20px'}"
+		</u-popup>
+		<u-modal :show="repairShow" @close="close" title="用户选择" width="660px" :show-cancel-button="true"
+			:show-title="false" :confirm-style="{'margin': '-20px','font-size':'20px'}"
 			:cancel-style="{'margin': '-20px','font-size':'20px'}" style="height: 60%;" @confirm="confirmRepairMan"
 			@cancel="close" :mask-close-able="true">
 			<cv-transfer v-model="selectValue" :data="selectData" :titles="titles"></cv-transfer>
@@ -165,6 +178,7 @@
 					className: '',
 					localImages: [],
 					images: '',
+					isStop:0,
 					faultNames: [],
 					repairMans: '',
 					faultDescription: ''
@@ -184,8 +198,9 @@
 						message: '请选择报修设备',
 						trigger: ['change', 'blur'],
 					}],
+					showTime: [{required: true, message: '请选择预约维修时间', trigger: ['change','blur'],}],
 					faultNames: [{
-						type:'array',
+						type: 'array',
 						min: 1,
 						message: '请选择故障类型',
 						// 触发器可以同时用blur和change
@@ -228,11 +243,13 @@
 		},
 		watch: {
 			allEqpData: function(newVal, oldVal) {
-				if (this.keyWord) this.eqpShowData = this.allEqpData.filter(item => item.number.indexOf(this.keyWord) >=
+				if (this.keyWord) this.eqpShowData = this.allEqpData.filter(item => item.number.indexOf(this
+					.keyWord) >=
 					0 || item.name.indexOf(this.keyWord) >= 0)
 			},
 			keyWord: function(newVal, oldVal) {
-				if (newVal) this.eqpShowData = this.allEqpData.filter(item => item.number.indexOf(newVal) >= 0 || item.name
+				if (newVal) this.eqpShowData = this.allEqpData.filter(item => item.number.indexOf(newVal) >= 0 || item
+					.name
 					.indexOf(newVal) >= 0)
 				else this.eqpShowData = this.eqpIdNameData
 			},
@@ -270,7 +287,7 @@
 						}).then(res => {
 							if (res.data[0].id === rs.result) {
 								that.saveDeviceData(res.data[0])
-							}else{
+							} else {
 								uni.showToast({
 									icon: 'none',
 									title: "找到多个设备",
@@ -291,13 +308,13 @@
 				// 当设置 multiple 为 true 时, file 为数组格式，否则为对象格式
 				let lists = [].concat(event.file)
 				// #ifdef H5
-				const whiteList = ['jpg', 'png','jepg','jpeg','img','gif']
+				const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img', 'gif']
 				var isSuffix = false
-				lists.forEach(item =>{
+				lists.forEach(item => {
 					const fileSuffix = item.name.substring(item.name.lastIndexOf('.') + 1)
 					isSuffix = whiteList.indexOf(fileSuffix.toLowerCase()) === -1
-				})			 
-				if(isSuffix){
+				})
+				if (isSuffix) {
 					uni.showToast({
 						icon: 'none',
 						title: "请选择图片",
@@ -313,41 +330,48 @@
 						message: '上传中'
 					})
 				})
+				
 				for (let i = 0; i < lists.length; i++) {
 					const result = await this.uploadFilePromise(lists[i].url)
-					this.showForm.localImages.push(result)
-
-					let item = this.fileList[fileListLen]
-					let url = getFileServerUrl() + result;
-					this.fileList.splice(fileListLen, 1, Object.assign(item, {
-						status: 'success',
-						message: '',
-						url: url
-					}))
-
-					fileListLen++;
-
-					// this.fileList.splice(event.index, 1)
-					// this.fileList.push({url:url})
+					
+					if(result.status == 200){
+						this.showForm.localImages.push(result.data)
+						let item = this.fileList[fileListLen]
+						this.fileList.splice(fileListLen, 1, Object.assign(item, {
+							status: 'success',
+							message: '',
+							url: result
+						}))
+						
+						fileListLen++;
+					}else{				
+						this.fileList.splice(fileListLen, 1)
+						uni.showToast({
+							title: '上传失败',
+							icon: 'none',
+							duration: 1000
+						});
+					}															
 				}
+
 			},
 
 			uploadFilePromise(url) {
 				return new Promise((resolve, reject) => {
-					uploadHttp.upload({
-						token: getToken(),
-						filePath: url
-					}).then(response => {
+					uploadHttp.upload({token: getToken(),filePath: url}).then(response => {
 						if (response.code === 200) {
-							setTimeout(() => {
-								return resolve(response.data.filePath)
-							}, 150)
+							setTimeout(() => {return resolve( {data:response.data.filePath,status: 200} )}, 150)
 						} else {
 							return resolve({
-								status: 500,
-								msg: '上传失败'
-							});
+							status: 500,
+							msg: '上传失败'
+						});
 						}
+					}).catch( ()=>{
+						return resolve({
+						status: 500,
+						msg: '上传失败'
+						});
 					});
 				})
 			},
@@ -418,6 +442,7 @@
 						eqpId: this.requestForm.equipId,
 						triggerSource: '3',
 						triggerTime: '',
+						isStop:this.showForm.isStop,
 						faultDescription: this.showForm.faultDescription
 					}
 					para.repairPic = this.showForm.localImages //this.requestForm.requestImages
@@ -490,7 +515,7 @@
 						return item.id;
 					})
 					this.selectData = res.data.unSelectUser;
-					if(res.data.selectUser && res.data.selectUser.length > 0){
+					if (res.data.selectUser && res.data.selectUser.length > 0) {
 						this.selectData.push(res.data.selectUser[0]);
 					}
 				})
@@ -544,8 +569,8 @@
 	.u-checkbox {
 		margin-right: 20px;
 	}
-	
-	/deep/.u-form-item{
+
+	/deep/.u-form-item {
 		padding-left: 12px;
 	}
 </style>

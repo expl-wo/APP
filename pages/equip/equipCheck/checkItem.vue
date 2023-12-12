@@ -109,6 +109,7 @@
 				focus: false,
 				item:{},
 				fileList:[],
+				rootUrl:'',
 				//上传视频
 				title: 'chooseVideo',
 				sourceTypeIndex: 2,
@@ -134,26 +135,26 @@
 			console.log("进入日常点检")
 			this.spotCheckItemSData = []
 			//扫描某台设备进行点检，传过来的参数
-			if (option.type == 0) { //专业点检传的参数
-				this.eqpItem = JSON.parse(option.eqpItem)
-				this.eqpId = this.eqpItem.EQPID || this.eqpItem.eqpId
-				this.eqpName = this.eqpItem.EQPNAME || this.eqpItem.eqpName
-				this.checkId = this.eqpItem.CHECKID || this.eqpItem.checkId
-				this.checkName = this.eqpItem.CHECKNAME || this.eqpItem.checkName
-				this.recId = this.eqpItem.RECID || this.eqpItem.recId
-				this.usingDepName = this.eqpItem.USINGDEPNAME || this.eqpItem.usingDepName
-			} else { 
-				//设备开工点检传的参数
-				// console.log("=======================")
-				this.eqpItem = JSON.parse(option.eqpItem)
-				this.eqpId = this.eqpItem.eqpId
-				this.eqpName = this.eqpItem.eqpName
-				this.checkId = this.eqpItem.ckOrMtcId
-				this.checkName = this.eqpItem.ckOrMtcName
-				this.recId = this.eqpItem.attribute2
-				this.usingDepName = this.eqpItem.USINGDEPNAME || this.eqpItem.usingDepName
-			}
-
+			// if (option.type == 0) { //专业点检传的参数
+			// 	this.eqpItem = JSON.parse(option.eqpItem)
+			// 	this.eqpId = this.eqpItem.EQPID || this.eqpItem.eqpId
+			// 	this.eqpName = this.eqpItem.EQPNAME || this.eqpItem.eqpName
+			// 	this.checkId = this.eqpItem.CHECKID || this.eqpItem.checkId
+			// 	this.checkName = this.eqpItem.CHECKNAME || this.eqpItem.checkName
+			// 	this.recId = this.eqpItem.RECID || this.eqpItem.recId
+			// 	this.usingDepName = this.eqpItem.USINGDEPNAME || this.eqpItem.usingDepName
+			// } else { 
+			// 	//设备开工点检传的参数
+			// 	// console.log("=======================")
+				
+			// }
+			this.eqpItem = JSON.parse(option.eqpItem)
+			this.eqpId = this.eqpItem.eqpId
+			this.eqpName = this.eqpItem.eqpName
+			this.checkId = this.eqpItem.ckOrMtcId
+			this.checkName = this.eqpItem.ckOrMtcName
+			this.recId = this.eqpItem.recordId
+			this.usingDepName = this.eqpItem.USINGDEPNAME || this.eqpItem.usingDepName
 
 			//获取该台设备的所有点检项内容
 			const para = {
@@ -266,7 +267,7 @@
 								$confirm('第' + haveItem.step + '步输入的点检值不在点检值范围内，且结果为通过，将修改结果为不通过，然后请重新提交！').then(
 									res => {
 										this.$forceUpdate()
-									});
+								});
 							}
 						})
 					} else {
@@ -346,21 +347,31 @@
 				})				
 				for (let i = 0; i < lists.length; i++) {
 					const result = await this.uploadFilePromise(lists[i].url)
-					value.imageToShow = result
 					
-					
-					let item = this.fileList[index][fileListLen]
-					this.fileList[index].splice(fileListLen, 1, Object.assign(item, {
-						status: 'success',
-						message: '',
-						url: result
-					}))
-					
-					fileListLen++;
-					let url = getFileServerUrl()  + result;
-					this.fileList[index] = [{
-						url
-					}];
+					if(result.status == 200){
+						value.imageToShow = result.data
+						let item = this.fileList[index][fileListLen]
+						this.fileList[index].splice(fileListLen, 1, Object.assign(item, {
+							status: 'success',
+							message: '',
+							url: result
+						}))
+						
+						fileListLen++;
+						let url = getFileServerUrl()  + result.data;
+						console.log(url);
+						this.fileList[index] = [{
+							url
+						}];
+					}else{
+						
+						this.fileList[index].splice(fileListLen, 1)
+						uni.showToast({
+							title: '上传失败',
+							icon: 'none',
+							duration: 1000
+						});
+					}															
 				}
 			},
 			
@@ -368,13 +379,19 @@
 				return new Promise((resolve, reject) => {
 					uploadHttp.upload({token: getToken(),filePath: url}).then(response => {
 						if (response.code === 200) {
-							setTimeout(() => {return resolve(response.data.filePath)}, 150)
-							} else {
+							setTimeout(() => {return resolve( {data:response.data.filePath,status: 200} )}, 150)
+						}else 
+						{
 							return resolve({
 							status: 500,
 							msg: '上传失败'
 							});
 						}
+					}).catch( ()=>{
+						return resolve({
+						status: 500,
+						msg: '上传失败'
+						});
 					});
 				})
 			},
@@ -426,10 +443,6 @@
 				})
 				var dd = getApp().globalData.andonData
 				console.log(dd, 'dd')
-			},
-			//上传图片
-			takePhoto(item) {
-				this.item = item
 			},
 			//点击图片放大预览
 			previewImg(logourl) {

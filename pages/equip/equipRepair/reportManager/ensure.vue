@@ -30,12 +30,44 @@
 					<u-form-item label="维修人员">
 						<u-input   v-model="repairCompleteData.repairManName" type="text" disabled></u-input>
 					</u-form-item>
-					<u-form-item label="打分">
-						<!-- <u-input   v-model="repairCompleteData.score" type="text" disabled=""></u-input> -->
-						<u-rate v-model="repairCompleteData.score"></u-rate>
+					<u-form-item label="设备状态">
+						<u-radio-group v-model="repairCompleteData.status">
+							<u-radio :name="1">
+								已修复
+							</u-radio>
+							<u-radio :name="0">
+								没修复
+							</u-radio>
+						</u-radio-group>
+						<!-- <u-input :border="border" v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
 					</u-form-item>
-					<u-form-item label="评价">
-						<u-input   v-model="repairCompleteData.evaluate" type="text" ></u-input>
+					<u-form-item label="满意度">
+						<u-radio-group v-model="repairCompleteData.evaluate">
+							<u-radio name="非常满意">
+								非常满意
+							</u-radio>
+							<u-radio name="满意">
+								满意
+							</u-radio>
+							<u-radio name="一般">
+								一般
+							</u-radio>
+							<u-radio name="不满意">
+								不满意
+							</u-radio>
+						</u-radio-group>
+						<!-- <u-rate v-model="repairCompleteData.score"></u-rate> -->
+					</u-form-item>
+					<u-form-item label="是否清理维修现场">
+						<u-radio-group v-model="repairCompleteData.isClear">
+							<u-radio :name="1">
+								是
+							</u-radio>
+							<u-radio :name="0">
+								否
+							</u-radio>
+						</u-radio-group>
+						<!-- <u-input :border="border" v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
 					</u-form-item>
 					<u-form-item label="报修图片">
 					     <u-image v-for="(item,index) in reportPicArr" :key="index" :src="item" width="200px" height="200px" class="img" @tap="previewReportPictures(item)"></u-image>
@@ -105,8 +137,18 @@
 			repairCompleteSureClick(){
 				console.log('维修确认111')
 				//维修确认
-				confirmRepairSubmit({id:this.repairmgtId,score:this.repairCompleteData.score,evaluate:this.repairCompleteData.evaluate}).then(res=>{
-					uni.navigateBack()
+				confirmRepairSubmit({id:this.repairmgtId,evaluate:this.repairCompleteData.evaluate,
+							status:this.repairCompleteData.status,isClear:this.repairCompleteData.isClear}).then(res=>{
+								if(res.err_code === 10000){
+									uni.navigateBack()
+								}else{
+									uni.showToast({	
+										title: res.err_msg,
+										icon: 'none',
+										duration: 1000
+									});
+								}
+					
 				})
 			},
 			// 取消

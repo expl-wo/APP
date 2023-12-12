@@ -4,13 +4,13 @@
 		</u-empty>
 		<view class="app-containerR app-containerWrap">
 			<view class="group-warter w-240 tc text bg-blue" v-for="(item,index) of maintenanceDevice" 
-			@click="tap(item)" :key="item.attribute1">
+			@click="tap(item)" :key="item.recordId">
 				<view class="group-title">设备名称：{{item.eqpName}}</view>
 				<view class="group-bomtitle tc">使用部门：{{item.usingDepName}}</view>
 				<view class="group-bomtitle tc">设备编码：{{item.eqpId}}</view>
 				<view class="group-bomtitle tc">班组：{{item.installSite}}</view>
 				<view class="group-bomtitle tc">保养名称：{{item.ckOrMtcName}}</view>
-				<view class="group-bomtitle tc">安全措施：{{item.attribute2}}</view>
+				<view class="group-bomtitle tc">安全措施：{{item.safetyMeasure}}</view>
 			</view>
 		</view>
 	</view>
@@ -35,10 +35,10 @@
 					this.maintenanceDevice = res.data
 					
 				})
-			},
+			},	
 			//点击某个设备，进行保养操作
 			tap: function(item) {
-				if(item.attribute3 === 1){
+				if(this.type == 1 && this.isAccept==0){
 					uni.showModal({
 					    title: '保养',
 					    content: '确定开始保养',
@@ -51,9 +51,9 @@
 					        }
 					    }
 					})
-				}else if(item.attribute3 === 2){
+				}else if(this.type == 2&& this.isAccept==0){
 					uni.navigateTo({url:"/pages/equip/equipMaintenance/maintenanceOperation?deviceItem=" + JSON.stringify(item)})
-				}else if(item.attribute3 === 3){
+				}else if(this.type == 1&&this.isAccept==1){
 					console.log(1111);
 					uni.navigateTo({url:"/pages/equip/equipMaintenance/maintenanceApply?deviceItem=" + JSON.stringify(item)})
 					// uni.navigateTo({url:"/pages/equip/equipMaintenance/maintenanceApply=" + JSON.stringify(item)})
@@ -62,6 +62,7 @@
 			}
 			},
 			onLoad(options) {
+				console.log(options);
 				this.type = options.type
 				this.isAccept = options.isAccept
 			}

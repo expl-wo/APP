@@ -31,7 +31,7 @@ import request from '@/utils/request.js'
   export function getUserData(params) {
   	return new Promise((resolve, reject) => {
   		request({
-  			url:'/user/app/scan',
+  			url:'/pbpermissions/userInfo/getUserInfoByGpId',
   			method:'post',
 			data:params
   		}).then(res=>{
@@ -43,7 +43,7 @@ import request from '@/utils/request.js'
   export function getUserInfos(params) {
   	return new Promise((resolve, reject) => {
   		request({
-  			url:'/user/UserInfos?userId='+params,
+  			url:'/pbpermissions/UserInfos?userId='+params,
   			method:'get'
   		}).then(res=>{
   			resolve(res)
