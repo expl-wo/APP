@@ -101,7 +101,7 @@ export function queryHistoryRecordByTime(data) {
 }
 
 // 开工、完工接口
-export function reportWorderStatus(data) {
+export function reportWorKOrderStatus(data) {
 	return request({
 		url: "/evo-ims-overhaul/work-procedure/report-status",
 		method: 'post',

@@ -44,18 +44,26 @@
 <style lang="scss" scoped>
 	.info-root {
 		font-size: 16px;
+
 		.info-item {
 			height: 30px;
 			line-height: 30px;
+
 			.icon {
 				display: inline-block;
 			}
+
 			.label {
 				margin: 0 8px;
 			}
 		}
+
 		.info-item:last-child {
 			margin-bottom: 4px;
+			width: 90%;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 	}
 </style>

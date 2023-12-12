@@ -49,6 +49,12 @@
 				this.$emit('close', this.selects.filter(item => item.isCheck))
 			},
 			handleCheck(item, index) {
+				// 选择小时时为单选，先把其
+				if (this.isHourSelect) {
+					this.showList.forEach(item => {
+						item.isCheck = false
+					})
+				}
 				this.showList[index].isCheck = !item.isCheck
 			},
 			reset() {

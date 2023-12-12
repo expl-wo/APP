@@ -74,8 +74,22 @@
 			return {
 				// 详情信息
 				projectInfo: {},
-				// tab列表
-				tabData: [{
+				// 显示附件下载面板
+				isShowFilePanel: false,
+				// 显示更多信息
+				showMore: true,
+				// 展示的字段-图标
+				fieldMapText: ORDER_DETAIL_FIELD_MAP,
+				// 当前展示的列表组件
+				componentName: 'ProcessList',
+				// 路由传参
+				routeParam: {}
+			}
+		},
+		computed: {
+			...mapState("workOrder", ['workOrderDatialInfo']),
+			tabData() {
+				const list = [{
 						index: 0,
 						name: "工序列表",
 						cName: "ProcessList"
@@ -90,21 +104,10 @@
 						name: "返厂清单",
 						cName: "ReturnList"
 					},
-				],
-				// 显示附件下载面板
-				isShowFilePanel: false,
-				// 显示更多信息
-				showMore: true,
-				// 展示的字段-图标
-				fieldMapText: ORDER_DETAIL_FIELD_MAP,
-				// 当前展示的列表组件
-				componentName: 'ProcessList',
-				// 路由传参
-				routeParam: {}
+				];
+				// 勘查工单没有返厂清单列表
+				return this.routeParam.type === 'workOrder' ? list.slice(0, 2) : list;
 			}
-		},
-		computed: {
-			...mapState("workOrder", ['workOrderDatialInfo'])
 		},
 		onLoad(options) {
 			this.routeParam = {

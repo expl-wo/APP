@@ -26,28 +26,47 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' :isStart='isStart' :commonParam='commonParam'
-			@getBatchRecord='getBatchRecord' />
+		<CustomForm :formList='formList' :isStart='isStart' :commonParam='commonParam' @getBatchRecord='getBatchRecord'
+			@reload='initData' v-if="formList.length" />
+		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
+		</u-empty>
 		<!-- 按钮 -->
 		<view class="btn-box">
 			<view class="left-btn">
-				<u-button :class="['btn', activeIndex > 0 ?'enable-btn':'disabled-btn']"
-					:disabled="!activeIndex || activeIndex > 0" @click="activeIndex--">
+				<u-button :class="['btn', activeIndex > 0 ?'enable-btn':'disabled-btn']" :disabled="!(activeIndex > 0)"
+					@click="handlePre">
 					<u-icon name="arrow-left" size="30" bold></u-icon>
 				</u-button>
 				<u-button :class="['btn', activeIndex < (productionList.length - 1) ?'enable-btn':'disabled-btn']"
-					@click="activeIndex++" :disabled="!activeIndex || activeIndex < (productionList.length - 1)">
+					@click="handleNext" :disabled="!(activeIndex < (productionList.length - 1))">
 					<u-icon name="arrow-right" size="30" bold></u-icon>
 				</u-button>
 			</view>
-			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="!isStart && isShowProveBtn"
-				text='复核'></u-button>
+			<u-button class="right-btn" @click="showReportProgress = true" text="报工"
+				:disabled="!isStart || disableReportBtn" color="#3a62d7"></u-button>
 			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart" :text="btnText"></u-button>
+			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
+				text='复核'></u-button>
+			<!-- <u-button class="right-btn" @click="isShowProvePicker = true" text='复核'></u-button> -->
 		</view>
 		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
+		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
+			@confirm='handleReport'>
+			<view class="slot-content">
+				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
+				<view style="display: flex;margin-top: 10px;">
+					<u-button @click="computedWidth('minus')" style="margin-right:5px;">
+						<u-icon name="minus"></u-icon>
+					</u-button>
+					<u-button @click="computedWidth('plus')">
+						<u-icon name="plus"></u-icon>
+					</u-button>
+				</view>
+			</view>
+		</u-modal>
 	</view>
 </template>
 
@@ -69,12 +88,13 @@
 		setMesWorkContent,
 		proveConfirmApi,
 		queryBatchRecord,
-		reportWorderStatus,
+		reportWorKOrderStatus,
 		getProcessList,
 		saveSignInfoApi,
 		searchSignInfoApi,
 		searchTemplateList,
-		searchStandardById
+		searchStandardById,
+		reportWork
 	} from "@/https/staging/index.js";
 	import {
 		SUB_PRODUCTION_MAP
@@ -122,15 +142,15 @@
 				],
 				isShowTip: false,
 				// 工序标准
-				tip: "<h4>测试</h4><br>",
+				tip: "",
 				// 公共参数
 				commonParam: {
 					workCode: '', // 工单编号
 					craftId: '', // 工步编号
 					workScene: '', // 工单场景
 				},
-				// 是否展示复核按钮
-				isShowProveBtn: false,
+				// 复核按钮是否可用
+				disabledProveBtn: false,
 				// 是否开工-不开工按钮都不显示-不允许操作
 				isStart: false,
 				// 工步列表
@@ -138,7 +158,13 @@
 				// 当前选中的工步下标
 				activeIndex: 0,
 				// 签到按钮是否可用
-				signBtnEnable: false
+				signBtnEnable: false,
+				// 显示弹窗
+				showReportProgress: false,
+				// 报工进度
+				percentage: 0,
+				// 报工按钮是否可用
+				disableReportBtn: false
 			};
 		},
 		watch: {
@@ -164,7 +190,7 @@
 				// 工序详情信息
 				const workOrder = uni.getStorageSync('ims_workOrder') || {}
 				const workStep = uni.getStorageSync('ims_workStep') || {}
-				const intermediateProcess = uni.getStorageSync('ims_intermediateProcess').data || {}
+				const intermediateProcess = uni.getStorageSync('ims_intermediateProcess') || {}
 				this.commonParam = {
 					workCode: workOrder.id,
 					craftId: workStep.workProcedureCode && workStep.workProcedureCode.split('_')[1],
@@ -174,14 +200,16 @@
 					groupPerson: workStep.leaderName,
 					subGroupPerson: workStep.deputyLeaderName,
 					member: workStep.memberName,
-				}
+				};
 				// 工步名称
-				this.subProductionRowName = workStep.workProcedureName
-				// 是否开工   0-未开工 
-				this.isStart = !workStep.workStatus === 0
-				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+				this.subProductionRowName = workStep.workProcedureName;
+				// 0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+				this.isStart = workStep.workStatus !== 0;
 				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus] || '开工';
-				this.isShowProveBtn = !workOrder.reviewStatus
+				//状态不为已开工禁用
+				this.disableReportBtn = workStep.workStatus !== 1;
+				// 状态为已复核、工单不为完工禁用（reviewStatus-0 未复核，1-已复核）
+				this.disabledProveBtn = workStep.reviewStatus === 1 || workStep.workStatus !== 3;
 				// 获取工步工作内容
 				this.getWorkStepContent()
 				// 获取工步列表数据用于上下页
@@ -208,13 +236,14 @@
 						res.data.value.forEach((item, index) => {
 							// 筛选图片，暂不支持文件
 							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
-								'jpg') : []
+								'jpg') : [];
+							item.upperLimit = item.upperLimit || undefined;
 						})
-						this.formList = res.data.value || []
+						this.formList = res.data.value || [];
 						// 初始化回显，用当前时间批量查询工作内容记录
-						this.getBatchRecord(params)
+						this.formList.length && this.getBatchRecord(params);
 					} else {
-						uni.$u.toast(res.errMsg || '暂无数据')
+						uni.$u.toast(res.errMsg || '暂无数据');
 					}
 				})
 			},
@@ -226,8 +255,10 @@
 							// 筛选图片，暂不支持文件
 							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
 								'jpg') : []
+							this.formList[index].fileList = item.fileList;
+							this.formList[index].contentInfo = item.contentInfo;
 						})
-						this.formList = res.data.value || []
+						console.log(this.formList, 'formList')
 					} else {
 						uni.$u.toast(res.errMsg || '暂无数据')
 					}
@@ -250,6 +281,7 @@
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							res.data.pageList.forEach((item, index) => {
 								if (item.workProcedureCode === workStep.workProcedureCode) {
+									// 当前选中项的下标
 									this.activeIndex = index;
 								}
 							})
@@ -259,13 +291,21 @@
 						}
 					})
 			},
+			handlePre() {
+				if (this.activeIndex === 0) return;
+				this.activeIndex--;
+			},
+			handleNext() {
+				if (this.productionList.length === 0) return;
+				this.activeIndex++;
+			},
 			// 复核面板确认
 			proveConfirm(value) {
 				const param = {
 					...this.commonParam,
-					craftId: this.craftId || "",
-					pass: value.indexs[0], // 0：复核不通过，1：复核通过
-					isProblem: value.indexs[1] // 0:不加入 1:加入
+					craftId: this.commonParam.craftId || "",
+					pass: value.indexs[1], // 0：复核不通过，1：复核通过
+					isProblem: value.indexs[0] // 0:不加入 1:加入
 				}
 				proveConfirmApi(param).then((res) => {
 					if (res.success) {
@@ -291,11 +331,11 @@
 					workProcedureId: this.commonParam.craftId || '',
 				}
 				searchSignInfoApi(param).then(res => {
-					if (res.success && Array.isArray(res.data)) {
-						const length = res.data.length;
-						this.signBtnEnable = length % 2 === 0;
+					if (res.success && res.data && Array.isArray(res.data.value)) {
+						const length = res.data.value.length;
+						this.signBtnEnable = length % 2 === 1;
 					} else {
-						uni.$u.toast(res.errMsg || '暂无数据')
+						uni.$u.toast(res.errMsg || '查询失败')
 					}
 				})
 			},
@@ -307,7 +347,7 @@
 					workId: this.commonParam.workCode,
 					sceneType: this.commonParam.workScene,
 					workProcedureId: this.commonParam.craftId,
-					type: type === 'signIn' ? 1 : 2,
+					executeType: type === 'signIn' ? 1 : 2,
 					userId: getUserInfo().username
 				}
 				saveSignInfoApi(param).then(res => {
@@ -327,20 +367,28 @@
 			},
 			// 处理开工
 			handleStarWork() {
+				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+				// this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus] || '开工';
 				const param = {
+					workProcedureCode: this.commonParam.craftId,
 					workCode: this.commonParam.workCode,
 					workScene: this.commonParam.workScene,
-					isStart: this.isStart,
 					operator: uni.getStorageSync('hb_dq_mes_user_info').username
 				}
-				reportWorderStatus(param).then(res => {
+				const idx = ["未派工", '完工', '开工', '已完工'].indexOf(this.btnText);
+				if (idx === 2) {
+					param.isStart = 1
+				} else if (idx === 1) {
+					param.isFinished = 1
+				}
+				reportWorKOrderStatus(param).then(res => {
 					if (res.success) {
 						uni.$u.toast('操作成功')
 						uni.redirectTo({
 							delta: 1
 						})
 					} else {
-						uni.$u.toast(res.errMsg || '暂无数据')
+						uni.$u.toast(res.errMsg || '操作失败')
 					}
 				})
 			},
@@ -365,7 +413,35 @@
 						uni.$u.toast(res.errMsg || '暂无数据')
 					}
 				})
-			}
+			},
+			// 处理报工事件
+			handleReport() {
+				const userInfo = uni.getStorageSync('hb_dq_mes_user_info')
+				const param = {
+					progress: this.percentage,
+					workCode: this.commonParam.workCode,
+					workScene: this.commonParam.workScene,
+					workProcedureCode: this.commonParam.craftId,
+					operator: userInfo.username
+				}
+				reportWork(param).then(res => {
+					if (res.success) {
+						uni.$u.toast('报工成功')
+					} else {
+						uni.$u.toast('报工失败')
+					}
+				}).finally(() => {
+					this.showReportProgress = false;
+				})
+			},
+			// 进度条增减操作
+			computedWidth(type) {
+				if (type === 'plus') {
+					this.percentage = uni.$u.range(0, 100, this.percentage + 10)
+				} else {
+					this.percentage = uni.$u.range(0, 100, this.percentage - 10)
+				}
+			},
 		},
 	};
 </script>
@@ -450,6 +526,9 @@
 			}
 		}
 
+		.slot-content {
+			width: 100%;
+		}
 
 		.btn-box {
 			position: absolute;
@@ -487,7 +566,7 @@
 			}
 
 			.right-btn {
-				width: 200rpx;
+				width: 160rpx;
 				height: 60rpx;
 				line-height: 60rpx;
 				background-color: #3a62d7;

@@ -20,7 +20,7 @@
 				:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
 				:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
 				@scrolltolower="getListData('scrolltolower')">
-				<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(index)">
+				<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
 					<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
 				</view>
 				<u-loadmore :status="status" v-if="cardList.length > 4" />
@@ -198,7 +198,7 @@
 							this.handleDataByType(listData, type)
 						} else {
 							this.cardList = []
-							uni.$u.toast(res.errMsg)
+							uni.$u.toast(res.errMsg || '暂无数据')
 						}
 					})
 				} else {
@@ -263,16 +263,15 @@
 			/**
 			 * @method handleShowDetail 点击卡片展示详情
 			 **/
-			handleShowDetail(index) {
-				const card = this.allListData[index] || {};
+			handleShowDetail(item) {
 				// 问题暂无详情
 				if (this.showType === "issue") return;
-				card.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
-					id: card.id
+				item.id && this.$store.dispatch('workOrder/getWorkOrderDetailInfo', {
+					id: item.id
 				});
 				setTimeout(() => {
 					uni.navigateTo({
-						url: `/pages/orderDetail/index?id=${card.id}&type=${this.showType}`,
+						url: `/pages/orderDetail/index?id=${item.id}&type=${this.showType}`,
 					});
 				}, 200)
 			},

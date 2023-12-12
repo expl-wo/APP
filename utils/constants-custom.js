@@ -126,7 +126,7 @@ const ORDER_DETAIL_FIELD_MAP = {
 		label: "项目经理",
 		iconName: "account-fill",
 	},
-	prodCategory: {
+	prodCategoryName: {
 		label: "产品大类",
 		iconName: "list",
 	},

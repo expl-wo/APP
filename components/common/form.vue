@@ -37,11 +37,12 @@
 				</view>
 				<!-- 表单项 -->
 				<u-form-item :prop="item.operationCode" :ref="`item${index}`" @click="showAction(item,index)">
-					<text class="description">选项:</text>
+					<text class="description">内容:</text>
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
 					<u-number-box :min="item.lowerLimit" :max="item.upperLimit" v-model="formData[item.operationCode]"
-						v-else-if="item.operationType ==='1'"></u-number-box>
+						v-else-if="item.operationType ==='1'" inputWidth='200'
+						@change='changeNumber($event,index)'></u-number-box>
 					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
 						border="none" v-else></u--input>
 					<u-icon slot="right" name="arrow-right" v-if="!['0','1'].includes(item.operationType)"></u-icon>
@@ -58,18 +59,8 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<view class="save btn">
-					<!-- <u-button @click="submit" text="保存" :disabled="!isStart"></u-button> -->
-					<u-button @click="submit" text="保存" color="#3a62d7"></u-button>
-				</view>
-				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
-				<view style="display: flex;margin-top: 10px;">
-					<button @click="computedWidth('minus')" style="margin-right:5px;">减少</button>
-					<button @click="computedWidth('plus')">增加</button>
-				</view>
-				<view class="report btn">
-					<u-button @click="handleReport" text="报工" :disabled="!isStart" color="#3a62d7"></u-button>
-				</view>
+				<u-button @click="submit" text="保存" :disabled="!isStart" color="#3a62d7" class="btn"></u-button>
+				<u-button @click="reset" text="重置" class="btn"></u-button>
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -77,7 +68,8 @@
 			@select="singleSelect">
 		</u-action-sheet>
 		<CustomSheet :show='isShowCustomSheet' :title="customSheetTitle" :selects='selects' :isHourSelect='isHourSelect'
-			@close='closeCustomSheet' @selectHourConfirm='selectHourConfirm' @customSheetConfirm='customSheetConfirm'>
+			@close='isShowCustomSheet = false' @selectHourConfirm='selectHourConfirm'
+			@customSheetConfirm='customSheetConfirm'>
 		</CustomSheet>
 		<u-calendar confirmDisabledText="请选择日期" :formatter="formatter" :show="isShowCalendar" :maxDate="maxDate"
 			:minDate='minDate' :closeOnClickOverlay='true' @confirm="confirmCalendar" ref="calendar"
@@ -96,7 +88,6 @@
 		queryBatchRecord,
 		reportWorkContent,
 		queryHistoryRecordByTime,
-		reportWork
 	} from "@/https/staging/index.js";
 	import uploadHttp from '@/https/_public/upload';
 	import {
@@ -126,16 +117,16 @@
 				default: () => ({})
 			}
 		},
-		watch: {
-			formList(val) {
-				if (val.length) {
-					// 表单回显
-					this.submitFormData = JSON.parse(JSON.stringify(val))
-					// 初始化表单数据
-					this.initFormData()
+		created() {
+			if (this.formList.length) {
+				// 表单回显
+				this.submitFormData = JSON.parse(JSON.stringify(this.formList))
+				this.$nextTick(() => {
 					// 设置验证规则
 					this.setRules()
-				}
+					// 初始化表单数据
+					this.initFormData()
+				})
 			}
 		},
 		data() {
@@ -149,6 +140,7 @@
 			const selectHours = [];
 			for (let i = 0; i < 24; i++) {
 				selectHours.push({
+					num: i,
 					value: `${i}:00:00`,
 					label: `${i}:00~${i+1}:00`,
 					isCheck: false
@@ -158,19 +150,7 @@
 				// 表单数据
 				formData: {},
 				// 单选操作面板数据
-				actions: [{
-						name: '男',
-						value: 1
-					},
-					{
-						name: '女',
-						value: 2
-					},
-					{
-						name: '保密',
-						value: 3
-					},
-				],
+				actions: [],
 				// 表单验证规则
 				rules: {},
 				// 显示自定义面板
@@ -181,18 +161,18 @@
 				isShowCalendar: false,
 				// 最大日期限制
 				maxDate: `${year}-${month}-${date}`,
+				// 最小日期限制
 				minDate: `${year}-${month}-${date -30}`,
 				// 展示单选操作面板
 				showSingleAction: false,
-				// 当前操作的记录项=下标
+				// 当前操作的记录项下标
 				currentIndex: 0,
 				// 选择小时的列表-多选列表
 				selects: [],
+				// 时间为小时的选项
 				selectHours,
 				// 自定义面板标题
 				customSheetTitle: '小时选择',
-				// 报工进度
-				percentage: 0,
 				// 已经填写内容的时间列表
 				selectedTimeList: [],
 				// 是否是选择小时-只能选中一个时间点
@@ -210,9 +190,20 @@
 			initFormData() {
 				this.formList.forEach((item, index) => {
 					this.formData[item.operationCode] = item.contentInfo || "";
+					const hour = new Date().getHours()
+					let hourTime = ''
+					this.selectHours.forEach(h => {
+						if (h.num === hour) {
+							h.isCheck = true;
+							hourTime = h.label;
+						}
+					})
 					const tempObj = {
-						date: item.date || '',
-						hourTime: item.hourTime || '',
+						date: item.date || moment().format('YYYY-MM-DD'),
+						hourTime: ''
+					}
+					if (item.executionFrequency === '0') {
+						tempObj.hourTime = hourTime
 					}
 					this.showTimeList.push(tempObj);
 				})
@@ -224,7 +215,8 @@
 						const tempObj = {
 							type: 'string',
 							required: true,
-							message: '请填写' + item.operationName,
+							// message: '请填写' + item.operationName,
+							message: '请填写',
 							trigger: ['blur', 'change']
 						}
 						this.rules[item.operationCode] = tempObj
@@ -233,6 +225,12 @@
 				console.log(this.rules, 'setRules')
 				this.$refs.uForm.setRules(this.rules)
 			},
+			// 表单重置
+			reset() {
+				this.formData = {};
+				this.$refs.uForm.resetFields();
+			},
+			// 表单保存
 			submit() {
 				console.log(this.formData, 'formData', this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
@@ -240,13 +238,12 @@
 						item.contentInfo = this.formData[item.operationCode];
 						const time = this.selectHours.filter(item => item.label == this.showTimeList[index]
 							.hourTime);
-						console.log(this.selectHours, this.showTimeList[index].hourTime,
-							' this.showTimeList[index].hourTime', time);
+						const timeStr = (time.length && time[0].value) || ''
 						if (item.executionFrequency === '0') {
-							item.workPlanTime = this.showTimeList[index].date + " " + time[0].value;
+							item.workPlanTime = this.showTimeList[index].date + " " + timeStr;
 						} else if (item.executionFrequency === '1') {
-							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + time[0]
-								.value;
+							const timeStr = (time.length && time[0].value) || ''
+							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + timeStr;
 						}
 					})
 					const param = {
@@ -255,13 +252,16 @@
 						list: this.submitFormData
 					}
 					reportWorkContent(param).then(res => {
-						if (res) {
+						if (res.success) {
 							uni.$u.toast('保存成功')
+							this.showTimeList = [];
+							this.$emit('reload')
+						} else {
+							uni.$u.toast(res.errMsg || '保存失败')
 						}
-					}).catch(() => {
-						uni.$u.toast('保存失败')
 					})
 				}).catch(errors => {
+					console.log(errors, 'errors')
 					uni.$u.toast('校验失败')
 				})
 			},
@@ -320,7 +320,7 @@
 								imgUrl: `http://10.16.9.128:9000/${item.filePath}`,
 								url: item.filePath,
 								name: item.fileName,
-								type: fileName.spilt(".")[1]
+								type: item.fileName && item.fileName.split(".")[1]
 							}
 						})
 						this.submitFormData[index].fileList.push(...uploadedList)
@@ -349,30 +349,7 @@
 					});
 				})
 			},
-			// 关掉自定义面板（多选-小时操作面板）
-			closeCustomSheet(selectedList) {
-				console.log(selectedList, 'selectedList')
-				this.isShowCustomSheet = false
-			},
-			// 处理报工事件
-			handleReport() {
-				const userInfo = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'))
-				const param = {
-					progress: this.percentage,
-					workCode: this.commonParam.workCode,
-					workScene: this.commonParam.workScene,
-					workProcedureCode: this.commonParam.craftId,
-					isStart: this.isStart ? 1 : 0,
-					// isFinished: 1, // 	是否完工 1:完工
-					operator: userInfo.username
-				}
-				console.log('handleReport', param, userInfo)
-				reportWork(param).then(res => {
-					uni.$u.toast('报工成功')
-				}).catch(error => {
-					uni.$u.toast('报工失败')
-				})
-			},
+
 			// 展示时间选择
 			showTimeActionSheet(item, index, type) {
 				console.log(item.executionFrequency, 'form-item')
@@ -499,14 +476,12 @@
 				this.$emit('getBatchRecord', params)
 				this.isShowCustomSheet = false
 			},
-			// 进度条增减操作
-			computedWidth(type) {
-				if (type === 'plus') {
-					this.percentage = uni.$u.range(0, 100, this.percentage + 10)
-				} else {
-					this.percentage = uni.$u.range(0, 100, this.percentage - 10)
-				}
-			},
+			changeNumber(obj, index) {
+				this.currentIndex = index;
+				const currentItem = this.submitFormData[this.currentIndex];
+				this.formData[currentItem.operationCode] = obj.value;
+				this.$refs.uForm.validateField(currentItem.operationCode);
+			}
 		}
 	}
 </script>
@@ -571,11 +546,13 @@
 		.save-btn {
 			margin: 0 16rpx;
 			border-radius: 16rpx;
+			display: flex;
+			justify-content: space-between;
 
 			.btn {
 				height: 60rpx;
 				line-height: 60rpx;
-				margin: 20rpx 0;
+				margin: 20rpx 10rpx;
 				background-color: #f6f8fb;
 				text-align: center;
 			}
