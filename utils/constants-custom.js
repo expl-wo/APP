@@ -139,11 +139,13 @@ const ORDER_DETAIL_FIELD_MAP = {
 		iconName: "server-man",
 	},
 	planTime: {
-		label: "计划开工/完工时间",
+		// label: "计划开工/完工时间",
+		label: "计划时间",
 		iconName: "calendar",
 	},
 	actualTime: {
-		label: "实际开工/完工时间",
+		// label: "实际开工/完工时间",
+		label: "实际时间",
 		iconName: "calendar",
 	},
 };

@@ -28,7 +28,7 @@
 					</view>
 				</view>
 				<!-- 视频列表 -->
-				<view class="img-box" v-if="cardInfo['videoList']">
+				<view class="img-box" v-if="isShowMore && cardInfo['videoList']">
 					<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video"
 						@click="showModal(video,'video')">
 						<video :src="getUrl(video)" controls style="widht:80px;height: 80px;"></video>
@@ -174,7 +174,7 @@
 				border-radius: 24rpx;
 				/* 默认背景色 */
 				background-color: #e0f8f1;
-				font-size: $fontSize;
+				font-size: $minFontSize;
 				text-align: center;
 				/* 默认颜色 */
 				color: #17aa81;
@@ -187,7 +187,7 @@
 			position: relative;
 			overflow: hidden;
 			transition: all 0.5s linear;
-			font-size: $smallFontSize;
+			font-size: $minFontSize;
 
 			.info-item {
 				&:not(:last-child) {
@@ -201,7 +201,6 @@
 
 					.icon {
 						display: inline-block;
-						vertical-align: bottom;
 					}
 				}
 			}
@@ -210,15 +209,16 @@
 				position: absolute;
 				padding: 20rpx;
 				right: 0;
-				bottom: -10rpx;
+				bottom: 0;
 				font-size: $bigFontSize;
 			}
 
 			.extra {
 				display: flex;
+				max-height: 80px;
+				margin-bottom: 10rpx;
 
 				.img-box {
-					margin-bottom: 10px;
 					.img-item {
 						margin-right: 10px;
 					}
@@ -226,7 +226,6 @@
 					/deep/ .uni-video-container {
 						width: 80px;
 						height: 80px;
-
 					}
 				}
 			}
@@ -234,12 +233,12 @@
 
 		.show-more {
 			// 用max-height可以高度使自适应，设置高度要大于实际元素高度
-			max-height: 400rpx;
+			max-height: 320px;
 		}
 
 		.show-less {
 			// 展示四个字段的高度
-			max-height: 140rpx;
+			max-height: 134px;
 		}
 	}
 </style>

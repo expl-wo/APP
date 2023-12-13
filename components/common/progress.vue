@@ -34,8 +34,7 @@
 			// background-image: url("@/assets/imgs/staging/progress-bg.png");
 			// background-size: 30rpx 30rpx;
 			border-radius: 16rpx;
-			text-align: right;
-			margin-bottom: 12px;
+			text-align: center;
 		}
 
 		.value {

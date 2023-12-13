@@ -3,40 +3,39 @@
 		<view class="order-info">
 			<view class="name">{{ projectInfo.name }}</view>
 			<view :class="['info', showMore ? 'show-more' : 'show-less']">
-				<template v-for="(item,key) in projectInfo">
+				<template v-for="(item, key) in projectInfo">
 					<view class="item" :key="item" v-if="Object.keys(fieldMapText).includes(key)">
 						<u-icon :name="getIconByKey(key)" size="28" class="icon"></u-icon>
 						<view class="info-box">
-							<text class="label">{{getLabelByKey(key)}}：</text>
+							<text class="label">{{ getLabelByKey(key) }}：</text>
 							<text v-if="key === 'orderStatus'">{{ getStatusStr(item) }}</text>
-							<text v-else>{{item || '--'}}</text>
+							<text v-else>{{ item || "--" }}</text>
 						</view>
 					</view>
 				</template>
 			</view>
 			<!-- 展开收起按钮 -->
 			<view class="more-icon" @click="showMore = !showMore">
-				<u-icon :name="showMore ? 'arrow-up':'arrow-down'" size="30"></u-icon>
+				<u-icon :name="showMore ? 'arrow-up' : 'arrow-down'" size="30"></u-icon>
 			</view>
 			<view class="btn-wrapper">
 				<span class="btn-item" @click="isShowFilePanel = true">附件</span>
 				<span class="btn-item" @click="handleSkipToIssue">查看问题</span>
 			</view>
-			<view :class="['bottom-content',showMore ? 'less-content' : 'more-content']">
-				<u-tabs :list="tabData" @change='handleTabChange' :activeStyle="{
-			            color: '#323233',
-			            fontWeight: 'bold',
-			            transform: 'scale(1.05)'
-			        }" :inactiveStyle="{ color: '#657685'}" lineWidth='0'></u-tabs>
+			<view :class="['bottom-content', showMore ? 'less-content' : 'more-content']">
+				<u-tabs :list="tabData" @change="handleTabChange" :activeStyle="{
+            color: '#323233',
+            fontWeight: 'bold',
+            transform: 'scale(1.05)',
+          }" :inactiveStyle="{ color: '#657685' }" lineWidth="0"></u-tabs>
 				<view class="comp-wrapper">
-					<component :is="componentName" :orderInfo='routeParam' />
+					<component :is="componentName" :orderInfo="routeParam" />
 				</view>
-
 			</view>
 		</view>
 		<!-- 附件下载面板 -->
 		<u-action-sheet :show="isShowFilePanel" title="附件" :closeOnClickOverlay="true" :closeOnClickAction="true"
-			@close='isShowFilePanel= false'>
+			@close="isShowFilePanel = false">
 			<u-cell-group class="file-list">
 				<u-cell v-for="file in projectInfo.fileList" :title="file.name" :key="file.url" size="large">
 					<text slot="value">
@@ -54,17 +53,17 @@
 	import ReturnList from "./components/returnList.vue";
 	import {
 		ORDER_DETAIL_FIELD_MAP,
-		WORK_ORDER_STATUS
-	} from '@/utils/constants-custom.js'
+		WORK_ORDER_STATUS,
+	} from "@/utils/constants-custom.js";
 	import {
 		getWorkOrderDetailById,
-		getIssuePageList
+		getIssuePageList,
 	} from "@/https/staging/index.js";
 	import {
 		mapState
-	} from 'vuex'
+	} from "vuex";
 	export default {
-		name: 'OrderDetail',
+		name: "OrderDetail",
 		components: {
 			ProcessList,
 			Bom,
@@ -81,41 +80,41 @@
 				// 展示的字段-图标
 				fieldMapText: ORDER_DETAIL_FIELD_MAP,
 				// 当前展示的列表组件
-				componentName: 'ProcessList',
+				componentName: "ProcessList",
 				// 路由传参
-				routeParam: {}
-			}
+				routeParam: {},
+			};
 		},
 		computed: {
-			...mapState("workOrder", ['workOrderDatialInfo']),
+			...mapState("workOrder", ["workOrderDetailInfo"]),
 			tabData() {
 				const list = [{
 						index: 0,
 						name: "工序列表",
-						cName: "ProcessList"
+						cName: "ProcessList",
 					},
 					{
 						index: 1,
 						name: "拆解BOM",
-						cName: "Bom"
+						cName: "Bom",
 					},
 					{
 						index: 2,
 						name: "返厂清单",
-						cName: "ReturnList"
+						cName: "ReturnList",
 					},
 				];
 				// 勘查工单没有返厂清单列表
-				return this.routeParam.type === 'workOrder' ? list.slice(0, 2) : list;
-			}
+				return this.routeParam.type === "workOrder" ? list.slice(0, 2) : list;
+			},
 		},
 		onLoad(options) {
 			this.routeParam = {
-				...options
+				...options,
 			};
 		},
 		created() {
-			this.getDetailInfo()
+			this.getDetailInfo();
 		},
 		methods: {
 			/**
@@ -123,14 +122,18 @@
 			 **/
 			getDetailInfo() {
 				const obj = {
-					...this.workOrderDatialInfo
-				}
+					...this.workOrderDetailInfo,
+				};
 				this.projectInfo = {
 					...obj,
-					name: obj.projName || '--',
-					planTime: `${obj.planStartTime && obj.planStartTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
-					actualTime: `${obj.createTime && obj.createTime.split(' ')[0] || ''} - ${obj.planEndTime && obj.planEndTime.split(' ')[0] || ''}`,
-				}
+					name: obj.projName || "--",
+					planTime: `${
+          (obj.planStartTime && obj.planStartTime.split(" ")[0]) || ""
+        } - ${(obj.planEndTime && obj.planEndTime.split(" ")[0]) || ""}`,
+					actualTime: `${
+          (obj.createTime && obj.createTime.split(" ")[0]) || ""
+        } - ${(obj.planEndTime && obj.planEndTime.split(" ")[0]) || ""}`,
+				};
 			},
 			/**
 			 * @method getLabelByKey 根据字段获取label
@@ -150,10 +153,10 @@
 			 * @method handleSkipToIssue 跳转到问题页面
 			 **/
 			handleSkipToIssue() {
-				const url = `/pages/staging/index?type=issue`
+				const url = `/pages/staging/index?type=issue`;
 				uni.navigateTo({
-					url
-				})
+					url,
+				});
 			},
 			/**
 			 * @method handleTabChange tab切换
@@ -163,11 +166,11 @@
 			},
 			// 获取图片地址
 			getUrl(url) {
-				return 'http://10.16.9.128:9000/' + url;
+				return "http://10.16.9.128:9000/" + url;
 			},
 			// 获取工单状态
 			getStatusStr(status) {
-				return WORK_ORDER_STATUS[status] || '-'
+				return WORK_ORDER_STATUS[status] || "-";
 			},
 			/**
 			 * @method handleDownFile 下载文件
@@ -175,14 +178,39 @@
 			 **/
 			handleDownFile(file) {
 				uni.showLoading({
-					title: '下载中'
-				})
+					title: "下载中",
+				});
+				console.log(this.getUrl(file.url), 'file');
+				// 保存文件
+				// uni.downloadFile({
+				// 	url: this.getUrl(file.url),
+				// 	filePath: this.getUrl(file.url),
+				// 	timeout: 30000,
+				// 	success: (res) => {
+				// 		debugger
+				// 		if (res) {
+				// 			uni.hideLoading();
+				// 		}
+				// 	},
+				// 	file: (e) => {
+				// 		debugger
+				// 		uni.showToast({
+				// 			title: "打开失败",
+				// 			icon: "error",
+				// 		});
+				// 	},
+				// });
 				// 文件下载功能
 				uni.downloadFile({
 					url: this.getUrl(file.url),
+					filePath: this.getUrl(file.url),
+					timeout: 30000,
 					success: (res) => {
-						if (res.status === 200) {
-							const filePath = res.temFilePath;
+						debugger
+						console.log(this.getUrl(file.url), 'file');
+						if (res.statusCode === 200) {
+							const filePath = res.tempFilePath;
+							uni.hideLoading();
 							// 保存文件
 							uni.saveFile({
 								tempFilePath: filePath,
@@ -193,28 +221,38 @@
 										filePath: savedFilePath,
 										showMenu: true, // 是否可以分享
 										success: (res) => {
-											if (res) {
-												uni.hideLoading()
-											}
-										}
-									})
-								}
+											if (res) {}
+										},
+										file: (e) => {
+											uni.showToast({
+												title: "打开失败",
+												icon: "error",
+											});
+										},
+									});
+								},
+								file: (e) => {
+									uni.showToast({
+										title: "保存失败",
+										icon: "error",
+									});
+								},
 							});
 						}
 					},
 					file: (e) => {
 						uni.showToast({
-							title: '打开失败',
-							icon: 'error'
-						})
-					}
-				})
+							title: "打开失败",
+							icon: "error",
+						});
+					},
+				});
 			},
-		}
+		},
 	};
 </script>
 <style lang="scss" scoped>
-	@import '@/assets/css/staging/index.scss';
+	@import "@/assets/css/staging/index.scss";
 
 	.sub-pro-row {
 		width: 100%;
@@ -222,7 +260,6 @@
 		overflow: hidden;
 		background: linear-gradient(rgba(209, 225, 246, 0.8) 0%,
 				rgba(209, 225, 246, 0) 70%);
-
 
 		.nav-bar {
 			background-color: unset;
@@ -241,6 +278,7 @@
 			height: 30px;
 			line-height: 30px;
 			font-size: $titleFontSize;
+			font-weight: 400;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
@@ -257,14 +295,13 @@
 			padding: 0 32rpx;
 
 			.item {
-				height: 20px;
-				line-height: 20px;
+				height: 25px;
+				line-height: 25px;
 				font-size: $fontSize;
 				color: #657685;
 
 				.icon {
 					display: inline-block;
-					vertical-align: text-bottom;
 				}
 
 				.info-box {
@@ -296,7 +333,7 @@
 			}
 
 			100% {
-				height: 120px;
+				height: 154px;
 				opacity: 1;
 			}
 		}
@@ -304,7 +341,7 @@
 		@keyframes showLess {
 			0% {
 				opacity: 1;
-				height: 120px;
+				height: 154px;
 			}
 
 			1% {

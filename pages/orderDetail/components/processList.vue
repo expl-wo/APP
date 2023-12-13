@@ -9,7 +9,7 @@
 			<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
 				<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
 			</view>
-			<u-loadmore :status="status" v-if="cardList.length > 4" />
+			<u-loadmore :status="status" v-if="cardList.length" />
 		</scroll-view>
 		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else></u-empty>
 	</view>
@@ -37,19 +37,19 @@
 				fieldMapText: {
 					workProcedureName: {
 						label: "标题",
-						iconName: "chat"
+						iconName: "account-fill"
 					},
 					leaderName: {
 						label: "组长",
-						iconName: "chat"
+						iconName: "account-fill"
 					},
 					deputyLeaderName: {
 						label: "副组长",
-						iconName: "chat"
+						iconName: "account-fill"
 					},
 					memberName: {
 						label: "成员",
-						iconName: "chat"
+						iconName: "account-fill"
 					},
 				},
 				// 数据列表
@@ -60,8 +60,6 @@
 				pageNum: 1,
 				// 列表刷新状态
 				status: "nomore",
-				// 列表刷新状态
-				status: "nomore"
 			};
 		},
 		mounted() {

@@ -118,6 +118,7 @@
 			}
 		},
 		onLoad(options) {
+			debugger
 			const {
 				workProcedureCode,
 				workScene,

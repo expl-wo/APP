@@ -317,10 +317,12 @@
 						}
 						let uploadedList = successList.map(item => {
 							return {
-								imgUrl: `http://10.16.9.128:9000/${item.filePath}`,
-								url: item.filePath,
+								url: `http://10.16.9.128:9000/${item.filePath}`,
+								filePath: item.filePath,
+								fileName: item.fileName,
 								name: item.fileName,
-								type: item.fileName && item.fileName.split(".")[1]
+								type: item.fileName && item.fileName.split(".")[1],
+								imgUrl: `http://10.16.9.128:9000/${item.filePath}`,
 							}
 						})
 						this.submitFormData[index].fileList.push(...uploadedList)
@@ -487,6 +489,8 @@
 </script>
 
 <style lang='scss' scoped>
+	@import '@/assets/css/staging/index.scss';
+
 	.form {
 		height: calc(100% - 260px);
 		overflow-y: auto;
@@ -497,7 +501,7 @@
 		.form-item {
 			.tip {
 				margin-right: 10rpx;
-				font-size: 14px;
+				font-size: $minFontSize;
 			}
 
 			.title {
@@ -507,7 +511,7 @@
 				.operation-name {
 					display: flex;
 					justify-content: space-between;
-					font-size: 20px;
+					font-size: $titleFontSize;
 					margin-bottom: 10rpx;
 
 					.picker-tag {
@@ -518,21 +522,29 @@
 						.time-type {
 							padding: 0 12rpx;
 							color: #3a62d7;
+							font-size: $minFontSize;
 						}
 
 						.time-select-box {
 							display: flex;
 
 							.btn-link {
-								margin-top: 5px;
+								margin-top: 3px;
 								color: #3a62d7;
 							}
 						}
 					}
+
+					.name {
+						width: 60%;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
 				}
 
 				.operation-description {
-					font-size: 14px;
+					font-size: $minFontSize;
 				}
 			}
 
@@ -569,7 +581,7 @@
 			}
 
 			.u-form-item__body__left__content__label {
-				font-size: 18px;
+				font-size: $fontSize;
 			}
 
 			.u-form-item__body {

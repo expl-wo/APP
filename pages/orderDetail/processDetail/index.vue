@@ -60,7 +60,7 @@
 		computed: {
 			...mapState("workOrder", [
 				// 工单详情信息
-				'workOrderDatialInfo'
+				'workOrderDetailInfo'
 			]),
 			nomoreText() {
 				return this.listData.length ? '没有更多了' : '暂无数据';

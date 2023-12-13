@@ -9,7 +9,7 @@ import {
 
 const isTest = true;
 
-const formalUrl = 'http://dqmes.tbea-hb.com.cn/'
+const formalUrl = 'http://10.16.9.171:8765/'
 
 //正式服务器地址
 let formalAjaxServerUrl = formalUrl+ 'api';
@@ -17,13 +17,13 @@ let formalAjaxServerUrl = formalUrl+ 'api';
 //测试服务器地址
 let testlAjaxServerUrl = 'http://192.168.100.50/api';
 //本地测试地址
-let devTestlAjaxServerUrl = 'http://dqmes.tbea-hb.com.cn/api';
+let devTestlAjaxServerUrl = 'http://10.16.9.171:8765/api';
 
 //正式服务器地址
-let formalFileServerUrl = 'http://dqmes.tbea-hb.com.cn/minioServer/';
+let formalFileServerUrl = 'http://10.16.9.171:8765/minioServer/';
 
 //测试服务器地址
-let testlFileServerUrl = 'http://dqmes.tbea-hb.com.cn/minioServer/';
+let testlFileServerUrl = 'http://10.16.9.171:8765/minioServer/';
 
 
 function getApkDownloadUrl(){

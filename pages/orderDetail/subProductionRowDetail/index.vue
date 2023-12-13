@@ -6,7 +6,7 @@
 				<view class="name">{{ subProductionRowName }}</view>
 				<view class="extra-info">
 					<text class="notice" @click="showTip">工序要求</text>
-					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
+					<u-icon class="icon" name="pushpin-fill" size="24" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
 			<!-- 工单详情 -->
@@ -108,7 +108,7 @@
 			Notice
 		},
 		computed: {
-			...mapState("workOrder", ['workOrderDatialInfo']),
+			...mapState("workOrder", ['workOrderDetailInfo']),
 		},
 		data() {
 			return {
@@ -352,7 +352,8 @@
 				}
 				saveSignInfoApi(param).then(res => {
 					if (res.success) {
-						uni.$u.toast('签到成功')
+						const str = type === 'signIn' ? "签到成功" : '签退成功';
+						uni.$u.toast(str)
 						this.searchSignInfo();
 					} else {
 						uni.$u.toast(res.errMsg || '暂无数据')
@@ -362,7 +363,7 @@
 			// 跳转增加问题页面
 			handleAddIssue() {
 				uni.navigateTo({
-					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.commonParam.workProcedureCode}&workScene=${this.commonParam.workScene}&workProcedureType=${3}`
+					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.commonParam.craftId}&workScene=${this.commonParam.workScene}&workProcedureType=${3}`
 				});
 			},
 			// 处理开工
@@ -476,8 +477,7 @@
 					overflow: hidden;
 					white-space: nowrap;
 					text-overflow: ellipsis;
-					// font-size: $fontSize;
-					font-size: 20px;
+					font-size: $titleFontSize;
 				}
 
 				.extra-info {
@@ -543,7 +543,7 @@
 
 			.left-btn {
 				width: 144rpx;
-				height: 60rpx;
+				height: 80rpx;
 				display: flex;
 				justify-content: space-between;
 

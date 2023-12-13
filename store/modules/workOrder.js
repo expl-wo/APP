@@ -6,11 +6,11 @@ let workOrder = {
 	namespaced: true,
 	state: {
 		// 工单详情信息
-		workOrderDatialInfo: {},
+		workOrderDetailInfo: {},
 	},
 	mutations: {
-		updateWorkOrderDetail(state, workOrderDatialInfo) {
-			state.workOrderDatialInfo = workOrderDatialInfo
+		updateWorkOrderDetail(state, workOrderDetailInfo) {
+			state.workOrderDetailInfo = workOrderDetailInfo
 			console.log(state, 'updateWorkOrderDetail````````````')
 		},
 	},
@@ -41,7 +41,6 @@ let workOrder = {
 							})
 						})
 					projectInfo.fileList = fileList
-					console.log(projectInfo, 'projectInfo', commit)
 					commit("updateWorkOrderDetail", projectInfo)
 					uni.setStorageSync('ims_workOrder', projectInfo);
 				}

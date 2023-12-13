@@ -81,8 +81,6 @@
 				showSearchPanel: false,
 				// 搜索关键词
 				searchKey: "",
-				// 颜色值与状态映射
-				statusMapColor: ['#fbefe9', '#e3ebfb', '#e9ecee'],
 				// 展示页面类型 workOrder-勘查工单 overhaul-检修页面、issue-问题页面
 				showType: "workOrder",
 				// 刷新
@@ -93,8 +91,6 @@
 				pageNum: 1,
 				// 列表刷新状态
 				status: "nomore",
-				// 包含所有字段的列表数据
-				allListData: [],
 				// 选中的工单状态
 				selectOrderStatus: ''
 			};
@@ -188,8 +184,7 @@
 					queryProcedureProblem(param).then(res => {
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
-							this.allListData = [...res.data.pageList]
-							listData = this.allListData.map(item => ({
+							listData = res.data.pageList.map(item => ({
 								...item,
 								title: item.problemProcedureOwn,
 								imgList: item.pictureUrl && item.pictureUrl.split('|'),
@@ -207,8 +202,7 @@
 					getWorkOrderPageData(param).then(res => {
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
-							this.allListData = JSON.parse(JSON.stringify(res.data.pageList))
-							listData = this.allListData.map(item => ({
+							listData = res.data.pageList.map(item => ({
 								status: item.orderStatus,
 								title: item.projName,
 								...item
@@ -344,7 +338,6 @@
 			}
 		}
 
-
 		.search-action-sheet {
 			position: absolute;
 			left: 0;
@@ -359,8 +352,6 @@
 			display: flex;
 			align-items: center;
 		}
-
-
 	}
 
 	/deep/ .uni-scroll-view-refresher {
@@ -369,7 +360,7 @@
 	}
 
 	/deep/.u-action-sheet__item-wrap {
-		max-height: 200px;
+		max-height: 220px;
 		overflow-y: auto;
 	}
 </style>
