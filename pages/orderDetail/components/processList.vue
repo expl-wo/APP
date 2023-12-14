@@ -2,16 +2,34 @@
 <template>
 	<view class="full-wrapper">
 		<!-- 卡片列表 -->
-		<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
-			:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
-			:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
-			@scrolltolower="getListData('scrolltolower')">
-			<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
-				<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
+		<view class="workOrder-list" v-if="orderInfo.type === 'workOrder'">
+			<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
+				:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
+				:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
+				@scrolltolower="getListData('scrolltolower')">
+				<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
+					<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText">
+						<view class="progress">
+							<Progress :percentage="item.progress + '%'" />
+						</view>
+					</Card>
+				</view>
+				<u-loadmore :status="status" v-if="cardList.length" />
+			</scroll-view>
+			<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else></u-empty>
+		</view>
+		<view class="card-list" v-if="orderInfo.type === 'overhaul'">
+			<view class="card-item bg" v-for="(item, index) in cardList" :key="index">
+				<Card title="title" :cardInfo="item" @click.native="handleShowDetail(item)">
+				</Card>
+				<view class="btn-box">
+					<u-button text="视频绑定" class="btn" :disabled="true" @click="handleBindVideo"></u-button>
+					<u-button text="复核人员" class="btn" :disabled="true"></u-button>
+					<u-button text="派工" class="btn" :disabled="true"></u-button>
+					<u-button text="设备" class="btn" :disabled="true"></u-button>
+				</view>
 			</view>
-			<u-loadmore :status="status" v-if="cardList.length" />
-		</scroll-view>
-		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else></u-empty>
+		</view>
 	</view>
 </template>
 <script>
@@ -39,18 +57,10 @@
 						label: "标题",
 						iconName: "account-fill"
 					},
-					leaderName: {
-						label: "组长",
-						iconName: "account-fill"
-					},
-					deputyLeaderName: {
-						label: "副组长",
-						iconName: "account-fill"
-					},
-					memberName: {
-						label: "成员",
-						iconName: "account-fill"
-					},
+					reviewStatusStr: {
+						label: "复核状态",
+						iconName: "server-man"
+					}
 				},
 				// 数据列表
 				cardList: [],
@@ -63,7 +73,24 @@
 			};
 		},
 		mounted() {
-			this.getListData()
+			console.log(this.orderInfo.type, 'type')
+			if (this.orderInfo.type === 'workOrder') {
+				this.getListData()
+			} else if (this.orderInfo.type === 'overhaul') {
+				this.cardList = [{
+					title: '返厂检修-现场拆解',
+					code: "OVER_HAUL_BACK_CHAI_JIE_SCENE"
+				}, {
+					title: '返厂检修-厂内拆解',
+					code: "OVER_HAUL_BACK_INNER_CHAI_JIE_SCENE"
+				}, {
+					title: '返厂检修-现场拆解',
+					code: "OVER_HAUL_BACK_INNER_PRODUCTION_SCENE"
+				}, {
+					title: '返厂检修-试验',
+					code: "OVER_HAUL_BACK_EXPERIMENT_SCENE"
+				}]
+			}
 		},
 		methods: {
 			/**
@@ -85,8 +112,9 @@
 				getProcessList(param).then(res => {
 					if (res.data && res.data.pageList) {
 						const listData = res.data.pageList.map(item => ({
+							...item,
 							title: item.workProcedureName,
-							...item
+							reviewStatusStr: item.reviewStatus === 0 ? "未复核" : "已复核",
 						}))
 						const total = res.data.total || 0;
 						if (this.cardList.length < total) {
@@ -104,10 +132,17 @@
 			},
 			handleShowDetail(card) {
 				uni.setStorageSync('ims_standardProcess', card);
-				uni.navigateTo({
-					url: '/pages/orderDetail/processDetail/index',
-				})
+				if (this.orderInfo.type === 'workOrder') {
+					uni.navigateTo({
+						url: '/pages/orderDetail/processDetail/index',
+					})
+				} else if (this.orderInfo.type === 'overhaul') {
+					uni.navigateTo({
+						url: `/pages/orderDetail/overhaulProcess/index?workOrderSceneType=${card.code}`,
+					})
+				}
 			},
+			handleBindVideo() {}
 		},
 	};
 </script>
@@ -121,6 +156,18 @@
 		.card-list {
 			height: 100%;
 
+			.bg {
+				background: #fff;
+
+				.card-root {
+					// padding: 0;
+				}
+
+				.btn-box {
+					padding-bottom: 10rpx;
+				}
+			}
+
 			.card-item {
 				position: relative;
 				margin: 0 16rpx 16rpx;
@@ -128,6 +175,18 @@
 
 				.progress {
 					margin-top: 10rpx;
+				}
+
+				.name {
+					font-size: 20px;
+				}
+
+				.btn-box {
+					display: flex;
+
+					.btn {
+						margin: 0 5px;
+					}
 				}
 			}
 		}

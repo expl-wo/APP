@@ -195,6 +195,9 @@
 				}
 
 				.info {
+					display: flex;
+					align-items: center;
+
 					.label {
 						margin: 0 10rpx;
 					}

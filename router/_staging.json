@@ -24,6 +24,14 @@
 			}
 		}
 	}, {
+		"path": "pages/orderDetail/overhaulProcess/index",
+		"style": {
+			"navigationBarTitleText": "检修工单标准工序",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	}, {
 		"path": "pages/orderDetail/productionDetail/index",
 		"style": {
 			"navigationBarTitleText": "中工序详情",

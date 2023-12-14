@@ -112,6 +112,7 @@
 				type: Boolean,
 				default: false
 			},
+			// 公共参数
 			commonParam: {
 				type: Object,
 				default: () => ({})
@@ -559,13 +560,15 @@
 			margin: 0 16rpx;
 			border-radius: 16rpx;
 			display: flex;
-			justify-content: space-between;
+			justify-content: space-around;
 
 			.btn {
+				width: 40%;
 				height: 60rpx;
 				line-height: 60rpx;
 				margin: 20rpx 10rpx;
 				background-color: #f6f8fb;
+				border-radius: 10rpx;
 				text-align: center;
 			}
 		}
