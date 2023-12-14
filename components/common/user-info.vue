@@ -24,22 +24,11 @@
 <script>
 	import {
 		getCurrRole,
-		setCurrRole,
-		getUserInfo,
-		getUserRoleList
+		getUserInfo
 	} from '@/utils/auth.js'
 	export default {
 		name: 'UserInfo',
 		props: {
-			// // 用户信息
-			// userInfo: {
-			//   type: Object,
-			//   default: () => ({
-			// 	name: '张晓丽',
-			// 	department: '流程与信息化管理部',
-			// 	imgUrl: 'XXX',
-			//   })
-			// },
 			width: {
 				type: Number,
 			},

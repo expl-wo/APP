@@ -37,7 +37,7 @@
 				<view class="head-title">消息通知</view>
 			</view>
 			<u-search v-model="searchKey" class="search-wrapper" placeholder="请输入搜索内容" shape="square" bgColor="#eee"
-				@search="onSearch"></u-search>
+				@search="onSearch" @custom="onSearch" />
 			<scroll-view :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true" class="message-list"
 				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 				:refresher-triggered="refreshing" @refresherrefresh="getMessageList('scrolltoupper')"
@@ -86,8 +86,8 @@
 		1: '任务通知',
 		2: '超时通知'
 	}
-
 	import UserInfo from '@/components/common/user-info.vue';
+	
 	import {
 		getSignInData,
 		getMessageList,
@@ -96,6 +96,7 @@
 	import {
 		getUserInfo
 	} from '@/utils/auth.js';
+	import { MESSAGE_TYPE } from '@/utils/constants-custom';
 	import moment from 'moment';
 	export default {
 		components: {
@@ -103,7 +104,7 @@
 		},
 		data() {
 			return {
-				messageTypeMap: Object.freeze(messageTypeMap),
+				messageTypeMap: Object.freeze(MESSAGE_TYPE),
 				// 用户信息
 				userInfo: {},
 				messageList: [],
@@ -111,7 +112,7 @@
 				activeIndex: 0,
 				activeIndex_c: 0,
 				// 签到信息列表
-				signList: new Array(7).fill(''),
+				signList: new Array(7).fill([{time: '', label: '签入'}, {time: '', label: '签出'}]),
 				scrollTop: 0,
 				searchKey: '',
 				status: 'nomore',
@@ -486,12 +487,11 @@
 						font-size: 14px;
 
 						.memo-text {
-							width: 50%;
+							flex: 1;
 						}
 
 						.time {
-							width: 50%;
-							text-align: right;
+							margin-left: auto;
 						}
 					}
 				}

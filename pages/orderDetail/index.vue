@@ -295,8 +295,8 @@
 			padding: 0 32rpx;
 
 			.item {
-				height: 25px;
-				line-height: 25px;
+				height: 30px;
+				line-height: 30px;
 				font-size: $fontSize;
 				color: #657685;
 
@@ -333,7 +333,7 @@
 			}
 
 			100% {
-				height: 154px;
+				height: 180px;
 				opacity: 1;
 			}
 		}
@@ -341,7 +341,7 @@
 		@keyframes showLess {
 			0% {
 				opacity: 1;
-				height: 154px;
+				height: 180px;
 			}
 
 			1% {
@@ -382,7 +382,7 @@
 		}
 
 		.less-content {
-			height: calc(100% - 217px);
+			height: calc(100% - 252px);
 		}
 
 		.comp-wrapper {

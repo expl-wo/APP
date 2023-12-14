@@ -4,9 +4,16 @@
 			:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 			:refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
 			@scrolltolower="getData('scrolltolower')">
-			<return-item v-for="item in listData" :key="item.id" :dataInfo="item" @checkBom="checkBom" />
+			<return-item v-for="item in listData" :key="item.bomId" :dataInfo="item" @checkBom="checkBom" />
+			
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 		</scroll-view>
+		<view v-if="listData.length" class="btn-wrapper">
+			<u-button class="btn" type="primary" text="扫码复核" color="#243d8f" :loading="btnLoading" loadingText="操作中"
+				@click="checkBom" />
+<!-- 			<u-button class="btn mt12" type="primary" text="批量绑定流水码" color="#182b62" :loading="btnLoading" loadingText="操作中"
+				@click="batchBind('serialCode')" /> -->
+		</view>
 	</view>
 </template>
 <script>
@@ -30,7 +37,8 @@
 				status: 'nomore',
 				showLoading: true,
 				hasNextPage: false,
-				bomInfo: null
+				bomInfo: null,
+				btnLoading: false
 			}
 		},
 		computed: {
@@ -95,7 +103,7 @@
 			},
 			// 复核
 			checkBom(info) {
-				this.bomInfo = info;
+				// this.bomInfo = info;
 				uni.scanCode({
 					onlyFromCamera: true,
 					success: resScanCode => {
@@ -112,8 +120,9 @@
 			},
 			// 复核
 			handleScanResult(result) {
+				this.btnLoading = true;
 				let params = {
-					serialCode: result,
+					serialCode: JSON.parse(result).serialCode,
 					examineStatus: 1
 				}
 				checkBom(params)
@@ -129,6 +138,9 @@
 							duration: 2000
 						})
 					}
+				})
+				.finally(() => {
+					this.btnLoading = false;
 				})
 			},
 		}
@@ -146,16 +158,19 @@
 
 		.list-wrapper {
 			width: 100%;
-			height: 100%;
+			height: calc(100% - 50px);
 		}
+		.btn-wrapper {
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			height: 50px;
+			padding: 0 40rpx;
+			width: 100%;
 
-		/deep/ .u-loadmore__content__text {
-			line-height: 16px !important;
-		}
-
-		/deep/ .u-loading-icon__spinner--spinner {
-			width: 15px !important;
-			height: 15px !important;
+			.btn {
+				width: 100%;
+			}
 		}
 	}
 </style>

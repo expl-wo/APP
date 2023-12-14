@@ -23,7 +23,11 @@
 	export default {
 		data() {
 			return {
-				noticeInfo: null,
+				noticeInfo: {
+					noticeType: '',
+					createTime: '',
+					noticeContent: ''
+				},
 				messageTypeMap: Object.freeze(MESSAGE_TYPE),
 			}
 		},

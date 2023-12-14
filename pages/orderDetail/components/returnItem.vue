@@ -4,16 +4,16 @@
 			<text>{{ dataInfo.materialTypeName || '--' }}</text>
 			<text class="status fs-12"
 				:class="[+dataInfo.examineStatus ? 'check' : 'uncheck']">{{ +dataInfo.examineStatus ? '已复核' : '待复核' }}</text>
-			<u-icon v-if="!(+dataInfo.examineStatus)" class="icon" name="scan" color="#3a62d7" size="40rpx" @click="checkBom" />
+<!-- 			<u-icon v-if="!(+dataInfo.examineStatus)" class="icon" name="scan" color="#3a62d7" size="40rpx" @click="checkBom" /> -->
 		</view>
 		<view class="item-bottom">
 			<view class="text-box">
-				<text class="text">生产号：{{ dataInfo.prodNumber || '--' }}</text>
-				<text class="text">父节点流水码：{{ dataInfo.parentSerialCode || '--' }}</text>
+				<view class="text">生产号：{{ dataInfo.prodNumber || '--' }}</view>
+				<view class="text">父节点流水码：{{ dataInfo.parentSerialCode || '--' }}</view>
 			</view>
 			<view class="text-box">
-				<text class="text">流水码：{{ dataInfo.serialCode || '--' }}</text>
-				<text class="text">父节点分类名：{{ dataInfo.parentMaterialTypeName || '--' }}</text>
+				<view class="text">流水码：{{ dataInfo.serialCode || '--' }}</view>
+				<view class="text">父节点分类名：{{ dataInfo.parentMaterialTypeName || '--' }}</view>
 			</view>
 			<view class="text">全路径: {{ (dataInfo.bomLevelName.split(',') || []).reverse().join('->') || '--' }}</view>
 		</view>
@@ -51,12 +51,12 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-start;
-			height: 80rpx;
-			font-size: $titleFontSize;
+			height: 40px;
+			font-size: 20px;
 
 			.status {
 				margin-left: 16rpx;
-				font-size: $fontSize;
+				font-size: 14px;
 			}
 
 			.icon {
@@ -66,16 +66,21 @@
 
 		.item-bottom {
 			// height: 60rpx;
-			line-height: 40rpx;
-			font-size: 24rpx;
+			line-height: 30px;
+			font-size: 16px;
 			color: #657685;
 
 			.text-box {
-				width: 90%;
 				display: flex;
 				justify-content: space-between;
 
-				.text {}
+				.text {
+					display: inline-block;
+					width: 50%;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
 			}
 		}
 	}

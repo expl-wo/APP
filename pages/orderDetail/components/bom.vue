@@ -12,7 +12,7 @@
 		<view v-else class="full-contet">
 			<view class="parent-info">
 				<view class="top">
-					<u-icon name="arrow-left" size="36rpx" @click="goBack" />
+					<u-icon name="arrow-left" size="24rpx" @click="goBack" />
 					<text class="name">{{ curParentNode && curParentNode.bomName || '--' }}</text>
 				</view>
 				<view class="bottom parent-left">
@@ -112,12 +112,14 @@
 				this.curParentNode = item;
 				this.nodeStack.push(item);
 				this.getData();
+				this.selectList = [];
 			},
 			// 返回上一级
 			goBack() {
 				this.nodeStack.pop();
 				this.curParentNode = this.nodeStack[this.nodeStack.length - 1];
 				this.getData();
+				this.selectList = [];
 			},
 			showPopover(info) {
 				this.bomInfo = info;
@@ -221,7 +223,8 @@
 				if (type === 'serialCode') {
 					params = {
 						...this.bomInfo,
-						serialCode: code
+						serialCode: JSON.parse(code).serialCode,
+						prodNumber:JSON.parse(code).prodNumber
 					}
 				} else {
 					params = {
@@ -267,7 +270,7 @@
 		}
 
 		.parent-info {
-			height: 180rpx;
+			height: 130px;
 			width: calc(100% - 40rpx);
 			margin: 0 20rpx;
 			padding: 0 16rpx;
@@ -282,11 +285,11 @@
 				display: flex;
 				align-items: center;
 				justify-content: flex-start;
-				height: 80rpx;
+				height: 50px;
 
 				.name {
-					font-size: 40rpx;
-					font-weight: bold;
+					font-size: 24px;
+					font-weight: 500;
 					margin-left: 8rpx;
 				}
 
@@ -297,9 +300,9 @@
 
 			.bottom {
 				display: flex;
-				height: 40rpx;
-				line-height: 40rpx;
-				font-size: 24rpx;
+				height: 30px;
+				line-height: 30px;
+				font-size: 18px;
 				color: #657685;
 				.bottom-item {
 					width: 50%;
@@ -312,14 +315,13 @@
 
 		.list-wrapper2 {
 			width: calc(100% - 40rpx);
-			height: 100%;
+			height: calc(100% - 130px);
 			margin: 0 20rpx;
 			background-color: rgba(248, 248, 248, 1);
 			box-sizing: border-box;
 
 			.list-item {
 				width: 100%;
-				border: 1px solid red;
 				border-bottom: 1px solid #eee;
 				padding: 0 16px;
 			}

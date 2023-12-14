@@ -3,7 +3,7 @@
 		<view class="wrapper">
 			<!-- 由于u-checkbox组件不支持slot右侧内容，故用单选框代替 -->
 			<u-radio-group v-model="value" @change="groupChange">
-				<u-radio shape="square" size="32rpx" iconSize="32rpx" :name="dataInfo.id" @change="radioChange">
+				<u-radio shape="square" size="20px" iconSize="20px" :name="dataInfo.id" @change="radioChange">
 					<view class="right" @click="goToNext">
 						<view class="top">
 							<text class="name">{{ dataInfo.bomName || '--' }}</text>
@@ -91,10 +91,9 @@
 </script>
 <style lang="scss" scoped>
 	.bom-item {
-		height: 160rpx;
+		height: 110px;
 		width: calc(100% - 48rpx);
-		margin: 20rpx;
-		margin-bottom: 0;
+		margin: 10px;
 		border-bottom: 2rpx solid #7175752c;
 		box-sizing: border-box;
 
@@ -102,19 +101,23 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-start;
+			width: 100%;
+			box-sizing: border-box;
 
 			.right {
-				margin-left: 20rpx;
 				flex: 1;
+				width: calc(100% - 46px);
+				margin-left: 20rpx;
+				
 
 				.top {
 					display: flex;
 					align-items: center;
 					justify-content: flex-start;
-					height: 60rpx;
+					height: 40px;
 
 					.name {
-						font-size: 32rpx;
+						font-size: 20px;
 						font-weight: 400;
 					}
 
@@ -127,9 +130,9 @@
 				.bottom {
 					display: flex;
 					width: 100%;
-					height: 40rpx;
-					line-height: 40rpx;
-					font-size: 24rpx;
+					height: 30px;
+					line-height: 30px;
+					font-size: 16px;
 					color: #657685;
 
 					.bottom-item {
