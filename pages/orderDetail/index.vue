@@ -37,11 +37,12 @@
 		<u-action-sheet :show="isShowFilePanel" title="附件" :closeOnClickOverlay="true" :closeOnClickAction="true"
 			@close="isShowFilePanel = false">
 			<u-cell-group class="file-list">
-				<u-cell v-for="file in projectInfo.fileList" :title="file.name" :key="file.url" size="large">
-					<text slot="value">
+				<u-cell v-for="file in projectInfo.fileList" :title="file.name" :key="file.url" size="large"
+					@click="handleDownFile(file)">
+					<!-- <text slot="value">
 						<u-icon name="download" title="下载" class="download-icon" size="28" color="#3a62d7"
 							@click="handleDownFile(file)" />
-					</text>
+					</text> -->
 				</u-cell>
 			</u-cell-group>
 		</u-action-sheet>
@@ -105,7 +106,7 @@
 					},
 				];
 				// 勘查工单没有返厂清单列表
-				return this.routeParam.type === "workOrder" ? list.slice(0, 2) : list;
+				return this.routeParam.type === "workOrder" ? list.slice(0, 1) : list;
 			},
 		},
 		onLoad(options) {
@@ -177,40 +178,22 @@
 			 * @param {Object} 文件对象
 			 **/
 			handleDownFile(file) {
+				if (!this.projectInfo.fileList.length) {
+					uni.$u.toast('暂无数据')
+					return;
+				}
 				uni.showLoading({
-					title: "下载中",
+					title: "打开中",
 				});
-				console.log(this.getUrl(file.url), 'file');
-				// 保存文件
-				// uni.downloadFile({
-				// 	url: this.getUrl(file.url),
-				// 	filePath: this.getUrl(file.url),
-				// 	timeout: 30000,
-				// 	success: (res) => {
-				// 		debugger
-				// 		if (res) {
-				// 			uni.hideLoading();
-				// 		}
-				// 	},
-				// 	file: (e) => {
-				// 		debugger
-				// 		uni.showToast({
-				// 			title: "打开失败",
-				// 			icon: "error",
-				// 		});
-				// 	},
-				// });
 				// 文件下载功能
 				uni.downloadFile({
 					url: this.getUrl(file.url),
 					filePath: this.getUrl(file.url),
 					timeout: 30000,
 					success: (res) => {
-						debugger
 						console.log(this.getUrl(file.url), 'file');
 						if (res.statusCode === 200) {
 							const filePath = res.tempFilePath;
-							uni.hideLoading();
 							// 保存文件
 							uni.saveFile({
 								tempFilePath: filePath,
@@ -221,7 +204,10 @@
 										filePath: savedFilePath,
 										showMenu: true, // 是否可以分享
 										success: (res) => {
-											if (res) {}
+											if (res) {
+
+											}
+											uni.hideLoading();
 										},
 										file: (e) => {
 											uni.showToast({

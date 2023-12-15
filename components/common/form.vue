@@ -40,9 +40,12 @@
 					<text class="description">内容:</text>
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
-					<u-number-box :min="item.lowerLimit" :max="item.upperLimit" v-model="formData[item.operationCode]"
-						v-else-if="item.operationType ==='1'" inputWidth='200'
-						@change='changeNumber($event,index)'></u-number-box>
+					<view v-else-if="item.operationType ==='1'" class="number">
+						<u-number-box :min="item.lowerLimit" :max="item.upperLimit"
+							v-model="formData[item.operationCode]" inputWidth='200'
+							@change='changeNumber($event,index)'></u-number-box>
+						<text v-if="item.dataUnit" class="data-unit">{{item.dataUnit}}</text>
+					</view>
 					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
 						border="none" v-else></u--input>
 					<u-icon slot="right" name="arrow-right" v-if="!['0','1'].includes(item.operationType)"></u-icon>
@@ -54,8 +57,6 @@
 					<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
 						@afterRead="afterRead($event,index)" @beforeRead="beforeRead($event, 'image')"
 						@delete="deletePic($event,index)" name="1" multiple></u-upload>
-					<view slot="title" class="u-slot-title">
-					</view>
 				</view>
 			</view>
 			<view class="save-btn">
@@ -85,7 +86,6 @@
 	import CustomSheet from '@/components/common/customSheet.vue'
 	import moment from 'moment'
 	import {
-		queryBatchRecord,
 		reportWorkContent,
 		queryHistoryRecordByTime,
 	} from "@/https/staging/index.js";
@@ -118,17 +118,22 @@
 				default: () => ({})
 			}
 		},
-		created() {
-			if (this.formList.length) {
-				// 表单回显
-				this.submitFormData = JSON.parse(JSON.stringify(this.formList))
-				this.$nextTick(() => {
-					// 设置验证规则
-					this.setRules()
-					// 初始化表单数据
-					this.initFormData()
-				})
-			}
+		watch: {
+			formList: {
+				handler(val) {
+					debugger
+					if (val.length) {
+						// 表单回显
+						this.submitFormData = JSON.parse(JSON.stringify(val))
+						this.$nextTick(() => {
+							// 初始化表单数据
+							this.initFormData()
+						})
+					}
+				},
+				deep: true,
+				immediate: true
+			},
 		},
 		data() {
 			// 设置日历最大日期
@@ -142,8 +147,9 @@
 			for (let i = 0; i < 24; i++) {
 				selectHours.push({
 					num: i,
-					value: `${i}:00:00`,
+					value: `${i>9?i:'0'+ i}:00:00`,
 					label: `${i}:00~${i+1}:00`,
+					// label: `${i}~${i+1}`,
 					isCheck: false
 				})
 			};
@@ -175,7 +181,7 @@
 				// 自定义面板标题
 				customSheetTitle: '小时选择',
 				// 已经填写内容的时间列表
-				selectedTimeList: [],
+				selectedDateList: [],
 				// 是否是选择小时-只能选中一个时间点
 				isHourSelect: false,
 				// 显示的时间列表
@@ -191,12 +197,16 @@
 			initFormData() {
 				this.formList.forEach((item, index) => {
 					this.formData[item.operationCode] = item.contentInfo || "";
+
+					// 初始化时间显示
 					const hour = new Date().getHours()
 					let hourTime = ''
+					let hourValue = ''
 					this.selectHours.forEach(h => {
 						if (h.num === hour) {
 							h.isCheck = true;
 							hourTime = h.label;
+							hourValue = h.value;
 						}
 					})
 					const tempObj = {
@@ -204,10 +214,14 @@
 						hourTime: ''
 					}
 					if (item.executionFrequency === '0') {
-						tempObj.hourTime = hourTime
+						tempObj.hourTime = hourTime;
+						tempObj.hourValue = hourValue;
 					}
 					this.showTimeList.push(tempObj);
 				})
+				console.log(this.formData, 'formData')
+				// 设置验证规则
+				this.setRules()
 			},
 			// 根据数据生成表单验证规则
 			setRules() {
@@ -353,26 +367,50 @@
 				})
 			},
 
-			// 展示时间选择
-			showTimeActionSheet(item, index, type) {
+			// 展示时间选择（执行频率选择）
+			async showTimeActionSheet(item, index, type) {
 				console.log(item.executionFrequency, 'form-item')
+				this.currentIndex = index;
+
+				const param = {
+					workCode: this.commonParam.workCode,
+					craftCode: this.commonParam.craftId,
+					workScene: this.commonParam.workScene,
+					operationCode: item.operationCode,
+				}
 				if (type === 'day') {
-					console.log(this.$refs.calendar, 'calendar')
-					this.queryRecordHistoryByTime(item, type)
-					setTimeout(() => {
-						this.isShowCalendar = true
-					}, 500)
+					param.endTime = moment().format('YYYY-MM-DD HH:mm:ss');
+					param.beginTime = moment().startOf('month').format('YYYY-MM-DD HH:mm:ss');
+					const results = await queryHistoryRecordByTime(param);
+					this.selectedDateList = results.data.value || []
+					this.isShowCalendar = true
 				} else {
+					param.beginTime = this.showTimeList[this.currentIndex].date + ' ' + '00:00:00';
+					param.endTime = this.showTimeList[this.currentIndex].date + ' ' + '23:59:59';
+					const results = await queryHistoryRecordByTime(param);
+					const selectedHours = results.data.value || [];
+
+					this.selectHours.forEach(item => {
+						item.isDot = false
+					})
+					selectedHours.length && selectedHours.forEach(item => {
+						this.selectHours.forEach((hour, index) => {
+							if (item.includes(hour.value)) {
+								hour.isDot = true;
+							}
+						})
+					})
+					console.log(this.selectHours, 'selectHours')
 					this.selects = this.selectHours;
 					this.isHourSelect = true;
 					// 小时显示单选picker
 					this.isShowCustomSheet = true
 				}
-				this.currentIndex = index
+
 			},
 			// 日历显示已选择的日期
 			formatter(day) {
-				this.selectedTimeList.forEach(item => {
+				this.selectedDateList.forEach(item => {
 					const d = new Date(item)
 					let month = d.getMonth() + 1
 					const date = d.getDate()
@@ -382,12 +420,6 @@
 					}
 				})
 				return day
-			},
-			// 日历确认框
-			confirmCalendar(date) {
-				this.$set(this.showTimeList[this.currentIndex], 'date', date[0])
-				console.log(date, 'confirmCalendar', this.submitFormData)
-				this.isShowCalendar = false
 			},
 			// 根据当前时间查询工作内容
 			queryRecordHistoryByTime(item, type) {
@@ -403,7 +435,7 @@
 				}
 				queryHistoryRecordByTime(param).then(res => {
 					if (res && res.data && Array.isArray(res.data.value)) {
-						this.selectedTimeList = res.data.value || []
+						this.selectedDateList = res.data.value || []
 					}
 				})
 			},
@@ -460,8 +492,7 @@
 			// 小时确认框
 			selectHourConfirm(selectedList) {
 				console.log(selectedList, 'selectedList')
-				this.$set(this.showTimeList[this.currentIndex], 'hourTime', selectedList[0].label)
-				this.showTimeList[this.currentIndex]
+				this.$set(this.showTimeList[this.currentIndex], 'hourTime', selectedList[0].label);
 				let beginTime = moment().format('YYYY-MM-DD') + " " + selectedList[0].value;
 				if (this.showTimeList[this.currentIndex].date) {
 					beginTime = this.showTimeList[this.currentIndex].date + " " + selectedList[0].value
@@ -476,8 +507,31 @@
 					beginTime: beginTime,
 					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
 				}]
-				this.$emit('getBatchRecord', params)
+				this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCustomSheet = false
+			},
+			// 日历确认框
+			confirmCalendar(date) {
+				debugger
+				this.$set(this.showTimeList[this.currentIndex], 'date', date[0])
+				const currentItem = this.submitFormData[this.currentIndex];
+				let hourTime = this.showTimeList[this.currentIndex].hourTime || '00:00:00';
+				this.selectHours.forEach(item => {
+					if (item.label === hourTime) {
+						hourTime = item.value
+					}
+				})
+				const beginTime = date[0] + ' ' + hourTime;
+				const params = [{
+					workCode: this.commonParam.workCode,
+					craftCode: this.commonParam.craftId,
+					workScene: this.commonParam.workScene,
+					operationCode: this.submitFormData[this.currentIndex].operationCode,
+					beginTime,
+					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
+				}]
+				this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
+				this.isShowCalendar = false;
 			},
 			changeNumber(obj, index) {
 				this.currentIndex = index;
@@ -546,6 +600,14 @@
 
 				.operation-description {
 					font-size: $minFontSize;
+				}
+			}
+
+			.number {
+				display: flex;
+
+				.data-unit {
+					margin-left: 20px;
 				}
 			}
 

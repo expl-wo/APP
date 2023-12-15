@@ -1,10 +1,10 @@
 <!-- 标准工序列表 -->
 <template>
-	<view class="overhaul-process-root">
+	<view class="full-wrapper">
 		<!-- 卡片列表 -->
 		<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
-			:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
-			:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
+			:refresher-enabled='true' scroll-top="0" :refresher-threshold='80' :upper-threshold='50'
+			:lower-threshold='30' :refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
 			@scrolltolower="getListData('scrolltolower')">
 			<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
 				<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText">
@@ -53,8 +53,8 @@
 			};
 		},
 		onLoad(options) {
-			this.workOrderSceneType = options.workOrderSceneType || ''
-			this.getListData()
+			this.workOrderSceneType = options.workOrderSceneType || '';
+			this.getListData();
 		},
 		methods: {
 			/**
@@ -64,6 +64,11 @@
 				// 判断是上拉还是上滑事件
 				if (type === 'scrolltoupper') {
 					this.refreshing = true;
+					console.log(this.refreshing, 'refreshing')
+					setTimeout(() => {
+						this.refreshing = false
+						console.log(this.refreshing, 'refreshing111111111111')
+					}, 1000)
 				} else if (type === 'scrolltolower') {
 					this.pageNum++;
 				}
@@ -91,10 +96,8 @@
 							this.status = 'nomore';
 						}
 					}
-				}).catch((error) => {
-					uni.$u.toast(error.errMsg)
 				}).finally(() => {
-					this.refreshing = false
+					this.refreshing = false;
 				})
 			},
 			handleShowDetail(card) {
@@ -107,7 +110,7 @@
 	};
 </script>
 <style lang="scss" scoped>
-	.overhaul-process-root {
+	.full-wrapper {
 		width: 100%;
 		height: 100%;
 		overflow-y: auto;

@@ -4,6 +4,7 @@
 			<view :class="['select-item', item.isCheck?'active-item':undefined]" v-for="(item,index) in showList"
 				:key="item.value" @click="handleCheck(item,index)">
 				<text>{{item.label}}</text>
+				<view :class=" [item.isDot ? 'dot-item':undefined]" v-if="item.isDot"></view>
 			</view>
 		</view>
 		<view class="btn-box">
@@ -49,7 +50,7 @@
 				this.$emit('close', this.selects.filter(item => item.isCheck))
 			},
 			handleCheck(item, index) {
-				// 选择小时时为单选，先把其
+				// 选择小时时为单选，先把其他选择置空
 				if (this.isHourSelect) {
 					this.showList.forEach(item => {
 						item.isCheck = false
@@ -85,16 +86,28 @@
 		.select-item {
 			width: 25%;
 			height: 30px;
+			position: relative;
 			line-height: 30px;
 			margin: 10rpx;
 			border: 1px solid #3a62d7;
 			border-radius: 10rpx;
+
+			.dot-item {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background-color: red;
+				position: absolute;
+				top: 5px;
+				right: 5px;
+			}
 		}
 
 		.active-item {
 			background-color: #3a62d7;
 			color: #fff;
 		}
+
 
 	}
 

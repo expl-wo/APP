@@ -112,7 +112,7 @@
 					},
 				],
 				// 工序标准
-				tip: "<h4>测试</h4><br>",
+				tip: "",
 				showLoading: false,
 				noticeFlag: false,
 				pageNum: 1,

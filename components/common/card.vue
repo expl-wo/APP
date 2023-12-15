@@ -24,14 +24,14 @@
 				<view class="img-box" v-if="cardInfo['imgList']">
 					<view class="img-item" v-for="img in cardInfo['imgList']" :key="img">
 						<u--image :showLoading="true" :src="getUrl(img)" width="80px" height="80px"
-							@click="showModal(img,'img')"></u--image>
+							@click="previewImage(img,'img')"></u--image>
 					</view>
 				</view>
 				<!-- 视频列表 -->
 				<view class="img-box" v-if="isShowMore && cardInfo['videoList']">
-					<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video"
-						@click="showModal(video,'video')">
-						<video :src="getUrl(video)" controls style="widht:80px;height: 80px;"></video>
+					<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video">
+						<video :src="getUrl(video)" controls style="widht:80px;height: 80px;" :id='video'
+							@play="playVideo($event,video)" @fullscreenchange="fullscreenchange($event,video)"></video>
 					</view>
 				</view>
 			</view>
@@ -41,13 +41,6 @@
 			</view>
 		</view>
 		<slot></slot>
-		<!-- 展示视频图片模态框 -->
-		<u-modal v-model="isShowModal" width="300px">
-			<view class="slot-content">
-				<u--image :showLoading="true" :src="currentUrl"></u--image>
-				<video :src="currentUrl" controls></video>
-			</view>
-		</u-modal>
 	</view>
 </template>
 
@@ -76,14 +69,16 @@
 			itemWidth: {
 				type: String,
 				default: "90%",
-			},
+			}
 		},
 		data() {
 			return {
 				isShowMore: false,
-				currentUrl: '',
-				currentUrl: '',
-				isShowModal: true,
+				currentVideoUrl: '',
+				// 视频弹窗
+				isShowModal: false,
+				// 视频文本
+				videoContext: null
 			};
 		},
 		methods: {
@@ -128,10 +123,24 @@
 			getUrl(img) {
 				return 'http://10.16.9.128:9000/' + img;
 			},
-			showModal(item, type) {
+			// 预览图片
+			previewImage(item) {
 				const url = this.getUrl(item);
-				this.currentUrl = url;
-				this.isShowModal = true;
+				uni.previewImage({
+					urls: [url],
+					fail: function(err) {
+						uni.$u.toast(err.errMsg || '预览失败');
+					}
+				});
+			},
+			fullscreenchange(e, id) {
+				if (!e.detail.fullScreen) {
+					uni.createVideoContext(id, this).pause()
+				}
+			},
+			playVideo(index, id) {
+				this.videoContext = uni.createVideoContext(id, this);
+				this.videoContext.requestFullScreen()
 			}
 		},
 	};
@@ -242,6 +251,11 @@
 		.show-less {
 			// 展示四个字段的高度
 			max-height: 134px;
+		}
+
+		.video-box {
+			width: 400px;
+			height: 400px;
 		}
 	}
 </style>

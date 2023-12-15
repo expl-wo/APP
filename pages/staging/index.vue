@@ -92,7 +92,7 @@
 				// 列表刷新状态
 				status: "nomore",
 				// 选中的工单状态
-				selectOrderStatus: ''
+				selectOrderStatus: '',
 			};
 		},
 		computed: {

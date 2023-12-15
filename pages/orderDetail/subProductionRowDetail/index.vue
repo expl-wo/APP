@@ -47,7 +47,6 @@
 			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart" :text="btnText"></u-button>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
 				text='复核'></u-button>
-			<!-- <u-button class="right-btn" @click="isShowProvePicker = true" text='复核'></u-button> -->
 		</view>
 		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
@@ -112,7 +111,9 @@
 		},
 		data() {
 			return {
-				// 工步工作内容列表
+				// 展示无内容表单列表
+				showList: [],
+				// 填充内容后的工步工作内容列表
 				formList: [],
 				// 字段与文本映射
 				fieldMapText: SUB_PRODUCTION_MAP,
@@ -239,26 +240,51 @@
 								'jpg') : [];
 							item.upperLimit = item.upperLimit || undefined;
 						})
-						this.formList = res.data.value || [];
+						this.showList = res.data.value || [];
 						// 初始化回显，用当前时间批量查询工作内容记录
-						this.formList.length && this.getBatchRecord(params);
+						this.showList.length && this.getBatchRecord(params);
 					} else {
 						uni.$u.toast(res.errMsg || '暂无数据');
 					}
 				})
 			},
 			// 批量获取工作内容记录
-			getBatchRecord(params) {
+			getBatchRecord(params, operationCode) {
 				queryBatchRecord(params).then(res => {
 					if (res.success && res.data && Array.isArray(res.data.value)) {
-						res.data.value.forEach((item, index) => {
-							// 筛选图片，暂不支持文件
-							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
-								'jpg') : []
-							this.formList[index].fileList = item.fileList;
-							this.formList[index].contentInfo = item.contentInfo;
-						})
-						console.log(this.formList, 'formList')
+						const list = this.showList;
+						if (res.data.value.length) {
+							res.data.value.forEach((f, index) => {
+								list.forEach(item => {
+									if (item.operationCode === f.operationCode) {
+										// 筛选图片，暂不支持文件
+										item.fileList = f.fileList ? f.fileList.filter(f => f
+											.fileType ===
+											'jpg') : [];
+										item.fileList.forEach(img => {
+											if (!img.fileUrl.includes(
+													'http://10.16.9.128:9000/')) {
+												img.fileUrl = 'http://10.16.9.128:9000/' +
+													img
+													.fileUrl
+											}
+										})
+										item.fileList = f.fileList;
+										item.contentInfo = f.contentInfo;
+									}
+								})
+							})
+						} else {
+							// 更新时没值把对应内容置空
+							console.log(operationCode, 'params.operationCode')
+							list.forEach(item => {
+								if (item.operationCode === operationCode) {
+									item.contentInfo = "";
+								}
+							})
+						}
+						this.formList = list;
+						console.log(this.showList, 'formList', list)
 					} else {
 						uni.$u.toast(res.errMsg || '暂无数据')
 					}
