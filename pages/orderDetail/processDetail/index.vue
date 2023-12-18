@@ -10,7 +10,7 @@
 				</view>
 			</view>
 			<production-info :fieldMapText="fieldMapText" :infoObj="processDetailInfo" />
-			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs>
+<!-- 			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs> -->
 		</view>
 		<view class="list-wrapper">
 			<scroll-view class="scroll-wrapper" scroll-top="0" :show-scrollbar="true" :scroll-y="true"
@@ -76,10 +76,7 @@
 				processName: "",
 				// 大工序详情信息
 				processDetailInfo: {
-					code: "",
-					groupPerson: "",
-					subGroupPerson: "",
-					member: ""
+					code: ""
 				},
 				// 工序列表数据
 				listData: [],
@@ -117,7 +114,7 @@
 				// 工序要求弹窗展示
 				noticeFlag: false,
 				// 工序标准弹窗展示内容
-				tip: "<h4>测试</h4><br>",
+				tip: "",
 			};
 		},
 		computed: {
@@ -127,9 +124,6 @@
 		},
 		onLoad() {
 			let {
-				deputyLeaderName,
-				leaderName,
-				memberName,
 				workProcedureType,
 				title,
 				workProcedureCode,
@@ -138,9 +132,6 @@
 			this.workProcedureType = workProcedureType;
 			this.workProcedureCode = workProcedureCode;
 			this.processName = title;
-			this.processDetailInfo.groupPerson = deputyLeaderName;
-			this.processDetailInfo.subGroupPerson = leaderName;
-			this.processDetailInfo.member = memberName;
 			this.processDetailInfo.code = workProcedureCode;
 			this.workOrderSceneType = workOrderSceneType;
 			this.getData();
@@ -263,11 +254,12 @@
 				rgba(209, 225, 246, 0.8) 70%);
 
 		.top-wrapper {
-			height: 216px;
+			height: 74px;
 			margin: 10px 16rpx 0;
 			padding: 0 16rpx;
 			background-color: #fff;
 			border-radius: 10rpx 10rpx 0 0;
+			border-bottom: 1px solid #ccc;
 
 			.info {
 				display: flex;
@@ -305,7 +297,7 @@
 
 		.list-wrapper {
 			// 需减去top-wrapper和margin高度
-			height: calc(100% - 226px);
+			height: calc(100% - 84px);
 			width: calc(100% - 32rpx);
 			overflow-y: auto;
 			margin: 0 16rpx;

@@ -1,7 +1,8 @@
 import constants from "./constants";
 
 //检修工单对应的状态
-const ORDER_STATUS_MAP = [{
+const ORDER_STATUS_MAP = [
+	{
 		text: "创建工单",
 	},
 	{
@@ -182,19 +183,7 @@ const WORK_ORDER_FIELD_MAP = {
 	code: {
 		label: "工序编码",
 		iconName: "file-text-fill",
-	},
-	groupPerson: {
-		label: "组长",
-		iconName: "account-fill",
-	},
-	subGroupPerson: {
-		label: "副组长",
-		iconName: "account-fill",
-	},
-	member: {
-		label: "成员",
-		iconName: "account-fill",
-	},
+	}
 };
 // 工序状态
 const WORK_STATUS_MAP = {
@@ -210,7 +199,7 @@ const WORK_STATUS_MAP = {
 		label: "已开工",
 		color: "#3a62d7",
 	},
-	5: {
+	3: {
 		label: "已完工",
 		color: "#17aa81",
 	},

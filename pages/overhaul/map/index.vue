@@ -42,6 +42,7 @@
 	import UserInfo from '@/components/common/user-info.vue';
 	import { getProjectList, getSignInData, signIn } from '@/https/overhaul/clockIn';
 	import { getUserInfo  } from '@/utils/auth.js';
+	import moment from 'moment';
 	export default {
 		components: {
 			UserInfo
@@ -117,8 +118,10 @@
 		onLoad() {
 			this.initPicker(false);
 			uni.$on('handlePicker', res => {
+				console.log(res);
 				if (!res.show) {
 					this.initPicker(false);
+					
 					this.selectProject = res.selectItem;
 				}
 			});
@@ -198,37 +201,43 @@
 			getSignInfo() {
 				let params = {
 					userId: this.userInfo.username,
-					userName: this.userInfo.name
+					userName: this.userInfo.name,
+					startTime: moment().format('YYYY-MM-DD 00:00:00'),
+					endTime: moment().format('YYYY-MM-DD 23:59:59'),
 				}
 				// 获取当日签到信息
 				getSignInData(params)
 				.then(res => {
 					if (res.success && res.data) {
-						let { start, end } = res.data;
-						if (start) {
-							this.$set(this.signList, 0, { time: start.time, address: start.address, label: '签入' });
-						}
-						if (end) {
-							this.$set(this.signList, 1, { time: end.time, address: end.address, label: '签出' });
-						}
+						let revData = res.data.value[0];
+						let { inTime, inAddress, outTime, outAddress } = revData;
+						this.$set(this.signList, 0, { time: inTime, address: inAddress, label: '签入' });
+						this.$set(this.signList, 1, { time: outTime, address: outAddress, label: '签出' });
 					}
 				})
 			},
 			// 签到
 			signIn() {
+				if (!this.selectProject) {
+					uni.showToast({
+						icon: 'error',
+						title: '请先选择项目'
+					})
+					return;
+				}
 				let params = {
 					userId: this.userInfo.username,
 					userName: this.userInfo.name,
 					clockInType: this.activeIndex + 1,
-					clockInLocation: '112.650253,26.840432',
-					clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
-					// clockInLocation: `${this.longitude},${this.latitude}`,
-					// clockInAddress: this.address,
-					// clockInProjNo: this.selectProject.id,
-					// clockInProjName: this.selectProject.name,
+					clockInLocation: `${this.longitude},${this.latitude}`,
+					clockInAddress: this.address,
+					clockInProjNo: this.selectProject.id,
+					clockInProjName: this.selectProject.name,
 					// 接口测试数据
-					clockInProjNo: 3002,
-					clockInProjName: '测试多条数据'
+					// clockInProjNo: 3002,
+					// clockInProjName: '测试多条数据',
+					// clockInLocation: '112.650253,26.840432',
+					// clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
 				}
 				signIn(params)
 				.then(res => {

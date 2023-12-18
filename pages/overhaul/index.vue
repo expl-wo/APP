@@ -21,7 +21,7 @@
 							:class="['sign-time', 'flex-center', activeIndex === index ? 'active-time' : undefined]"
 							:key="signObj.time">
 							<cover-view src="@/assets/imgs/overhaulhome-location-icon.png" alt="" />
-							<text class="sign-status">{{ signObj.label }}</text>
+							<text class="sign-status">{{ signObj.label }}:</text>
 							<text class="time">{{ signObj.time || '--' }}</text>
 						</view>
 					</template>
@@ -178,11 +178,11 @@
 						signInData.forEach((item, index) => {
 							this.$set(this.signList, index, [{
 									label: '签入',
-									time: item.inTime
+									time: item.inTime && moment(item.inTime).format('HH:mm')
 								},
 								{
 									label: '签出',
-									time: item.outTime
+									time: item.outTime && moment(item.outTime).format('HH:mm')
 								}
 							])
 						})

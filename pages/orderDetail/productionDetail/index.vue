@@ -9,8 +9,8 @@
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
-			<production-info :fieldMapText="fieldMapText" :infoObj="productionDetailInfo" />
-			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs>
+<!-- 			<production-info :fieldMapText="fieldMapText" :infoObj="productionDetailInfo" /> -->
+<!-- 			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs> -->
 		</view>
 		<view class="list-wrapper">
 			<scroll-view class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true"
@@ -252,11 +252,12 @@
 				rgba(209, 225, 246, 0.8) 70%);
 
 		.top-wrapper {
-			height: 186px;
+			height: 40px;
 			margin: 10px 16rpx 0;
 			padding: 0 16rpx;
 			background-color: #fff;
 			border-radius: 10rpx 10rpx 0 0;
+			border-bottom: 1px solid #ccc;
 
 			.info {
 				display: flex;
@@ -297,7 +298,7 @@
 			align-items: center;
 			justify-content: center;
 			// 需减去top-wrapper和margin高度
-			height: calc(100% - 196px);
+			height: calc(100% - 40px);
 			width: calc(100% - 32rpx);
 			margin: 0 16rpx;
 			background-color: #fff;
