@@ -17,11 +17,11 @@
                 "buttonRefuse" : "取消" //退出下载
             }
         },
-		"permissions": {
-			"location": {
-				"desc": "用于获取定位信息"
-			}
-		},
+        "permissions" : {
+            "location" : {
+                "desc" : "用于获取定位信息"
+            }
+        },
         "usingComponents" : true,
         "nvueStyleCompiler" : "uni-app",
         "compilerVersion" : 3,
@@ -100,7 +100,7 @@
                     "xxxhdpi" : "static/dq_app_icon.png"
                 }
             },
-            "orientation" : [ "landscape-primary" ]
+            "orientation" : [ "portrait-primary" ]
         }
     },
     /* 快应用特有相关 */
@@ -134,7 +134,7 @@
             "proxy" : {
                 "/api" : {
                     // "target" : "http://10.16.9.163:8765/", //目标接口域名
-                    // "target": "http://192.168.100.50:8765/", //目标接口域名	
+                    // "target": "http://192.168.100.50:8765/", //目标接口域名
                     "target" : "http://10.16.9.171:8765/", // 环境
 
                     // "target" : "http://10.16.64.221:8765/", //目标接口域名
@@ -146,14 +146,14 @@
                     } // 路径重写
                 }
             },
-            // "/evo-ims-overhaul": {
-            // 	// "target": "http://10.16.111.24:8081/", // 文江
-            // 	// "target": "http://10.16.111.25:8081/", // 成哥
-            // 	"target": "http://10.16.67.64:8081", // 子坤
-            // 	// "target": "http://10.16.67.119:8081/", // 孙博文
-            // 	"changeOrigin": true, //是否跨域
-            // 	"secure": false // 设置支持https协议的代理
-            // }
+            //   "/evo-ims-overhaul": {
+            //   	// "target": "http://10.16.111.24:8081/", // 文江
+            //   	// "target": "http://10.16.111.25:8081/", // 成哥
+            //   	"target": "http://10.16.67.64:8081", // 子坤
+            //   	// "target": "http://10.16.67.119:8081/", // 孙博文
+            //   	"changeOrigin": true, //是否跨域
+            //   	"secure": false // 设置支持https协议的代理
+            //   },
             "https" : false
         },
         "router" : {

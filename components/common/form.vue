@@ -41,9 +41,9 @@
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
 					<view v-else-if="item.operationType ==='1'" class="number">
-						<u-number-box :min="item.lowerLimit" :max="item.upperLimit"
-							v-model="formData[item.operationCode]" inputWidth='200'
-							@change='changeNumber($event,index)'></u-number-box>
+						<u-number-box :min='item.lowerLimit' :max="item.upperLimit"
+							v-model="formData[item.operationCode]" inputWidth='200' @change='changeNumber($event,index)'
+							@overlimit='overlimit'></u-number-box>
 						<text v-if="item.dataUnit" class="data-unit">{{item.dataUnit}}</text>
 					</view>
 					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
@@ -60,7 +60,7 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<u-button @click="submit" text="保存" :disabled="!isStart" color="#3a62d7" class="btn"></u-button>
+				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
 				<u-button @click="reset" text="重置" class="btn"></u-button>
 			</view>
 		</u--form>
@@ -107,8 +107,8 @@
 				type: Array,
 				default: () => []
 			},
-			// 是否开工-开工才能操作
-			isStart: {
+			// 保存按钮是否不可用
+			saveBtnDisabled: {
 				type: Boolean,
 				default: false
 			},
@@ -121,7 +121,6 @@
 		watch: {
 			formList: {
 				handler(val) {
-					debugger
 					if (val.length) {
 						// 表单回显
 						this.submitFormData = JSON.parse(JSON.stringify(val))
@@ -232,7 +231,7 @@
 							required: true,
 							// message: '请填写' + item.operationName,
 							message: '请填写',
-							trigger: ['blur', 'change']
+							trigger: ['blur']
 						}
 						this.rules[item.operationCode] = tempObj
 					}
@@ -258,7 +257,7 @@
 							item.workPlanTime = this.showTimeList[index].date + " " + timeStr;
 						} else if (item.executionFrequency === '1') {
 							const timeStr = (time.length && time[0].value) || ''
-							item.workPlanTime = moment().format('YYYY-MM-DD HH:mm:ss') + "" + timeStr;
+							item.workPlanTime = moment().format('YYYY-MM-DD') + " 23:59:59";
 						}
 					})
 					const param = {
@@ -512,7 +511,6 @@
 			},
 			// 日历确认框
 			confirmCalendar(date) {
-				debugger
 				this.$set(this.showTimeList[this.currentIndex], 'date', date[0])
 				const currentItem = this.submitFormData[this.currentIndex];
 				let hourTime = this.showTimeList[this.currentIndex].hourTime || '00:00:00';
@@ -536,6 +534,10 @@
 			changeNumber(obj, index) {
 				this.currentIndex = index;
 				const currentItem = this.submitFormData[this.currentIndex];
+				if (obj.value < currentItem.lowerLimit) {
+					uni.$u.toast('输入值不能小于最小值' + currentItem.lowerLimit)
+					return
+				}
 				this.formData[currentItem.operationCode] = obj.value;
 				this.$refs.uForm.validateField(currentItem.operationCode);
 			}

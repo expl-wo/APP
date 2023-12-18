@@ -26,8 +26,8 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' :isStart='isStart' :commonParam='commonParam' @getBatchRecord='getBatchRecord'
-			@reload='initData' v-if="formList.length" />
+		<CustomForm :formList='formList' :saveBtnDisabled='disableStartWorkBtn' :commonParam='commonParam'
+			@getBatchRecord='getBatchRecord' @reload='initData' v-if="formList.length" />
 		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
 		</u-empty>
 		<!-- 按钮 -->
@@ -44,7 +44,8 @@
 			</view>
 			<u-button class="right-btn" @click="showReportProgress = true" text="报工"
 				:disabled="!isStart || disableReportBtn" color="#3a62d7"></u-button>
-			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart" :text="btnText"></u-button>
+			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart || disableStartWorkBtn"
+				:text="btnText"></u-button>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
 				text='复核'></u-button>
 		</view>
@@ -53,7 +54,7 @@
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
 		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
-			@confirm='handleReport'>
+			@confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
 				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
 				<view style="display: flex;margin-top: 10px;">
@@ -165,7 +166,9 @@
 				// 报工进度
 				percentage: 0,
 				// 报工按钮是否可用
-				disableReportBtn: false
+				disableReportBtn: false,
+				// 开工完工按钮是否可用
+				disableStartWorkBtn: false
 			};
 		},
 		watch: {
@@ -202,11 +205,14 @@
 					subGroupPerson: workStep.deputyLeaderName,
 					member: workStep.memberName,
 				};
+				// 报工进度初始值
+				this.percentage = workStep.progress;
 				// 工步名称
 				this.subProductionRowName = workStep.workProcedureName;
 				// 0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
 				this.isStart = workStep.workStatus !== 0;
 				this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus] || '开工';
+				this.disableStartWorkBtn = workStep.workStatus === 3
 				//状态不为已开工禁用
 				this.disableReportBtn = workStep.workStatus !== 1;
 				// 状态为已复核、工单不为完工禁用（reviewStatus-0 未复核，1-已复核）
@@ -257,6 +263,7 @@
 							res.data.value.forEach((f, index) => {
 								list.forEach(item => {
 									if (item.operationCode === f.operationCode) {
+										debugger
 										// 筛选图片，暂不支持文件
 										item.fileList = f.fileList ? f.fileList.filter(f => f
 											.fileType ===
@@ -264,13 +271,19 @@
 										item.fileList.forEach(img => {
 											if (!img.fileUrl.includes(
 													'http://10.16.9.128:9000/')) {
-												img.fileUrl = 'http://10.16.9.128:9000/' +
+												img.fileUrl =
+													'http://10.16.9.128:9000/' +
 													img
-													.fileUrl
+													.fileUrl;
 											}
+											img.url = img.fileUrl
+											img.type = img.fileName && img.fileName
+												.split(
+													".")[1]
 										})
 										item.fileList = f.fileList;
 										item.contentInfo = f.contentInfo;
+										item.id = f.id
 									}
 								})
 							})
@@ -454,6 +467,10 @@
 				reportWork(param).then(res => {
 					if (res.success) {
 						uni.$u.toast('报工成功')
+						// 刷新中工序页面
+						uni.reLaunch({
+							url: "/pages/orderDetail/productionDetail/index"
+						})
 					} else {
 						uni.$u.toast('报工失败')
 					}
@@ -464,9 +481,9 @@
 			// 进度条增减操作
 			computedWidth(type) {
 				if (type === 'plus') {
-					this.percentage = uni.$u.range(0, 100, this.percentage + 10)
+					this.percentage = uni.$u.range(0, 100, this.percentage + 1)
 				} else {
-					this.percentage = uni.$u.range(0, 100, this.percentage - 10)
+					this.percentage = uni.$u.range(0, 100, this.percentage - 1)
 				}
 			},
 		},

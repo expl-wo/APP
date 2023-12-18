@@ -136,7 +136,7 @@ const ORDER_DETAIL_FIELD_MAP = {
 		iconName: "warning-fill",
 	},
 	orderStatus: {
-		label: "工作状态",
+		label: "工单状态",
 		iconName: "server-man",
 	},
 	planTime: {

@@ -132,8 +132,8 @@
           (obj.planStartTime && obj.planStartTime.split(" ")[0]) || ""
         } - ${(obj.planEndTime && obj.planEndTime.split(" ")[0]) || ""}`,
 					actualTime: `${
-          (obj.createTime && obj.createTime.split(" ")[0]) || ""
-        } - ${(obj.planEndTime && obj.planEndTime.split(" ")[0]) || ""}`,
+          (obj.actualStartTime && obj.actualStartTime.split(" ")[0]) || ""
+        } - ${(obj.actualEndTime && obj.actualEndTime.split(" ")[0]) || ""}`,
 				};
 			},
 			/**

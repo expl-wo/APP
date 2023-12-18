@@ -13,8 +13,8 @@ import loginHttp from '@/https/sys/login'
 export function getUrl(url, source = '') {
 	let baseUrl = getAjaxUrl();
 	// #ifdef H5
-	baseUrl = url.indexOf('evo-ims-overhaul') > -1 ? '' : '/api';
-	// baseUrl = '/api';
+	// baseUrl = url.indexOf('evo-ims-overhaul') > -1 ? '' : '/api';
+	baseUrl = '/api';
 	// #endif
 	console.log('request ---' + baseUrl);
 	return baseUrl + url;

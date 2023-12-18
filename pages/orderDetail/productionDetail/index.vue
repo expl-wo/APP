@@ -9,13 +9,13 @@
 					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
-<!-- 			<production-info :fieldMapText="fieldMapText" :infoObj="productionDetailInfo" /> -->
-<!-- 			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs> -->
+			<!-- 			<production-info :fieldMapText="fieldMapText" :infoObj="productionDetailInfo" /> -->
+			<!-- 			<u-tabs :list="tabList" line-width="20" @click="tabChange"></u-tabs> -->
 		</view>
 		<view class="list-wrapper">
-			<scroll-view class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true"
-				:scroll-y="true" :upper-threshold="50" :lower-threshold="30" :refresher-threshold="80"
-				:refresher-enabled="true" :refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
+			<scroll-view class="scroll-wrapper" :scroll-top="scrollTop" :show-scrollbar="true" :scroll-y="true"
+				:upper-threshold="50" :lower-threshold="30" :refresher-threshold="80" :refresher-enabled="true"
+				:refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
 				@scrolltolower="getData('scrolltolower')">
 				<view class="list-item" v-for="(item, index) in listData" :key="index"
 					@click="skipSubProductDetail(item)">
@@ -26,7 +26,7 @@
 						</view>
 					</view>
 					<view class="progress">
-						<Progress :percentage="item.workStatus + '%'" />
+						<Progress :percentage="item.progress + '%'" />
 					</view>
 				</view>
 				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
@@ -44,7 +44,7 @@
 
 	import {
 		getProcessList
-	
+
 	} from "@/https/staging/index.js";
 	import {
 		WORK_STATUS_MAP
@@ -130,6 +130,7 @@
 			}
 		},
 		onLoad() {
+			debugger
 			let {
 				workProcedureCode,
 				workProcedureName,
@@ -190,7 +191,11 @@
 				}
 				let extraParams = {};
 				let workOrder = uni.getStorageSync('ims_workOrder');
-				let { id, workOrderType, procedureTemplateCode } = workOrder;
+				let {
+					id,
+					workOrderType,
+					procedureTemplateCode
+				} = workOrder;
 				extraParams.workCode = id;
 				// 勘察工单
 				if (workOrderType === 1) {
@@ -201,7 +206,10 @@
 				if (type !== 'scrolltoupper') {
 					this.status = 'loading';
 				}
-				getProcessList({...params, ...extraParams})
+				getProcessList({
+						...params,
+						...extraParams
+					})
 					.then(res => {
 						if (res.data) {
 							let {
@@ -219,7 +227,7 @@
 						this.status = this.hasNextPage ? 'loadmore' : 'nomore';
 					})
 			},
-			 // 根据字段key获取图标
+			// 根据字段key获取图标
 			getIconByKey(key) {
 				return this.fieldMapText[key].iconName || "";
 			},
@@ -326,12 +334,14 @@
 						margin-bottom: 16px;
 						font-size: 16px;
 						color: #445160;
+
 						.name {
 							flex: 1;
 							white-space: nowrap;
 							overflow: hidden;
 							text-overflow: ellipsis;
 						}
+
 						.status {
 							margin-left: auto;
 						}
