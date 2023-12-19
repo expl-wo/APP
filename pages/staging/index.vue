@@ -81,7 +81,7 @@
 				// 搜索关键词
 				searchKey: "",
 				// 展示页面类型 workOrder-勘查工单 overhaul-检修页面、issue-问题页面
-				showType: "workOrder",
+				showType: "",
 				// 刷新
 				refreshing: false,
 				// 列表数据总数
@@ -147,11 +147,15 @@
 				return obj[this.showType]
 			}
 		},
+		watch: {
+			showType(newVal, oldVal) {
+				this.reGetData();
+			}
+		},
 		onLoad(params) {
 			// 路由激活时，重新获取数据
 			this.showType = params.type || 'workOrder'
 			params.id && this.handleRouterChange(params.id);
-			this.getListData();
 		},
 		methods: {
 			/**
@@ -214,6 +218,13 @@
 				}
 
 			},
+			// 重置并获取数据
+			reGetData() {
+				this.cardList = [];
+				this.total = 0;
+				this.pageNum = 1;
+				this.getListData();
+			},
 			/**
 			 * @method handleDataByType 处理接口返回数据
 			 **/
@@ -241,17 +252,9 @@
 			 * @method handleTabChange 处理tab改变
 			 **/
 			handleTabChange(tab, index) {
-				if (this.activeIndex === index) return;
-				// tab切换时要清空数据
-				this.cardList = [];
-				this.total = 0;
-				this.pageNum = 1;
 				this.searchKey = '';
-				// 选中tab类型变化
 				this.activeIndex = index;
 				this.showType = tab.code;
-				// 切换列表数据
-				this.getListData();
 			},
 			/**
 			 * @method handleShowDetail 点击卡片展示详情
