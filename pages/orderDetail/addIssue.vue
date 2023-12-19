@@ -19,8 +19,8 @@
 						border="none" />
 					<u-icon slot="right" name="arrow-down" />
 				</u-form-item>
-				<u-form-item label="问题描述" borderBottom ref="desc">
-					<u--textarea v-model="issueForm.desc" placeholder="请输入内容" count />
+				<u-form-item label="问题描述" borderBottom ref="problemDesc">
+					<u--textarea v-model="issueForm.problemDesc" placeholder="请输入内容" count />
 				</u-form-item>
 				<u-form-item label="图片附件" borderBottom ref="imgUpload">
 					<u-upload name="imgUpload" multiple accept="image" :useBeforeRead="true" :fileList="pictureList"
@@ -77,7 +77,7 @@
 					abnormalId: '',
 					notifierName: '',
 					notifierId: '',
-					desc: ''
+					problemDesc: ''
 				},
 				rules: {
 					cateName: [{
@@ -118,7 +118,6 @@
 			}
 		},
 		onLoad(options) {
-			debugger
 			const {
 				workProcedureCode,
 				workScene,
@@ -255,9 +254,10 @@
 			},
 			submit() {
 				this.$refs.issueForm.validate().then((res) => {
-					const hb_dq_mes_user_info = uni.getStorageSync('hb_dq_mes_user_info');
-					const pictureUrls = this.pictureList.map(item => item.url)
-					const videoUrls = this.videoList.map(item => item.url)
+					debugger
+					const hb_dq_mes_user_info = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'));
+					const pictureUrls = this.pictureList.map(item => item.filePath)
+					const videoUrls = this.videoList.map(item => item.filePath)
 					const param = {
 						...this.param,
 						...this.issueForm,
@@ -294,7 +294,7 @@
 					abnormalId: '',
 					notifierName: '',
 					notifierId: '',
-					desc: ''
+					problemDesc: ''
 				}
 				this.$emit('closePopup', false);
 			},

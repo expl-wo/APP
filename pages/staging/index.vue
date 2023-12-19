@@ -177,6 +177,7 @@
 				}
 				param.pageNum = this.pageNum;
 				if (this.showType === "issue") {
+					param.pageNum = type === 'search' ? 1 : this.pageNum;
 					const ims_workOrder = uni.getStorageSync("ims_workOrder")
 					param.workCode = ims_workOrder.id;
 					param.workScene = ims_workOrder.workScene || "SURVEY_SCENE";

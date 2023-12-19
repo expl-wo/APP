@@ -263,23 +263,16 @@
 							res.data.value.forEach((f, index) => {
 								list.forEach(item => {
 									if (item.operationCode === f.operationCode) {
-										debugger
 										// 筛选图片，暂不支持文件
 										item.fileList = f.fileList ? f.fileList.filter(f => f
 											.fileType ===
 											'jpg') : [];
 										item.fileList.forEach(img => {
-											if (!img.fileUrl.includes(
-													'http://10.16.9.128:9000/')) {
-												img.fileUrl =
-													'http://10.16.9.128:9000/' +
-													img
-													.fileUrl;
-											}
-											img.url = img.fileUrl
-											img.type = img.fileName && img.fileName
-												.split(
-													".")[1]
+											img.url =
+												`http://10.16.9.128:9000/${img.fileUrl}`;
+											img.type = img.fileType || "";
+											img.name = img.fileName || '';
+											img.filePath = img.fileUrl;
 										})
 										item.fileList = f.fileList;
 										item.contentInfo = f.contentInfo;
