@@ -73,7 +73,7 @@
 		</view>
 		
 		<!--备件消耗弹窗-->
-		<u-popup mode="bottom" v-model="dialogSparePartVisible" heigth="50%">
+		<u-popup mode="bottom"  :show="dialogSparePartVisible" heigth="50%">
 			<view class="content xui-reset">
 				<view class="popup-btn__wrapper">
 					<view style="margin-left: 10rpx;margin-bottom: 5rpx;font-size: 9rpx;">

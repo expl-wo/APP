@@ -7,5 +7,101 @@
 				"titleNView": true
 			}
 		}
+	},{
+		"path": "pages/andon/andon_001_home",
+		"style": {
+			"navigationBarTitleText": "设备点检",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_002_class",
+		"style": {
+			"navigationBarTitleText": "安灯分类",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_003_trigger",
+		"style": {
+			"navigationBarTitleText": "andon触发",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_003_zhiliangtrigger",
+		"style": {
+			"navigationBarTitleText": "andon触发",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_004_responseList",
+		"style": {
+			"navigationBarTitleText": "异常列表",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_005_response",
+		"style": {
+			"navigationBarTitleText": "andon响应",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_006_problemList",
+		"style": {
+			"navigationBarTitleText": "异常列表",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_007_problemClose",
+		"style": {
+			"navigationBarTitleText": "andon关闭",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_008_solve",
+		"style": {
+			"navigationBarTitleText": "andon解决",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_009_transfer",
+		"style": {
+			"navigationBarTitleText": "andon转办",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_010.assign",
+		"style": {
+			"navigationBarTitleText": "andon指派",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
+	},{
+		"path": "pages/andon/andon_011_clazzProblemList",
+		"style": {
+			"navigationBarTitleText": "班组异常列表",
+			"app-plus": {
+				"titleNView": true
+			}
+		}
 	}]
 }

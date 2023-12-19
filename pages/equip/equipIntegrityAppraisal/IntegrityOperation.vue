@@ -51,11 +51,11 @@
 								<uni-th style="height: auto" align="center">{{item.method}}</uni-th>
 								<uni-th style="height: auto" align="center">{{item.standardValue}}</uni-th>
 								<uni-th style="height: auto;" align="center">
-									<textarea v-model="item.actualValue" :clearable="false" placeholder="请输入实际值"
+									<textarea v-model="item.actualValue" :disabled="task.status == 2" :clearable="false" placeholder="请输入实际值"
 										auto-height="true" style="width: 100%;text-align: center;" />
 								</uni-th>
 								<uni-th style="height: auto;width: 150px;" align="center">
-									<u-radio-group v-model="item.isError">
+									<u-radio-group v-model="item.isError" :disabled="task.status == 2">
 										<u-radio :name="1" :checked="item.isError == null || item.isError == 1">
 											是
 										</u-radio>
@@ -66,7 +66,7 @@
 
 								</uni-th>
 								<uni-th style="height: auto" align="center">
-									<textarea v-model="item.errorMsg" v-if="item.isError == 2" :clearable="false"
+									<textarea  :disabled="task.status == 2" v-model="item.errorMsg" v-if="item.isError == 2" :clearable="false"
 										placeholder="请输入异常信息" auto-height="true"
 										style="width: 100%;text-align: center;" />
 								</uni-th>

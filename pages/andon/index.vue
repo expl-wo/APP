@@ -47,35 +47,36 @@
 		// components: { tabbar },
 		data() {
 			return {
-				menuList: [{
+				menuList: [
+					{
 							code: '0703_Andon',
 							name: 'Andon管理',
-							show: false,
+							show: true,
 							ignoreJustice: true,//此属性用于，在菜单中没有配置此选项，此菜单只由于pad显示菜单层级结构
 							bgClass: 'bg-blue',
 							children: [{
 								icon: '/static/img/icon/cf.png',
 								code: 'pad-AndonCF2007',
 								name: 'Andon触发',
-								show: false,
+								show: true,
 								url: '/pages/andon/andon_002_class',
 							}, {
 								icon: '/static/img/icon/xy.png',
 								code: 'pad-AndonXY2008',
 								name: 'Andon响应',
-								show: false,
+								show: true,
 								url: '/pages/andon/andon_004_responseList'
 							}, {
 								icon: '/static/img/icon/bgwtlb.png',
 								code: 'pad-AndonLB2009',
 								name: 'Andon关闭',
-								show: false,
+								show: true,
 								url: '/pages/andon/andon_006_problemList'
 							}, {
 								icon: '/static/img/icon/bgwtlb.png',
 								code: 'pad-AndonBZ2006',
 								name: '班组/部门未关闭安灯',
-								show: false,
+								show: true,
 								url:'/pages/andon/andon_011_clazzProblemList'
 							}],
 						}],
