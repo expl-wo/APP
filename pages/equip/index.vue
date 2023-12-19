@@ -45,24 +45,50 @@
 		data() {
 			return {
 				menuList: [{
-						code: '070102_equipCheck',
+						code: '070101_check',
 						name: '设备点检',
 						show: false,
 						bgClass: 'bg-purple',
 						children: [{
 							icon: '/static/img/icon/em_qtdj.svg',
-							code: '07010201_dailyCheck',
+							code: '07010101_dailyCheck',
 							show: false,
 							name: '日常点检',
 							url: '/pages/equip/equipCheck/dailyCheck',
 						}, {
 							icon: '/static/img/icon/zydj.svg',
-							code: '07010202_specialityCheck',
+							code: '07010102_proCheck',
 							name: '专业点检',
 							show: false,
 							url: '/pages/equip/equipCheck/specialityCheck',
 						}],
-					}, {
+					}, 
+					{
+						code: '070102_maintenance',
+						name: '设备保养',
+						show: false,
+						bgClass: 'bg-blue',
+						children: [{
+							icon: '/static/img/icon/em_qtdj.svg',
+							code: '07010201_dailyMaintenance',
+							name: '日常保养',
+							show: false,
+							url: '/pages/equip/equipMaintenance/maintenanceTask?type=2&isAccept=0',
+						}, {
+							icon: '/static/img/icon/zydj.svg',
+							code: '07010202_proMaintenance',
+							name: '定期保养',
+							show: false,
+							url: '/pages/equip/equipMaintenance/maintenanceTask?type=1&isAccept=0',
+						}, {
+							icon: '/static/img/icon/syrw.png',
+							code: '07010203_maintenanceApply',
+							name: '保养验收',
+							show: false,
+							url: '/pages/equip/equipMaintenance/maintenanceTask?type=1&isAccept=1',
+						}],
+					}, 
+					{
 						code: '070103_equipRepair',
 						name: '设备维修',
 						show: false,
@@ -82,41 +108,16 @@
 						}],
 					},
 					{
-						code: '070101_equipMaintenance',
-						name: '设备保养',
-						show: false,
-						bgClass: 'bg-blue',
-						children: [{
-							icon: '/static/img/icon/em_qtdj.svg',
-							code: '07010101_dailyMaintenance',
-							name: '日常保养',
-							show: false,
-							url: '/pages/equip/equipMaintenance/maintenanceTask?type=2&isAccept=0',
-						}, {
-							icon: '/static/img/icon/zydj.svg',
-							code: '07010102_cycleMaintenance',
-							name: '定期保养',
-							show: false,
-							url: '/pages/equip/equipMaintenance/maintenanceTask?type=1&isAccept=0',
-						}, {
-							icon: '/static/img/icon/syrw.png',
-							code: '07010103_maintenanceApply',
-							name: '保养验收',
-							show: false,
-							url: '/pages/equip/equipMaintenance/maintenanceTask?type=1&isAccept=1',
-						}],
-					}, 
-					{
-						code: 'pad-sheBeiJD9293',
+						code: '070104_identification',
 						name: '设备鉴定',
-						show: true,
+						show: false,
 						bgClass: 'bg-blue',
 						children: [
 							{
 								icon: '/static/img/icon/zydj.svg',
-								code: '07010103_maintenanceApply',
-								name: '设备鉴定',
-								show: true,
+								code: '07010401_integrityAppraisalTask',
+								name: '鉴定任务',
+								show: false,
 								url: '/pages/equip/equipIntegrityAppraisal/IntegrityAppraisalTask',
 							}
 						],
