@@ -39,7 +39,7 @@
 								没修复
 							</u-radio>
 						</u-radio-group>
-						<!-- <u-input :border="border" v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
+						<!-- <u-input  v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
 					</u-form-item>
 					<u-form-item label="满意度">
 						<u-radio-group v-model="repairCompleteData.evaluate">
@@ -67,7 +67,7 @@
 								否
 							</u-radio>
 						</u-radio-group>
-						<!-- <u-input :border="border" v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
+						<!-- <u-input  v-model="repairCompleteData.evaluate" type="text" ></u-input> -->
 					</u-form-item>
 					<u-form-item label="报修图片">
 					     <u-image v-for="(item,index) in reportPicArr" :key="index" :src="item" width="200px" height="200px" class="img" @tap="previewReportPictures(item)"></u-image>

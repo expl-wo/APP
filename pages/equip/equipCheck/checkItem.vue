@@ -439,7 +439,7 @@
 				getApp().globalData.andonData = eqpPar
 				uni.navigateTo({
 					//传到Andon的type值:1设备、2生产、3Andon  
-					url: `/pages/andon/andon_002_class?cateId=20201126110459233511001176750837&&type=8`
+					url: `/pages/andon/andon_002_class?cateId=20231218173918310041000013858343&&type=8`
 				})
 				var dd = getApp().globalData.andonData
 				console.log(dd, 'dd')
