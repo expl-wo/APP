@@ -400,13 +400,14 @@
 			},
 			// 处理开工
 			handleStarWork() {
+				const userInfo = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'))
 				// 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
 				// this.btnText = ["未派工", '完工', '开工', '已完工'][workStep.workStatus] || '开工';
 				const param = {
 					workProcedureCode: this.commonParam.craftId,
 					workCode: this.commonParam.workCode,
 					workScene: this.commonParam.workScene,
-					operator: uni.getStorageSync('hb_dq_mes_user_info').username
+					operator: userInfo.username
 				}
 				const idx = ["未派工", '完工', '开工', '已完工'].indexOf(this.btnText);
 				if (idx === 2) {
@@ -417,8 +418,9 @@
 				reportWorKOrderStatus(param).then(res => {
 					if (res.success) {
 						uni.$u.toast('操作成功')
-						uni.redirectTo({
-							delta: 1
+						// 刷新中工序页面
+						uni.reLaunch({
+							url: "/pages/orderDetail/productionDetail/index"
 						})
 					} else {
 						uni.$u.toast(res.errMsg || '操作失败')
@@ -449,7 +451,7 @@
 			},
 			// 处理报工事件
 			handleReport() {
-				const userInfo = uni.getStorageSync('hb_dq_mes_user_info')
+				const userInfo = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'))
 				const param = {
 					progress: this.percentage,
 					workCode: this.commonParam.workCode,
