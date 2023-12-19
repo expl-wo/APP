@@ -1,8 +1,7 @@
 import constants from "./constants";
 
 //检修工单对应的状态
-const ORDER_STATUS_MAP = [
-	{
+const ORDER_STATUS_MAP = [{
 		text: "创建工单",
 	},
 	{
@@ -76,10 +75,10 @@ const CARD_FIELD_MAP = {
 		label: "生产号",
 		iconName: "file-text-fill",
 	},
-	projManagerName: {
-		label: "项目经理",
-		iconName: "account-fill",
-	},
+	// projManagerName: {
+	// 	label: "项目经理",
+	// 	iconName: "account-fill",
+	// },
 	planStartTime: {
 		label: "计划开始时间",
 		iconName: "calendar",
@@ -192,12 +191,12 @@ const WORK_STATUS_MAP = {
 		color: "#f60000",
 	},
 	1: {
-		label: "未开工",
-		color: "#f64930",
-	},
-	2: {
 		label: "已开工",
 		color: "#3a62d7",
+	},
+	2: {
+		label: "未开工",
+		color: "#f64930",
 	},
 	3: {
 		label: "已完工",

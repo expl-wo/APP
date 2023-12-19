@@ -42,9 +42,11 @@
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
 					<view v-else-if="item.operationType ==='1'" class="number">
-						<u-number-box :min='item.lowerLimit' :max="item.upperLimit"
+						<!-- <u-number-box :min='item.lowerLimit' :max="item.upperLimit"
 							v-model="formData[item.operationCode]" inputWidth='200' @change='changeNumber($event,index)'
-							@overlimit='overlimit'></u-number-box>
+							@overlimit='overlimit'></u-number-box> -->
+						<u--input v-model="formData[item.operationCode]" inputWidth='200' type='number'
+							@blur='changeNumber($event,item,index)'></u--input>
 						<text v-if="item.dataUnit" class="data-unit">{{item.dataUnit}}</text>
 					</view>
 					<u--input v-model="formData[item.operationCode]" disabled disabledColor="#fff" placeholder="请选择"
@@ -61,8 +63,8 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
-				<!-- <u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button> -->
+				<!-- <u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button> -->
+				<u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button>
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -196,7 +198,29 @@
 			// 初始化表单数据
 			initFormData() {
 				this.formList.forEach((item, index) => {
-					this.formData[item.operationCode] = item.contentInfo || "";
+
+					if (item.operationType === '1') {
+						this.formData[item.operationCode] = item.contentInfo || item.lowerLimit || '';
+					} else if (item.operationType === '3') {
+						item.dictionaryContent.forEach(d => {
+							if (d.code === item.contentInfo) {
+								item.contentInfo = d.name
+							}
+						})
+						this.formData[item.operationCode] = item.contentInfo || '';
+					} else if (item.operationType === '4') {
+						const list = item.contentInfo.split(',')
+						const nameList = []
+						item.dictionaryContent.forEach(d => {
+							if (list.includes(d.code)) {
+								nameList.push(d.name)
+							}
+						})
+						item.contentInfo = nameList && nameList.join(',')
+						this.formData[item.operationCode] = item.contentInfo || "";
+					} else {
+						this.formData[item.operationCode] = item.contentInfo || "";
+					}
 
 					// 初始化时间显示
 					const hour = new Date().getHours()
@@ -240,17 +264,11 @@
 				console.log(this.rules, 'setRules')
 				this.$refs.uForm.setRules(this.rules)
 			},
-			// 表单重置
-			reset() {
-				this.formData = {};
-				this.$refs.uForm.resetFields();
-			},
 			// 表单保存
 			submit() {
 				console.log(this.formData, 'formData', this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
 					this.submitFormData.forEach((item, index) => {
-
 						if (item.operationType === "1") {
 							item.contentInfo = this.formData[item.operationCode] || item.lowerLimit || '';
 						} else {
@@ -268,6 +286,21 @@
 						item.fileList.length && item.fileList.forEach(f => {
 							f.url = f.fileUrl || f.filePath;
 						})
+						if (item.operationType === '3') {
+							const obj = item.dictionaryContent.filter(d => d.name === item
+								.contentInfo)[
+								0]
+							item.contentInfo = obj && obj.code
+						} else if (item.operationType === '4') {
+							const nameList = item.contentInfo.split(',');
+							const codeList = []
+							item.dictionaryContent.forEach(d => {
+								if (nameList.includes(d.name)) {
+									codeList.push(d.code)
+								}
+							})
+							item.contentInfo = codeList.length && codeList.join(',')
+						}
 					})
 					const param = {
 						...this.commonParam,
@@ -486,8 +519,8 @@
 			// 单选面板确认事件
 			singleSelect(e) {
 				const currentItem = this.submitFormData[this.currentIndex];
-				this.formData[currentItem.operationCode] = e.code;
-				// this.formData[currentItem.operationCode] = e.name;
+				// this.formData[currentItem.operationCode] = e.code;
+				this.formData[currentItem.operationCode] = e.name;
 				this.$refs.uForm.validateField(currentItem.operationCode);
 			},
 			// 多选面板确认
@@ -541,14 +574,18 @@
 				this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCalendar = false;
 			},
-			changeNumber(obj, index) {
+			changeNumber(value, item, index) {
 				this.currentIndex = index;
 				const currentItem = this.submitFormData[this.currentIndex];
-				if (obj.value < currentItem.lowerLimit) {
+				if (Number(value) < Number(currentItem.lowerLimit)) {
 					uni.$u.toast('输入值不能小于最小值' + currentItem.lowerLimit)
-					return
+					this.formData[currentItem.operationCode] = currentItem.lowerLimit;
+				} else if (Number(value) > Number(currentItem.upperLimit)) {
+					uni.$u.toast('输入值不能大于最大值' + currentItem.upperLimit)
+					this.formData[currentItem.operationCode] = currentItem.upperLimit;
+				} else {
+					this.formData[currentItem.operationCode] = value;
 				}
-				this.formData[currentItem.operationCode] = obj.value;
 				this.$refs.uForm.validateField(currentItem.operationCode);
 			}
 		}

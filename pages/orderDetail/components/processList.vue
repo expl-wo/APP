@@ -29,6 +29,17 @@
 				</view>
 			</view>
 		</view>
+		<view class="card-list" v-if="orderInfo.type === 'overhaul'">
+			<view class="card-item bg" v-for="(item, index) in cardList" :key="index">
+				<Card title="title" :cardInfo="item" @click.native="handleShowDetail(item)" />
+				<view class="btn-box">
+					<u-button text="视频绑定" class="btn" :disabled="true" @click="handleBindVideo"></u-button>
+					<u-button text="复核人员" class="btn" :disabled="true"></u-button>
+					<u-button text="派工" class="btn" :disabled="true"></u-button>
+					<u-button text="设备" class="btn" :disabled="true"></u-button>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 <script>
@@ -71,28 +82,32 @@
 				status: "nomore"
 			};
 		},
-		olLoad() {
-			setTimeout(() => {
-				this.refreshing = true
-			}, 500)
-		},
 		created() {
 			if (this.orderInfo.type === 'workOrder') {
 				this.getListData()
 			} else if (this.orderInfo.type === 'overhaul') {
-				this.cardList = [{
-					title: '返厂检修-现场拆解',
-					code: "OVER_HAUL_BACK_CHAI_JIE_SCENE"
-				}, {
-					title: '返厂检修-厂内拆解',
-					code: "OVER_HAUL_BACK_INNER_CHAI_JIE_SCENE"
-				}, {
-					title: '返厂检修-现场拆解',
-					code: "OVER_HAUL_BACK_INNER_PRODUCTION_SCENE"
-				}, {
-					title: '返厂检修-试验',
-					code: "OVER_HAUL_BACK_EXPERIMENT_SCENE"
-				}]
+				let list = []
+				if (this.orderInfo.retFactory === 0) {
+					list = [{
+						title: '现场检修',
+						code: "OVER_HAUL_ON_THE_SPOT_SCENE"
+					}]
+				} else if (this.orderInfo.retFactory === 1) {
+					list = [{
+						title: '返厂检修-现场拆解',
+						code: "OVER_HAUL_BACK_CHAI_JIE_SCENE"
+					}, {
+						title: '返厂检修-厂内拆解',
+						code: "OVER_HAUL_BACK_INNER_CHAI_JIE_SCENE"
+					}, {
+						title: '返厂检修-现场拆解',
+						code: "OVER_HAUL_BACK_INNER_PRODUCTION_SCENE"
+					}, {
+						title: '返厂检修-试验',
+						code: "OVER_HAUL_BACK_EXPERIMENT_SCENE"
+					}]
+				}
+				this.cardList = list;
 			}
 		},
 		methods: {

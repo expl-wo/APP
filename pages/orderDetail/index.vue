@@ -130,6 +130,7 @@
 		onLoad(options) {
 			this.routeParam = {
 				...options,
+				retFactory: this.workOrderDetailInfo.retFactory
 			};
 		},
 		created() {
