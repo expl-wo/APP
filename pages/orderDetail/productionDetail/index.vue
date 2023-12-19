@@ -130,7 +130,6 @@
 			}
 		},
 		onLoad() {
-			debugger
 			let {
 				workProcedureCode,
 				workProcedureName,

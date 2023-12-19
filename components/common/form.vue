@@ -32,12 +32,13 @@
 						</view>
 					</view>
 					<view class="operation-description" v-if="item.operationDescription">
-						{{item.operationDescription}}
+						<text>操作描述:</text>
+						<text>{{item.operationDescription}}</text>
 					</view>
 				</view>
 				<!-- 表单项 -->
 				<u-form-item :prop="item.operationCode" :ref="`item${index}`" @click="showAction(item,index)">
-					<text class="description">内容:</text>
+					<text class="description">填写内容:</text>
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
 					<view v-else-if="item.operationType ==='1'" class="number">
@@ -61,7 +62,7 @@
 			</view>
 			<view class="save-btn">
 				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
-				<u-button @click="reset" text="重置" class="btn"></u-button>
+				<!-- <u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button> -->
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -249,7 +250,12 @@
 				console.log(this.formData, 'formData', this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
 					this.submitFormData.forEach((item, index) => {
-						item.contentInfo = this.formData[item.operationCode];
+
+						if (item.operationType === "1") {
+							item.contentInfo = this.formData[item.operationCode] || item.lowerLimit || '';
+						} else {
+							item.contentInfo = this.formData[item.operationCode];
+						}
 						const time = this.selectHours.filter(item => item.label == this.showTimeList[index]
 							.hourTime);
 						const timeStr = (time.length && time[0].value) || ''
@@ -259,6 +265,9 @@
 							const timeStr = (time.length && time[0].value) || ''
 							item.workPlanTime = moment().format('YYYY-MM-DD') + " 23:59:59";
 						}
+						item.fileList.length && item.fileList.forEach(f => {
+							f.url = f.fileUrl || f.filePath;
+						})
 					})
 					const param = {
 						...this.commonParam,
@@ -336,10 +345,10 @@
 								fileName: item.fileName,
 								name: item.fileName,
 								type: item.fileName && item.fileName.split(".")[1],
-								imgUrl: `http://10.16.9.128:9000/${item.filePath}`,
 							}
 						})
-						this.submitFormData[index].fileList.push(...uploadedList)
+						this.submitFormData[index].fileList.push(...uploadedList);
+						console.log(this.submitFormData, 'submitForData')
 					})
 			},
 			// 上传图片接口
@@ -477,7 +486,8 @@
 			// 单选面板确认事件
 			singleSelect(e) {
 				const currentItem = this.submitFormData[this.currentIndex];
-				this.formData[currentItem.operationCode] = e.name;
+				this.formData[currentItem.operationCode] = e.code;
+				// this.formData[currentItem.operationCode] = e.name;
 				this.$refs.uForm.validateField(currentItem.operationCode);
 			},
 			// 多选面板确认
@@ -594,9 +604,9 @@
 
 					.name {
 						width: 60%;
-						white-space: nowrap;
+						/* white-space: nowrap;
 						overflow: hidden;
-						text-overflow: ellipsis;
+						text-overflow: ellipsis; */
 					}
 				}
 
@@ -627,7 +637,7 @@
 			justify-content: space-around;
 
 			.btn {
-				width: 40%;
+				width: 90%;
 				height: 60rpx;
 				line-height: 60rpx;
 				margin: 20rpx 10rpx;

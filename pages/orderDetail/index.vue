@@ -54,7 +54,7 @@
 	import ReturnList from "./components/returnList.vue";
 	import {
 		ORDER_DETAIL_FIELD_MAP,
-		WORK_ORDER_STATUS,
+		ORDER_STATUS_MAP
 	} from "@/utils/constants-custom.js";
 	import {
 		getWorkOrderDetailById,
@@ -171,7 +171,7 @@
 			},
 			// 获取工单状态
 			getStatusStr(status) {
-				return WORK_ORDER_STATUS[status] || "-";
+				return status && ORDER_STATUS_MAP[status - 1] && ORDER_STATUS_MAP[status - 1].text || "-";
 			},
 			/**
 			 * @method handleDownFile 下载文件
