@@ -26,7 +26,7 @@
 						</view> -->
 					</view>
 					<view class="progress">
-						<Progress :percentage="item.workStatus + '%'" />
+						<Progress :percentage="item.progress + '%'" />
 					</view>
 				</view>
 				<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />

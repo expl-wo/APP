@@ -50,7 +50,6 @@
 	import Card from "@/components/common/card";
 	import {
 		getWorkOrderPageData,
-		getOverhaulPageData,
 		queryProcedureProblem
 	} from "@/https/staging/index.js";
 	import {
@@ -166,7 +165,6 @@
 				if (this.selectOrderStatus) {
 					param.orderStatusList = [this.selectOrderStatus]
 				}
-				let result = {};
 				let listData = [];
 				if (type === 'scrolltoupper') {
 					this.searchKey = param.projName = '';
