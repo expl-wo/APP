@@ -7,12 +7,16 @@ let workOrder = {
 	state: {
 		// 工单详情信息
 		workOrderDetailInfo: {},
+		activeTab: ''
 	},
 	mutations: {
 		updateWorkOrderDetail(state, workOrderDetailInfo) {
 			state.workOrderDetailInfo = workOrderDetailInfo
 			console.log(state, 'updateWorkOrderDetail````````````')
 		},
+		updateActiveTab(state, activeTab) {
+			state.activeTab = activeTab;
+		}
 	},
 	actions: {
 		/**

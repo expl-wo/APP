@@ -3,7 +3,7 @@
 		<!-- 第一层 -->
 		<scroll-view v-if="isFirstLevel" :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true"
 			class="list-wrapper" :refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50"
-			:lower-threshold="30" :refresher-triggered="refreshing" @refresherrefresh="getData()">
+			:lower-threshold="30" :refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')">
 			<bom-item v-for="item in listData" :key="item.id" :dataInfo="item"  :productNo="productNo" @goToNext="nextLevel"
 				@selectChange="selectChange" @showPopover="showPopover" @scanQrCode="scanCode" />
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
@@ -26,7 +26,7 @@
 			</view>
 			<scroll-view :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true" class="list-wrapper2"
 				:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
-				:refresher-triggered="refreshing" @refresherrefresh="getData">
+				:refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')">
 				<bom-item class="pd" v-for="item in listData" :key="item.id" :dataInfo="item" :productNo="productNo"
 					 @showPopover="showPopover" @goToNext="nextLevel" @selectChange="selectChange" @scanQrCode="scanCode" />
 					<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
@@ -137,9 +137,11 @@
 				flag && this.getData();
 			},
 			// 获取数据
-			getData() {
+			getData(type) {
+				if (type === 'scrolltoupper') {
+					this.refreshing = true;
+				}
 				this.listData = [];
-				this.refreshing = true;
 				this.showLoading = false;
 				let params = {
 					workId: this.workOrderId,
@@ -169,7 +171,16 @@
 			batchBind() {
 				uni.scanCode({
 					onlyFromCamera: true,
+					scanType: ['qrCode'],
 					success: resScanCode => {
+						if (resScanCode.scanType !== 'QR_CODE') {
+							uni.showToast({
+								icon: 'error',
+								title: '内容识别有误',
+								duration: 2000
+							})
+							return;	
+						}
 						this.btnLoading = true;
 						let params = {
 							workId: uni.getStorageSync('ims_workOrder').id,
@@ -186,7 +197,16 @@
 				this.bomInfo = info;
 				uni.scanCode({
 					onlyFromCamera: true,
+					scanType: ['qrCode'],
 					success: resScanCode => {
+						if (resScanCode.scanType !== 'QR_CODE') {
+							uni.showToast({
+								icon: 'error',
+								title: '内容识别有误',
+								duration: 2000
+							})
+							return;	
+						}
 						this.handleScanResult(resScanCode.result, type);
 					}
 				})

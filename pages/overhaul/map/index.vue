@@ -118,10 +118,8 @@
 		onLoad() {
 			this.initPicker(false);
 			uni.$on('handlePicker', res => {
-				console.log(res);
 				if (!res.show) {
 					this.initPicker(false);
-					
 					this.selectProject = res.selectItem;
 				}
 			});

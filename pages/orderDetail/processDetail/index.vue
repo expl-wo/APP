@@ -21,9 +21,9 @@
 					@click="skipProductionDetail(item)">
 					<view class="title">
 						<view class="name">{{ item.workProcedureName }}</view>
-						<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
+<!-- 						<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
 							{{ WORK_STATUS_MAP[item.workStatus].label }}
-						</view>
+						</view> -->
 					</view>
 					<view class="progress">
 						<Progress :percentage="item.workStatus + '%'" />

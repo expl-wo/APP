@@ -52,6 +52,7 @@
 	import ProcessList from "./components/processList.vue";
 	import Bom from "./components/bom.vue";
 	import ReturnList from "./components/returnList.vue";
+	import DeviceList from './components/deviceList.vue';
 	import {
 		ORDER_DETAIL_FIELD_MAP,
 		ORDER_STATUS_MAP
@@ -69,6 +70,7 @@
 			ProcessList,
 			Bom,
 			ReturnList,
+			DeviceList
 		},
 		data() {
 			return {
@@ -102,8 +104,24 @@
 					{
 						index: 2,
 						name: "返厂清单",
-						cName: "ReturnList",
+						cName: "deviceList",
 					},
+					{
+						index: 3,
+						name: "设备清单",
+						cName: "deviceList"
+
+					},
+					{
+						index: 4,
+						name: "材料清单",
+						cName: "deviceList"
+					},
+					{
+						index: 5,
+						name: "工装工具清单",
+						cName: "deviceList"
+					}
 				];
 				// 勘查工单没有返厂清单列表
 				return this.routeParam.type === "workOrder" ? list.slice(0, 1) : list;
@@ -164,6 +182,7 @@
 			 **/
 			handleTabChange(item) {
 				this.componentName = item.cName;
+				this.$store.commit('workOrder/updateActiveTab', item.index);
 			},
 			// 获取图片地址
 			getUrl(url) {
