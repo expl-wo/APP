@@ -15,15 +15,15 @@ const formalUrl = 'http://10.16.9.171:8765/'
 let formalAjaxServerUrl = formalUrl+ 'api';
 
 //测试服务器地址
-let testlAjaxServerUrl = 'http://192.168.100.50/api';
+let testlAjaxServerUrl = 'http://10.16.9.171:8765/api';
 //本地测试地址
 let devTestlAjaxServerUrl = 'http://10.16.9.171:8765/api';
 
 //正式服务器地址
-let formalFileServerUrl = 'http://10.16.9.171:8765/minioServer/';
+let formalFileServerUrl = 'http://10.16.9.171:80/minioServer/';
 
 //测试服务器地址
-let testlFileServerUrl = 'http://10.16.9.171:8765/minioServer/';
+let testlFileServerUrl = 'http://10.16.9.171:80/minioServer/';
 
 
 function getApkDownloadUrl(){
