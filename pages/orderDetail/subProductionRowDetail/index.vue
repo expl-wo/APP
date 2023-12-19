@@ -42,8 +42,8 @@
 					<u-icon name="arrow-right" size="30" bold></u-icon>
 				</u-button>
 			</view>
-			<u-button class="right-btn" @click="showReportProgress = true" text="报工"
-				:disabled="!isStart || disableReportBtn" color="#3a62d7"></u-button>
+			<u-button class="right-btn" @click="handleShowProgress" text="报工" :disabled="!isStart || disableReportBtn"
+				color="#3a62d7"></u-button>
 			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart || disableStartWorkBtn"
 				:text="btnText"></u-button>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
@@ -56,7 +56,9 @@
 		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
 			@confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
-				<u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress>
+				<!-- <u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress> -->
+				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress">
+				</luanqing-moveable-progress-bar>
 				<view style="display: flex;margin-top: 10px;">
 					<u-button @click="computedWidth('minus')" style="margin-right:5px;">
 						<u-icon name="minus"></u-icon>
@@ -262,7 +264,8 @@
 						if (res.data.value.length) {
 							res.data.value.forEach((f, index) => {
 								list.forEach(item => {
-									if (item.operationCode === f.operationCode) {
+									if (item.operationCode === (f.operationCode ||
+											operationCode)) {
 										// 筛选图片，暂不支持文件
 										item.fileList = f.fileList ? f.fileList.filter(f => f
 											.fileType ===
@@ -475,12 +478,20 @@
 			},
 			// 进度条增减操作
 			computedWidth(type) {
-				if (type === 'plus') {
-					this.percentage = uni.$u.range(0, 100, this.percentage + 1)
-				} else {
-					this.percentage = uni.$u.range(0, 100, this.percentage - 1)
-				}
+				this.$nextTick(() => {
+					type === 'plus' ? this.percentage++ : this.percentage--;
+					this.$refs.progressBar.setDefaultProgress(this.percentage);
+				})
 			},
+			handleProgress(num) {
+				this.percentage = num;
+			},
+			handleShowProgress() {
+				this.showReportProgress = true;
+				this.$nextTick(() => {
+					this.$refs.progressBar.setDefaultProgress(this.percentage);
+				})
+			}
 		},
 	};
 </script>
@@ -619,5 +630,9 @@
 			}
 
 		}
+	}
+
+	/deep/ .u-modal__title {
+		margin-bottom: 20px;
 	}
 </style>

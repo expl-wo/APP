@@ -118,11 +118,14 @@
 			}
 		},
 		onLoad(options) {
-			const {
+			let {
 				workProcedureCode,
 				workScene,
 				workProcedureType
 			} = options;
+			if (workProcedureCode.includes('_')) {
+				workProcedureCode = workProcedureCode.split('_')[1];
+			}
 			// 提交问题需要的工单、工序（工序类型）、场景参数
 			this.param.workProcedureCode = workProcedureCode;
 			this.param.workScene = workScene;
@@ -254,7 +257,6 @@
 			},
 			submit() {
 				this.$refs.issueForm.validate().then((res) => {
-					debugger
 					const hb_dq_mes_user_info = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'));
 					const pictureUrls = this.pictureList.map(item => item.filePath)
 					const videoUrls = this.videoList.map(item => item.filePath)

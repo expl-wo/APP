@@ -42,9 +42,6 @@
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
 					<view v-else-if="item.operationType ==='1'" class="number">
-						<!-- <u-number-box :min='item.lowerLimit' :max="item.upperLimit"
-							v-model="formData[item.operationCode]" inputWidth='200' @change='changeNumber($event,index)'
-							@overlimit='overlimit'></u-number-box> -->
 						<u--input v-model="formData[item.operationCode]" inputWidth='200' type='number'
 							@blur='changeNumber($event,item,index)'></u--input>
 						<text v-if="item.dataUnit" class="data-unit">{{item.dataUnit}}</text>
@@ -63,8 +60,8 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<!-- <u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button> -->
-				<u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button>
+				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
+				<!-- <u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button> -->
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -657,6 +654,7 @@
 
 				.data-unit {
 					margin-left: 20px;
+					margin-top: 5px;
 				}
 			}
 
