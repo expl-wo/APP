@@ -6,7 +6,7 @@
 				<view class="name">{{ workProcedureName }}</view>
 				<view class="extra-info">
 					<!-- <text class="notice" @click="showNotice">工序要求</text> -->
-					<u-icon class="icon" name="pushpin-fill" size="16" color="#3a62d7" @click="handleAddIssue" />
+					<u-icon class="icon" name="pushpin-fill" size="20px" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
 			<!-- 			<production-info :fieldMapText="fieldMapText" :infoObj="productionDetailInfo" /> -->
@@ -24,6 +24,9 @@
 						<view class="status" :style="{ color: WORK_STATUS_MAP[item.workStatus].color }">
 							{{ WORK_STATUS_MAP[item.workStatus].label }}
 						</view>
+					</view>
+					<view class="review-status">
+						<view>复核状态：{{ REVIEW_STATUS[item.reviewStatus] }}</view>
 					</view>
 					<view class="progress">
 						<Progress :percentage="item.progress + '%'" />
@@ -47,7 +50,8 @@
 
 	} from "@/https/staging/index.js";
 	import {
-		WORK_STATUS_MAP
+		WORK_STATUS_MAP,
+		REVIEW_STATUS
 	} from '@/utils/constants-custom.js'
 	export default {
 		name: "SubProductionDetail",
@@ -59,6 +63,7 @@
 		},
 		data() {
 			return {
+				REVIEW_STATUS: Object.freeze(REVIEW_STATUS),
 				WORK_STATUS_MAP: Object.freeze(WORK_STATUS_MAP),
 				// 标准工序编码
 				workProcedureCode: '',
@@ -332,7 +337,6 @@
 						display: flex;
 						height: 30px;
 						line-height: 30px;
-						margin-bottom: 16px;
 						font-size: 16px;
 						color: #445160;
 
@@ -346,6 +350,11 @@
 						.status {
 							margin-left: auto;
 						}
+					}
+					.review-status {
+						height: 30px;
+						line-height: 30px;
+						font-size: 12px;
 					}
 				}
 

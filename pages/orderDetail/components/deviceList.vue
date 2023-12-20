@@ -119,12 +119,15 @@
 					pageNum,
 					pageSize
 				} = this;
-				let { id } = uni.getStorageSync('ims_workOrder');
+				let { id, retFactory } = uni.getStorageSync('ims_workOrder');
 				let params = {
 					pageNum,
 					pageSize,
 					workCode: id
 				};
+				if (this.activeTab >= 2) {
+					params.workOrderSceneType = retFactory ? 'OVER_HAUL_BACK_CHAI_JIE_SCENE' : 'OVER_HAUL_ON_THE_SPOT_SCENE'
+				}
 				if (type !== 'scrolltoupper') {
 					this.status = 'loading';
 					this.showLoading = true;
@@ -161,7 +164,7 @@
 			},
 			// 编辑数量
 			editNum(type, info) {
-				this.num = info[`${type}Num`];
+				this.num = +info[`${type}Num`];
 				this.info = info;
 				this.type = type;
 				this.showModal = true;
@@ -175,7 +178,7 @@
 					changeId: this.info[`${this.type}Id`],
 					changeNum: value
 				}
-				this[`${this.type}Change`](params)
+				this[`${this.type}NumChange`](params)
 				.then(res => {
 					if (res.success) {
 						this.closeModal(true);

@@ -1,7 +1,8 @@
 import constants from "./constants";
 
 //检修工单对应的状态
-const ORDER_STATUS_MAP = [{
+const ORDER_STATUS_MAP = [
+	{
 		text: "创建工单",
 	},
 	{
@@ -75,10 +76,10 @@ const CARD_FIELD_MAP = {
 		label: "生产号",
 		iconName: "file-text-fill",
 	},
-	// projManagerName: {
-	// 	label: "项目经理",
-	// 	iconName: "account-fill",
-	// },
+	projManagerName: {
+		label: "项目经理",
+		iconName: "account-fill",
+	},
 	planStartTime: {
 		label: "计划开始时间",
 		iconName: "calendar",
@@ -192,11 +193,11 @@ const WORK_STATUS_MAP = {
 	},
 	1: {
 		label: "已开工",
-		color: "#3a62d7",
+		color: "#f64930",
 	},
 	2: {
 		label: "未开工",
-		color: "#f64930",
+		color: "#3a62d7",
 	},
 	3: {
 		label: "已完工",
@@ -265,6 +266,10 @@ const SUB_PRODUCTION_MAP = {
 		iconName: "account-fill"
 	}
 }
+const REVIEW_STATUS = {
+	0: '未复核',
+	1: '已复核'
+}
 export {
 	//检修工单对应的状态
 	ORDER_STATUS_MAP,
@@ -291,5 +296,7 @@ export {
 	// 工单状态
 	WORK_ORDER_STATUS,
 	// 工步展示信息字段
-	SUB_PRODUCTION_MAP
+	SUB_PRODUCTION_MAP,
+	// 审核状态
+	REVIEW_STATUS
 };
