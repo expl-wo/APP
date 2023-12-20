@@ -278,7 +278,7 @@
 							item.workPlanTime = this.showTimeList[index].date + " " + timeStr;
 						} else if (item.executionFrequency === '1') {
 							const timeStr = (time.length && time[0].value) || ''
-							item.workPlanTime = moment().format('YYYY-MM-DD') + " 23:59:59";
+							item.workPlanTime = this.showTimeList[index].date + " 23:59:59";
 						}
 						item.fileList.length && item.fileList.forEach(f => {
 							f.url = f.fileUrl || f.filePath;

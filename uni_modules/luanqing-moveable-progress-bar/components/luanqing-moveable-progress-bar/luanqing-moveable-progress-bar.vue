@@ -136,7 +136,7 @@
 					width: 60rpx;
 					color: white;
 					border-radius: 14rpx;
-					top: -140%;
+					top: -90%;
 					left: 50%;
 					text-align: center;
 					transform: translateX(-50%);

@@ -1,6 +1,6 @@
 {
     "name" : "HB_TNJ_MES",
-    "appid" : "__UNI__A710C34",
+    "appid" : "__UNI__38B9548",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : 100,
@@ -100,7 +100,7 @@
                     "xxxhdpi" : "static/dq_app_icon.png"
                 }
             },
-            "orientation" : [ "portrait-primary" ]
+            "orientation" : [ "portrait-primary" ,"landscape-primary"]
         }
     },
     /* 快应用特有相关 */

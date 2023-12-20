@@ -55,8 +55,8 @@
 		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
 			@confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
-				<!-- <u-line-progress :percentage="percentage" activeColor="#3a62d7" height='20'></u-line-progress> -->
-				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress">
+				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress" :min='0' :max='100'
+					:slideBarWidth="620">
 				</luanqing-moveable-progress-bar>
 				<view style="display: flex;margin-top: 10px;">
 					<u-button @click="computedWidth('minus')" style="margin-right:5px;">
@@ -270,8 +270,7 @@
 						if (res.data.value.length) {
 							res.data.value.forEach((f, index) => {
 								list.forEach(item => {
-									if (item.operationCode === (f.operationCode ||
-											operationCode)) {
+									if (item.operationCode === f.operationCode) {
 										// 筛选图片，暂不支持文件
 										item.fileList = f.fileList ? f.fileList.filter(f => f
 											.fileType ===
@@ -283,6 +282,12 @@
 											img.name = img.fileName || '';
 											img.filePath = img.fileUrl;
 										})
+										item.fileList = f.fileList;
+										item.contentInfo = f.contentInfo;
+										item.id = f.id
+									}
+									// 没有数据，清空图片列表、内容
+									if (item.operationCode === operationCode && !f.operationCode) {
 										item.fileList = f.fileList;
 										item.contentInfo = f.contentInfo;
 										item.id = f.id
@@ -431,9 +436,9 @@
 				}
 				reportWorKOrderStatus(param).then(res => {
 					if (res.success) {
+						// this.initData();
 						uni.$u.toast('操作成功')
-						// 刷新中工序页面
-						uni.reLaunch({
+						uni.redirectTo({
 							url: "/pages/orderDetail/productionDetail/index"
 						})
 					} else {
@@ -477,7 +482,7 @@
 					if (res.success) {
 						uni.$u.toast('报工成功')
 						// 刷新中工序页面
-						uni.reLaunch({
+						uni.redirectTo({
 							url: "/pages/orderDetail/productionDetail/index"
 						})
 					} else {
@@ -491,6 +496,14 @@
 			computedWidth(type) {
 				this.$nextTick(() => {
 					type === 'plus' ? this.percentage++ : this.percentage--;
+					if (this.percentage > 100) {
+						this.percentage = 100;
+						return
+					}
+					if (this.percentage < 0) {
+						this.percentage = 0;
+						return
+					}
 					this.$refs.progressBar.setDefaultProgress(this.percentage);
 				})
 			},
@@ -602,6 +615,7 @@
 
 		.slot-content {
 			width: 100%;
+			margin: 0 20px;
 		}
 
 		.btn-box {
@@ -658,6 +672,6 @@
 	}
 
 	/deep/ .u-modal__title {
-		margin-bottom: 20px;
+		margin-bottom: 40px;
 	}
 </style>

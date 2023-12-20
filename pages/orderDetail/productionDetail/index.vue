@@ -129,7 +129,7 @@
 				return this.listData.length ? '没有更多了' : '暂无数据';
 			}
 		},
-		onLoad() {
+		onShow() {
 			let {
 				workProcedureCode,
 				workProcedureName,
@@ -144,6 +144,8 @@
 			this.productionDetailInfo.subGroupPerson = leaderName;
 			this.productionDetailInfo.member = memberName;
 			this.workOrderSceneType = workOrderSceneType;
+
+			this.listData = []
 			this.getData();
 		},
 		methods: {
