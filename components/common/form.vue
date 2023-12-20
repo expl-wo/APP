@@ -88,6 +88,7 @@
 	import {
 		reportWorkContent,
 		queryHistoryRecordByTime,
+		queryBatchRecord
 	} from "@/https/staging/index.js";
 	import uploadHttp from '@/https/_public/upload';
 	import {
@@ -195,7 +196,6 @@
 			// 初始化表单数据
 			initFormData() {
 				this.formList.forEach((item, index) => {
-
 					if (item.operationType === '1') {
 						this.formData[item.operationCode] = item.contentInfo || item.lowerLimit || '';
 					} else if (item.operationType === '3') {
@@ -546,7 +546,8 @@
 					beginTime: beginTime,
 					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
 				}]
-				this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
+				// this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
+				this.updateRecord(params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCustomSheet = false
 			},
 			// 日历确认框
@@ -568,7 +569,8 @@
 					beginTime,
 					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
 				}]
-				this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
+				// this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
+				this.updateRecord(params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCalendar = false;
 			},
 			changeNumber(value, item, index) {
@@ -584,6 +586,53 @@
 					this.formData[currentItem.operationCode] = value;
 				}
 				this.$refs.uForm.validateField(currentItem.operationCode);
+			},
+			// 更新单个记录数据
+			updateRecord(params, operationCode) {
+				queryBatchRecord(params).then(res => {
+					if (res.success && res.data && Array.isArray(res.data.value)) {
+						const record = res.data.value[0] || {}
+						const fileList = record.fileList || [];
+						fileList.forEach(img => {
+							img.url =
+								`http://10.16.9.128:9000/${img.fileUrl}`;
+							img.type = img.fileType || "";
+							img.name = img.fileName || '';
+							img.filePath = img.fileUrl;
+						})
+
+						let contentInfo = record.contentInfo;
+						const item = this.submitFormData.filter(item => item.operationCode === operationCode)[0];
+						// 根据返回code，回显中文
+						if (item.operationType === '1') {
+							contentInfo = record.contentInfo || record.lowerLimit || '';
+						} else if (item.operationType === '3') {
+							item.dictionaryContent.forEach(d => {
+								if (d.code === record.contentInfo) {
+									contentInfo = d.name
+								}
+							})
+						} else if (item.operationType === '4') {
+							const list = record.contentInfo.split(',')
+							const nameList = []
+							item.dictionaryContent.forEach(d => {
+								if (list.includes(d.code)) {
+									nameList.push(d.name)
+								}
+							})
+							item.contentInfo = nameList && nameList.join(',')
+							contentInfo = item.contentInfo || "";
+						} else {
+							contentInfo = item.contentInfo || "";
+						}
+
+						this.$set(this.submitFormData[this.currentIndex], 'contentInfo', contentInfo);
+						this.$set(this.submitFormData[this.currentIndex], 'id', record.id);
+						this.submitFormData[this.currentIndex].fileList = fileList;
+						this.formData[operationCode] = contentInfo;
+						this.$refs.uForm.validateField(operationCode);
+					}
+				})
 			}
 		}
 	}

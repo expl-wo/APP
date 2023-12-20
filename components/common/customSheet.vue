@@ -96,7 +96,7 @@
 				width: 8px;
 				height: 8px;
 				border-radius: 50%;
-				background-color: red;
+				background-color: #19be6b;
 				position: absolute;
 				top: 5px;
 				right: 5px;

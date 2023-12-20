@@ -18,7 +18,7 @@
 			</scroll-view>
 			<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else></u-empty>
 		</view>
-		<view class="card-list" v-if="orderInfo.type === 'overhaul'">
+		<view class="card-list" v-if="orderInfo.retFactory === 0">
 			<view class="card-item bg" v-for="(item, index) in cardList" :key="index">
 				<Card title="title" :cardInfo="item" @click.native="handleShowDetail(item)" />
 				<view class="btn-box">
@@ -29,7 +29,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="card-list" v-if="orderInfo.type === 'overhaul'">
+		<view class="card-list" v-if="orderInfo.retFactory === 1">
 			<view class="card-item bg" v-for="(item, index) in cardList" :key="index">
 				<Card title="title" :cardInfo="item" @click.native="handleShowDetail(item)" />
 				<view class="btn-box">
@@ -97,10 +97,10 @@
 						title: '返厂检修-现场拆解',
 						code: "OVER_HAUL_BACK_CHAI_JIE_SCENE"
 					}, {
-						title: '返厂检修-厂内拆解',
+						title: '返厂检修-场内拆解',
 						code: "OVER_HAUL_BACK_INNER_CHAI_JIE_SCENE"
 					}, {
-						title: '返厂检修-现场拆解',
+						title: '返厂检修-厂内生产',
 						code: "OVER_HAUL_BACK_INNER_PRODUCTION_SCENE"
 					}, {
 						title: '返厂检修-试验',

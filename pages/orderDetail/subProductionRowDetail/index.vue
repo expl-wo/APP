@@ -13,10 +13,6 @@
 			<ProductionInfo :fieldMapText="fieldMapText" :infoObj="detailInfo" style="height: auto;" />
 			<!-- 用户信息 -->
 			<UserInfo style="padding: 16px" fontColor='#000'>
-				<!-- <view class="sign-time">
-					<text :title='signInTime' v-if='signInTime' style="margin-right: 10px;">签到：{{signInTime}}</text>
-					<text v-if='signOutTime'>签退：{{signOutTime}}</text>
-				</view> -->
 			</UserInfo>
 			<view class="sign-box">
 				<u-button type="primary" class="sign-btn" @click="handleSign('signIn')" :disabled="signBtnEnable"
@@ -26,8 +22,9 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' :saveBtnDisabled='disableStartWorkBtn' :isStart='isStart' :commonParam='commonParam' @getBatchRecord='getBatchRecord'
-			@reload='initData' @takePhotoAndVideo="takePhotoAndVideo" v-if="formList.length" />
+		<CustomForm :formList='formList' :saveBtnDisabled='disableReportBtn' :isStart='isStart'
+			:commonParam='commonParam' @getBatchRecord='getBatchRecord' @reload='initData'
+			@takePhotoAndVideo="takePhotoAndVideo" v-if="formList.length" />
 		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
 		</u-empty>
 		<!-- 按钮 -->
@@ -44,7 +41,8 @@
 			</view>
 			<u-button class="right-btn" @click="handleShowProgress" text="报工" :disabled="!isStart || disableReportBtn"
 				color="#3a62d7"></u-button>
-			<u-button class="right-btn" @click="beforeStartWork" :disabled="!isStart || disableStartWorkBtn" :text="btnText"></u-button>
+			<u-button class="right-btn" @click="beforeStartWork" :disabled="!isStart || disableStartWorkBtn"
+				:text="btnText"></u-button>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
 				text='复核'></u-button>
 		</view>
@@ -135,10 +133,6 @@
 				actionSheetObj: {},
 				// 按钮文字-根据用户信息显示不同操作
 				btnText: '开工',
-				// 签到时间
-				// signInTime: '',
-				// 签退时间
-				// signOutTime: '',
 				// 展示审核面板
 				isShowProvePicker: false,
 				// 问题审核
@@ -250,8 +244,9 @@
 						})
 						res.data.value.forEach((item, index) => {
 							// 筛选图片，暂不支持文件
-							item.fileList = item.fileList ? item.fileList.filter(f => f.fileType ===
-								'jpg') : [];
+							const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img', 'gif']
+							item.fileList = item.fileList ? item.fileList.filter(f => whiteList.includes(f
+								.fileType)) : [];
 							item.upperLimit = item.upperLimit || undefined;
 						})
 						this.showList = res.data.value || [];
@@ -272,9 +267,12 @@
 								list.forEach(item => {
 									if (item.operationCode === f.operationCode) {
 										// 筛选图片，暂不支持文件
-										item.fileList = f.fileList ? f.fileList.filter(f => f
-											.fileType ===
-											'jpg') : [];
+										const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img',
+											'gif'
+										]
+										item.fileList = item.fileList ? item.fileList.filter(f =>
+											whiteList.includes(f
+												.fileType)) : [];
 										item.fileList.forEach(img => {
 											img.url =
 												`http://10.16.9.128:9000/${img.fileUrl}`;
@@ -282,12 +280,6 @@
 											img.name = img.fileName || '';
 											img.filePath = img.fileUrl;
 										})
-										item.fileList = f.fileList;
-										item.contentInfo = f.contentInfo;
-										item.id = f.id
-									}
-									// 没有数据，清空图片列表、内容
-									if (item.operationCode === operationCode && !f.operationCode) {
 										item.fileList = f.fileList;
 										item.contentInfo = f.contentInfo;
 										item.id = f.id
@@ -673,5 +665,9 @@
 
 	/deep/ .u-modal__title {
 		margin-bottom: 40px;
+	}
+
+	/deep/ .u-calendar-month__days__day__select__dot {
+		background-color: #19be6b;
 	}
 </style>

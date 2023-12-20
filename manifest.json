@@ -100,7 +100,7 @@
                     "xxxhdpi" : "static/dq_app_icon.png"
                 }
             },
-            "orientation" : [ "portrait-primary" ,"landscape-primary"]
+            "orientation" : [ "portrait-primary", "landscape-primary" ]
         }
     },
     /* 快应用特有相关 */

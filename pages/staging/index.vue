@@ -180,9 +180,8 @@
 				param.pageNum = this.pageNum;
 				if (this.showType === "issue") {
 					param.pageNum = type === 'search' ? 1 : this.pageNum;
-					const ims_workOrder = uni.getStorageSync("ims_workOrder")
-					param.workCode = ims_workOrder.id;
-					param.workScene = ims_workOrder.workScene || "SURVEY_SCENE";
+					const ims_workOrder = uni.getStorageSync("ims_workOrder");
+					param.workCode = ims_workOrder.id;	
 					param.searchKey = this.searchKey;
 					queryProcedureProblem(param).then(res => {
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
