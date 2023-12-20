@@ -242,8 +242,9 @@
 				if (this.disabled) {
 					return
 				}
-
+				this.$emit('showSelect', this.showSelector)
 				this.showSelector = !this.showSelector
+				
 			},
 			formatItemName(item) {
 				let {

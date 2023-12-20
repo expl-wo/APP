@@ -8,7 +8,7 @@
 			</view>
 		</view>
 		<view>
-			<view class="other-item half-row ellipsis">设备编号：{{ dataInfo.equipmentModel || '--' }}</view>
+			<view class="other-item half-row ellipsis">设备编号：{{ dataInfo.equipmentNumber || '--' }}</view>
 			<view class="other-item half-row ellipsis">设备类别：{{ dataInfo.equipmentType || '--' }}</view>
 		</view>
 		<view>

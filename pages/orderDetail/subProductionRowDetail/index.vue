@@ -5,7 +5,7 @@
 			<view class="info">
 				<view class="name">{{ subProductionRowName }}</view>
 				<view class="extra-info">
-					<text class="notice" @click="showTip">工序要求</text>
+					<text class="notice" @click="showTip">安全须知</text>
 					<u-icon class="icon" name="pushpin-fill" size="24" color="#3a62d7" @click="handleAddIssue" />
 				</view>
 			</view>
@@ -26,8 +26,8 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' :saveBtnDisabled='disableStartWorkBtn' :commonParam='commonParam'
-			@getBatchRecord='getBatchRecord' @reload='initData' v-if="formList.length" />
+		<CustomForm :formList='formList' :saveBtnDisabled='disableStartWorkBtn' :isStart='isStart' :commonParam='commonParam' @getBatchRecord='getBatchRecord'
+			@reload='initData' @takePhotoAndVideo="takePhotoAndVideo" v-if="formList.length" />
 		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
 		</u-empty>
 		<!-- 按钮 -->
@@ -44,15 +44,14 @@
 			</view>
 			<u-button class="right-btn" @click="handleShowProgress" text="报工" :disabled="!isStart || disableReportBtn"
 				color="#3a62d7"></u-button>
-			<u-button class="right-btn" @click="handleStarWork" :disabled="!isStart || disableStartWorkBtn"
-				:text="btnText"></u-button>
+			<u-button class="right-btn" @click="beforeStartWork" :disabled="!isStart || disableStartWorkBtn" :text="btnText"></u-button>
 			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
 				text='复核'></u-button>
 		</view>
 		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
-		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="isShowTip = false" />
+		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="closeNotice" />
 		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
 			@confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
@@ -69,6 +68,7 @@
 				</view>
 			</view>
 		</u-modal>
+		<photo-and-video :show="showFlag" @closeModal="closeModal" />
 	</view>
 </template>
 
@@ -77,6 +77,7 @@
 	import CustomForm from '@/components/common/form.vue';
 	import UserInfo from '@/components/common/user-info.vue';
 	import Notice from '@/components/common/notice.vue';
+	import PhotoAndVideo from '@/components/common/photoAndVideo.vue';
 	import moment from 'moment'
 	import {
 		getCurrRole,
@@ -107,7 +108,8 @@
 			ProductionInfo,
 			CustomForm,
 			UserInfo,
-			Notice
+			Notice,
+			PhotoAndVideo
 		},
 		computed: {
 			...mapState("workOrder", ['workOrderDetailInfo']),
@@ -170,7 +172,11 @@
 				// 报工按钮是否可用
 				disableReportBtn: false,
 				// 开工完工按钮是否可用
-				disableStartWorkBtn: false
+				disableStartWorkBtn: false,
+				// 视频拍照框
+				showFlag: false,
+				// 是否是开工时出发的安全须知
+				isStartWorkFlag: false
 			};
 		},
 		watch: {
@@ -401,6 +407,11 @@
 					url: `/pages/orderDetail/addIssue?workProcedureCode=${this.commonParam.craftId}&workScene=${this.commonParam.workScene}&workProcedureType=${3}`
 				});
 			},
+			// 开工前弹出安全须知提示
+			beforeStartWork() {
+				this.isStartWorkFlag = true;
+				this.showTip();
+			},
 			// 处理开工
 			handleStarWork() {
 				const userInfo = JSON.parse(uni.getStorageSync('hb_dq_mes_user_info'))
@@ -491,6 +502,20 @@
 				this.$nextTick(() => {
 					this.$refs.progressBar.setDefaultProgress(this.percentage);
 				})
+			},
+			// 拍照和录像
+			takePhotoAndVideo() {
+				this.showFlag = true;
+			},
+			closeModal(type) {
+				this.showFlag = false;
+			},
+			closeNotice() {
+				this.isShowTip = false;
+				if (this.isStartWorkFlag) {
+					this.isStartWorkFlag = false;
+					this.handleStarWork();
+				}
 			}
 		},
 	};
