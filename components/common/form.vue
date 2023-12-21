@@ -61,7 +61,6 @@
 			</view>
 			<view class="save-btn">
 				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
-				<!-- <u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button> -->
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -374,7 +373,7 @@
 								filePath: item.filePath,
 								fileName: item.fileName,
 								name: item.fileName,
-								type: item.fileName && item.fileName.split(".")[1],
+								type: item.fileName && item.fileName.split(".")[1].toLocaleLowerCase(),
 							}
 						})
 						this.submitFormData[index].fileList.push(...uploadedList);
@@ -546,7 +545,6 @@
 					beginTime: beginTime,
 					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
 				}]
-				// this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
 				this.updateRecord(params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCustomSheet = false
 			},
@@ -569,7 +567,6 @@
 					beginTime,
 					executionFrequency: this.submitFormData[this.currentIndex].executionFrequency
 				}]
-				// this.$emit('getBatchRecord', params, this.submitFormData[this.currentIndex].operationCode)
 				this.updateRecord(params, this.submitFormData[this.currentIndex].operationCode)
 				this.isShowCalendar = false;
 			},
@@ -600,7 +597,6 @@
 							img.name = img.fileName || '';
 							img.filePath = img.fileUrl;
 						})
-
 						let contentInfo = record.contentInfo;
 						const item = this.submitFormData.filter(item => item.operationCode === operationCode)[0];
 						// 根据返回code，回显中文
@@ -622,15 +618,13 @@
 							})
 							item.contentInfo = nameList && nameList.join(',')
 							contentInfo = item.contentInfo || "";
-						} else {
-							contentInfo = item.contentInfo || "";
 						}
-
 						this.$set(this.submitFormData[this.currentIndex], 'contentInfo', contentInfo);
 						this.$set(this.submitFormData[this.currentIndex], 'id', record.id);
 						this.submitFormData[this.currentIndex].fileList = fileList;
 						this.formData[operationCode] = contentInfo;
 						this.$refs.uForm.validateField(operationCode);
+						console.log(contentInfo, 'contentInfo', this.submitFormData);
 					}
 				})
 			}

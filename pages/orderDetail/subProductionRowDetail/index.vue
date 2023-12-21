@@ -253,7 +253,7 @@
 				})
 			},
 			// 批量获取工作内容记录
-			getBatchRecord(params, operationCode) {
+			getBatchRecord(params) {
 				queryBatchRecord(params).then(res => {
 					if (res.success && res.data && Array.isArray(res.data.value)) {
 						const list = this.showList;
@@ -265,9 +265,9 @@
 										const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img',
 											'gif'
 										]
-										item.fileList = item.fileList ? item.fileList.filter(f =>
-											whiteList.includes(f
-												.fileType)) : [];
+										item.fileList = f.fileList ? f.fileList.filter(file =>
+											whiteList.includes(file
+												.fileType.toLocaleLowerCase())) : [];
 										item.fileList.forEach(img => {
 											img.url =
 												`http://10.16.9.128:9000/${img.fileUrl}`;
@@ -277,13 +277,12 @@
 										})
 										item.fileList = f.fileList;
 										item.contentInfo = f.contentInfo;
-										item.id = f.id
+										item.id = f.id;
 									}
 								})
 							})
 						} else {
 							// 更新时没值把对应内容置空
-							console.log(operationCode, 'params.operationCode')
 							list.forEach(item => {
 								if (item.operationCode === operationCode) {
 									item.contentInfo = "";
@@ -634,6 +633,9 @@
 			}
 
 			.right-btn {
+				display: flex;
+				justify-content: space-between;
+
 				.btn {
 					width: 160rpx;
 					height: 60rpx;
