@@ -406,7 +406,7 @@
 			},
 			beforeStartWork() {
 				// 开工前弹出安全须知提示
-				if (this.btnText = '开工') {
+				if (this.btnText === '开工') {
 					this.isStartWorkFlag = true;
 					this.showTip();
 				} else {
