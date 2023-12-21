@@ -153,6 +153,12 @@
 						this.initDefVal()
 					}
 				}
+			},
+			showSelector: {
+				handler(newVal, oldVal) {
+					this.$emit('selectorShowChange', newVal)
+				},
+				immediate: true
 			}
 		},
 		methods: {
@@ -242,7 +248,6 @@
 				if (this.disabled) {
 					return
 				}
-				this.$emit('showSelect', this.showSelector)
 				this.showSelector = !this.showSelector
 				
 			},

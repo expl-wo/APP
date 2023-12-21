@@ -80,15 +80,18 @@
                 "ad" : {},
                 "maps" : {
                     "amap" : {
-                        "appkey_ios" : "863480b77e7b0c312f1f5b8d4daea974",
-                        "appkey_android" : "863480b77e7b0c312f1f5b8d4daea974"
+                        "appkey_ios" : "4196600096448c755f3eee0ab1126d96",
+                        "appkey_android" : "4196600096448c755f3eee0ab1126d96"
                     }
                 },
                 "geolocation" : {
                     "amap" : {
                         "__platform__" : [ "android" ],
-                        "appkey_ios" : "863480b77e7b0c312f1f5b8d4daea974",
-                        "appkey_android" : "863480b77e7b0c312f1f5b8d4daea974"
+                        "appkey_ios" : "4196600096448c755f3eee0ab1126d96",
+                        "appkey_android" : "4196600096448c755f3eee0ab1126d96"
+                    },
+                    "system" : {
+                        "__platform__" : [ "android" ]
                     }
                 }
             },
@@ -101,7 +104,8 @@
                 }
             },
             "orientation" : [ "portrait-primary", "landscape-primary" ]
-        }
+        },
+        "nativePlugins" : {}
     },
     /* 快应用特有相关 */
     "quickapp" : {},

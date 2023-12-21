@@ -28,7 +28,6 @@
 				</view>
 			</view>
 		</view>
-		<view>{{JSON.stringify(error)}}</view>
 		<map id="map" class="map-container" :latitude="latitude" :longitude="longitude" :markers="markers">
 			<cover-view class="btn-wrapper">
 				<cover-view class="btn" @click="signIn">
@@ -43,6 +42,9 @@
 	import UserInfo from '@/components/common/user-info.vue';
 	import { getProjectList, getSignInData, signIn } from '@/https/overhaul/clockIn';
 	import { getUserInfo  } from '@/utils/auth.js';
+	import {
+		CLOCKIN_STATUS
+	} from '@/utils/constants-custom.js'
 	import moment from 'moment';
 	export default {
 		components: {
@@ -55,27 +57,7 @@
 				longitude: '',
 				markers: [],
 				// tabs列表
-				tabs: Object.freeze([{
-						name: "在公司",
-						value: 1
-					},
-					{
-						name: "休假中",
-						value: 2
-					},
-					{
-						name: "去现场",
-						value: 3
-					},
-					{
-						name: "现场",
-						value: 4
-					},
-					{
-						name: "返程中",
-						code: 5
-					}
-				]),
+				tabs: Object.freeze(CLOCKIN_STATUS),
 				// 当前选中tab
 				activeIndex: 0,
 				show: false,
@@ -93,7 +75,6 @@
 				selectProject: null,
 				address: '',
 				projectList: [],
-				error: null
 			}
 		},
 		computed: {
@@ -182,7 +163,6 @@
 						flag && this.moveToCenter();
 					},
 					fail: err => {
-						this.error = err;
 						console.log("获取定位失败", err);
 						uni.showToast({
 							title: '获取定位失败',
@@ -233,12 +213,7 @@
 					clockInLocation: `${this.longitude},${this.latitude}`,
 					clockInAddress: this.address,
 					clockInProjNo: this.selectProject.id,
-					clockInProjName: this.selectProject.name,
-					// 接口测试数据
-					// clockInProjNo: 3002,
-					// clockInProjName: '测试多条数据',
-					// clockInLocation: '112.650253,26.840432',
-					// clockInAddress: '湖南省衡阳市雁峰区白沙大道73号明星小区',
+					clockInProjName: this.selectProject.name
 				}
 				signIn(params)
 				.then(res => {
