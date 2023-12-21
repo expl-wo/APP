@@ -39,12 +39,14 @@
 					<u-icon name="arrow-right" size="30" bold></u-icon>
 				</u-button>
 			</view>
-			<u-button class="right-btn" @click="handleShowProgress" text="报工" :disabled="!isStart || disableReportBtn"
-				color="#3a62d7"></u-button>
-			<u-button class="right-btn" @click="beforeStartWork" :disabled="!isStart || disableStartWorkBtn"
-				:text="btnText"></u-button>
-			<u-button class="right-btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
-				text='复核'></u-button>
+			<view class="right-btn" v-if="formList.length">
+				<u-button class="btn" @click="handleShowProgress" text="报工" :disabled="!isStart || disableReportBtn"
+					color="#3a62d7"></u-button>
+				<u-button class="btn" @click="beforeStartWork" :disabled="!isStart || disableStartWorkBtn"
+					:text="btnText"></u-button>
+				<u-button class="btn" @click="isShowProvePicker = true" :disabled="disabledProveBtn"
+					text='复核'></u-button>
+			</view>
 		</view>
 		<!-- 复核面板 -->
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
@@ -53,17 +55,8 @@
 		<u-modal :show="showReportProgress" title="选择进度" width='360px' @cancel='showReportProgress=false'
 			:closeOnClickOverlay='true' @confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
-				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress" :min='0' :max='106'
-					:slideBarWidth="300">
-				</luanqing-moveable-progress-bar>
-				<view style="display: flex;margin-top: 10px;">
-					<u-button @click="computedWidth('minus')" style="margin-right:5px;">
-						<u-icon name="minus"></u-icon>
-					</u-button>
-					<u-button @click="computedWidth('plus')">
-						<u-icon name="plus"></u-icon>
-					</u-button>
-				</view>
+				<DragProgress ref="progressBar" @change="handleProgress" :min='0' :max='100' :slideBarWidth="300">
+				</DragProgress>
 			</view>
 		</u-modal>
 		<photo-and-video :show="showFlag" @closeModal="closeModal" />
@@ -76,6 +69,7 @@
 	import UserInfo from '@/components/common/user-info.vue';
 	import Notice from '@/components/common/notice.vue';
 	import PhotoAndVideo from '@/components/common/photoAndVideo.vue';
+	import DragProgress from '@/components/bestjhh-movable-area/bestjhh-movable-area.vue';
 	import moment from 'moment'
 	import {
 		getCurrRole,
@@ -107,7 +101,8 @@
 			CustomForm,
 			UserInfo,
 			Notice,
-			PhotoAndVideo
+			PhotoAndVideo,
+			DragProgress // 可拖动进度条
 		},
 		computed: {
 			...mapState("workOrder", ['workOrderDetailInfo']),
@@ -406,7 +401,7 @@
 			},
 			beforeStartWork() {
 				// 开工前弹出安全须知提示
-				if (this.btnText = '开工') {
+				if (this.btnText === '开工') {
 					this.isStartWorkFlag = true;
 					this.showTip();
 				} else {
@@ -434,7 +429,8 @@
 				reportWorKOrderStatus(param).then(res => {
 					if (res.success) {
 						const workStep = uni.getStorageSync('ims_workStep') || {}
-						workStep.workStatus = idx === 2 ? 1 : 3 // 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+						workStep.workStatus = idx === 2 ? 1 :
+							3 // 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
 						uni.setStorageSync('ims_workStep', workStep)
 						this.initData();
 						uni.$u.toast('操作成功')
@@ -479,12 +475,14 @@
 					operator: userInfo.username
 				}
 				reportWork(param).then(res => {
-					if (res.success) {
+					if (res.code === '0') {
 						uni.$u.toast('报工成功')
-						// 刷新中工序页面
-						// uni.redirectTo({
-						// 	url: "/pages/orderDetail/productionDetail/index"
-						// })
+					} else if (res.code === '10070') {
+						uni.$u.toast('该工步已完工');
+						const workStep = uni.getStorageSync('ims_workStep') || {}
+						workStep.workStatus = 3;
+						uni.setStorageSync('ims_workStep', workStep)
+						this.initData();
 					} else {
 						uni.$u.toast('报工失败')
 					}
@@ -492,29 +490,11 @@
 					this.showReportProgress = false;
 				})
 			},
-			// 进度条增减操作
-			computedWidth(type) {
-				this.$nextTick(() => {
-					type === 'plus' ? this.percentage++ : this.percentage--;
-					if (this.percentage > 100) {
-						this.percentage = 100;
-						return
-					}
-					if (this.percentage < 0) {
-						this.percentage = 0;
-						return
-					}
-					this.$refs.progressBar.setDefaultProgress(this.percentage);
-				})
-			},
 			handleProgress(num) {
 				this.percentage = num;
 			},
 			handleShowProgress() {
 				this.showReportProgress = true;
-				this.$nextTick(() => {
-					this.$refs.progressBar.setDefaultProgress(this.percentage);
-				})
 			},
 			// 拍照和录像
 			takePhotoAndVideo() {
@@ -654,13 +634,15 @@
 			}
 
 			.right-btn {
-				width: 160rpx;
-				height: 60rpx;
-				line-height: 60rpx;
-				background-color: #3a62d7;
-				border-radius: 16rpx;
-				font-size: $fontSize;
-				color: #fff;
+				.btn {
+					width: 160rpx;
+					height: 60rpx;
+					line-height: 60rpx;
+					background-color: #3a62d7;
+					border-radius: 16rpx;
+					font-size: $fontSize;
+					color: #fff;
+				}
 			}
 
 			view {

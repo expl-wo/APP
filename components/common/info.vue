@@ -1,6 +1,6 @@
 <template>
 	<view class="info-root">
-		<view class="info-item" :key="item" v-for="(item, key) in infoObj">
+		<view class="info-item" :key="key" v-for="(item, key) in infoObj">
 			<u-icon class="icon" v-if="getIconByKey(key)" :name="getIconByKey(key)" />
 			<text class="label">{{ getLabelByKey(key) }}:</text>
 			<text class="value">{{ item }}</text>

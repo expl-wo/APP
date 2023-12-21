@@ -1,82 +1,59 @@
 <template>
 	<view>
-		<view class="slider-container" :style="'width:'+(slideBarWidth)+'px'">
-			<movable-area class="sliderBar" :style="'width:'+slideBarWidth+'px;'">
-				<!-- 蓝色背景条 -->
+		<view class="slider-box">
+			<view class="flex"></view>
+			<movable-area class="sliderBar" :style="{width: (100 - minScore)+'%'}">
 				<view class="gone" :style="{width: x +'px'}"></view>
-
-				<movable-view class="slider" direction="horizontal" :x="x" @change="onChange">
+				<movable-view class="slider" :x="x" :y="y" direction="all" @change="onChange">
 					<text>{{ score }}</text>
 				</movable-view>
 			</movable-area>
-
-			<!-- 灰色背景条 -->
-			<view :style="{width: (minScore / maxScore) * 100 +'%'}"></view>
+			<view :style="{width: (100 - maxScore) +'%'}"></view>
 		</view>
 	</view>
 </template>
 
 <script>
 	export default {
-		props: {
-			max: {
-				type: Number,
-				default: 100
-			},
-			min: {
-				type: Number,
-				default: 0
-			},
-			slideBarWidth: {
-				type: Number,
-				default: 360,
-			}
-		},
+		props: ['min', 'max'],
 		data() {
 			return {
+				slideBarWidth: 0,
 				minScore: this.min ? this.min : 0,
 				maxScore: this.max ? this.max : 100,
-				score: 0,
 				x: 0,
 				y: 0,
+				score: this.min ? this.min : 0,
 			};
 		},
+		mounted() {
+			var that = this;
+			this.$nextTick(() => {
+				uni.createSelectorQuery().select(".slider-box").boundingClientRect(function(res) {
+					console.log(res, 'res')
+					debugger
+					that.slideBarWidth = res.width
+				}).exec();
+			})
+		},
 		methods: {
-			setDefaultProgress(progress) {
-				let barWidth = this.$props.slideBarWidth || 0;
-				this.x = barWidth * (progress / 100.0);
-				this.score = progress;
-			},
-			onChange: function(e) {
-				// 手动拖动才生效 
-				if (e.detail.source === 'touch') {
-					this.x = e.detail.x;
-					let barWidth = this.$props.slideBarWidth || 0;
-					let num = parseInt(this.x / barWidth * this.maxScore);
-
-					num = num > this.maxScore ? this.maxScore : num;
-					num = num < this.minScore ? this.minScore : num;
-					this.score = num;
-
-					// 100 368.2 347 100
-					// 57 200.2 347 100
-					console.error("拖拽条：", num, this.x, barWidth, this.maxScore)
-					this.$emit('change', num);
-				}
+			onChange: function(e, i) {
+				this.x = e.detail.x
+				this.score = parseInt(e.detail.x / this.slideBarWidth * 100) + parseInt(this.minScore)
+				this.$emit('change', this.score)
 			}
 		}
 	}
 </script>
 
 <style lang="scss">
-	// 取用开发者项目的中主色调  uni.scss
-	// $uni-color-primary: #E00300;
+	$uni-color-primary: #3a62d7;
 
-	.slider-container {
+	.slider-box {
 		display: flex;
+		width: 100%;
 		height: 32rpx;
 		position: relative;
-		margin: 0 auto;
 
 		&::before {
 			content: '';
@@ -103,6 +80,7 @@
 		.sliderBar {
 			height: 100%;
 			border-radius: 8rpx;
+			width: 100%;
 
 			.gone {
 				background-color: $uni-color-primary;
@@ -137,7 +115,7 @@
 					width: 60rpx;
 					color: white;
 					border-radius: 14rpx;
-					top: -120%;
+					top: -140%;
 					left: 50%;
 					text-align: center;
 					transform: translateX(-50%);
