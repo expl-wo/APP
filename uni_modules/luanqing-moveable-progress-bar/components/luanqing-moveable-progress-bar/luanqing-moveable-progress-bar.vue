@@ -4,12 +4,12 @@
 			<movable-area class="sliderBar" :style="'width:'+slideBarWidth+'px;'">
 				<!-- 蓝色背景条 -->
 				<view class="gone" :style="{width: x +'px'}"></view>
-				
+
 				<movable-view class="slider" direction="horizontal" :x="x" @change="onChange">
 					<text>{{ score }}</text>
 				</movable-view>
 			</movable-area>
-			
+
 			<!-- 灰色背景条 -->
 			<view :style="{width: (minScore / maxScore) * 100 +'%'}"></view>
 		</view>
@@ -27,7 +27,7 @@
 				type: Number,
 				default: 0
 			},
-			slideBarWidth:{
+			slideBarWidth: {
 				type: Number,
 				default: 360,
 			}
@@ -42,25 +42,25 @@
 			};
 		},
 		methods: {
-			setDefaultProgress(progress){
+			setDefaultProgress(progress) {
 				let barWidth = this.$props.slideBarWidth || 0;
 				this.x = barWidth * (progress / 100.0);
 				this.score = progress;
 			},
 			onChange: function(e) {
 				// 手动拖动才生效 
-				if(e.detail.source === 'touch'){
+				if (e.detail.source === 'touch') {
 					this.x = e.detail.x;
 					let barWidth = this.$props.slideBarWidth || 0;
 					let num = parseInt(this.x / barWidth * this.maxScore);
-					
+
 					num = num > this.maxScore ? this.maxScore : num;
 					num = num < this.minScore ? this.minScore : num;
 					this.score = num;
-					
+
 					// 100 368.2 347 100
 					// 57 200.2 347 100
-					console.error("拖拽条：",num, this.x, barWidth, this.maxScore)
+					console.error("拖拽条：", num, this.x, barWidth, this.maxScore)
 					this.$emit('change', num);
 				}
 			}
@@ -76,6 +76,7 @@
 		display: flex;
 		height: 32rpx;
 		position: relative;
+		margin: 0 auto;
 
 		&::before {
 			content: '';
@@ -136,7 +137,7 @@
 					width: 60rpx;
 					color: white;
 					border-radius: 14rpx;
-					top: -90%;
+					top: -120%;
 					left: 50%;
 					text-align: center;
 					transform: translateX(-50%);

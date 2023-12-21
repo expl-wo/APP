@@ -50,11 +50,11 @@
 		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
 			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="closeNotice" />
-		<u-modal :show="showReportProgress" title="选择进度" @cancel='showReportProgress=false' :closeOnClickOverlay='true'
-			@confirm='handleReport' @close='showReportProgress=false'>
+		<u-modal :show="showReportProgress" title="选择进度" width='360px' @cancel='showReportProgress=false'
+			:closeOnClickOverlay='true' @confirm='handleReport' @close='showReportProgress=false'>
 			<view class="slot-content">
-				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress" :min='0' :max='100'
-					:slideBarWidth="620">
+				<luanqing-moveable-progress-bar ref="progressBar" @change="handleProgress" :min='0' :max='106'
+					:slideBarWidth="300">
 				</luanqing-moveable-progress-bar>
 				<view style="display: flex;margin-top: 10px;">
 					<u-button @click="computedWidth('minus')" style="margin-right:5px;">
@@ -428,11 +428,14 @@
 				}
 				reportWorKOrderStatus(param).then(res => {
 					if (res.success) {
-						// this.initData();
+						const workStep = uni.getStorageSync('ims_workStep') || {}
+						workStep.workStatus = idx === 2 ? 1 : 3 // 按钮权限控制 /0, “未派工”-不显示按钮;1, “已开工”-显示已完工按钮;2, “未开工”-显示开工按钮;3, “已完工”;
+						uni.setStorageSync('ims_workStep', workStep)
+						this.initData();
 						uni.$u.toast('操作成功')
-						uni.redirectTo({
-							url: "/pages/orderDetail/productionDetail/index"
-						})
+						// uni.redirectTo({
+						// 	url: "/pages/orderDetail/productionDetail/index"
+						// })
 					} else {
 						uni.$u.toast(res.errMsg || '操作失败')
 					}
@@ -474,9 +477,9 @@
 					if (res.success) {
 						uni.$u.toast('报工成功')
 						// 刷新中工序页面
-						uni.redirectTo({
-							url: "/pages/orderDetail/productionDetail/index"
-						})
+						// uni.redirectTo({
+						// 	url: "/pages/orderDetail/productionDetail/index"
+						// })
 					} else {
 						uni.$u.toast('报工失败')
 					}
