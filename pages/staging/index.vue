@@ -183,7 +183,8 @@
 					const ims_workOrder = uni.getStorageSync("ims_workOrder");
 					param.workCode = ims_workOrder.id;	
 					param.searchKey = this.searchKey;
-					queryProcedureProblem(param).then(res => {
+					queryProcedureProblem(param)
+					.then(res => {
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
 							listData = res.data.pageList.map(item => ({
@@ -198,10 +199,14 @@
 							uni.$u.toast(res.errMsg || '暂无数据')
 						}
 					})
+					.finally(() => {
+						this.refreshing = false;
+					})
 				} else {
 					param.projName = this.searchKey;
 					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
-					getWorkOrderPageData(param).then(res => {
+					getWorkOrderPageData(param)
+					.then(res => {
 						if (res.success && res.data && Array.isArray(res.data.pageList)) {
 							this.total = res.data.total;
 							listData = res.data.pageList.map(item => ({
@@ -213,6 +218,9 @@
 						} else {
 							uni.$u.toast(res.errMsg || '暂无数据')
 						}
+					})
+					.finally(() => {
+						this.refreshing = false;
 					})
 				}
 
@@ -237,7 +245,6 @@
 				} else {
 					this.status = 'nomore'
 				}
-				this.refreshing = false
 			},
 			/**
 			 * @method handleRouterChange 处理路由改变-问题页面

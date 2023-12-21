@@ -28,6 +28,7 @@
 				</view>
 			</view>
 		</view>
+		<view>{{JSON.stringify(error)}}</view>
 		<map id="map" class="map-container" :latitude="latitude" :longitude="longitude" :markers="markers">
 			<cover-view class="btn-wrapper">
 				<cover-view class="btn" @click="signIn">
@@ -91,7 +92,8 @@
 				],
 				selectProject: null,
 				address: '',
-				projectList: []
+				projectList: [],
+				error: null
 			}
 		},
 		computed: {
@@ -180,6 +182,7 @@
 						flag && this.moveToCenter();
 					},
 					fail: err => {
+						this.error = err;
 						console.log("获取定位失败", err);
 						uni.showToast({
 							title: '获取定位失败',

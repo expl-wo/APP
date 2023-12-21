@@ -36,7 +36,7 @@
 				this.$emit('modalConfirm', this.value);
 			},
 			cancel() {
-				this.$emit('closeModal', 'material', false);
+				this.$emit('closeModal', false);
 			}
 		},
 	}
