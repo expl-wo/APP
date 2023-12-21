@@ -1,6 +1,6 @@
 {
-    "name" : "HB_TNJ_MES",
-    "appid" : "__UNI__38B9548",
+    "name" : "TNJ_AI",
+    "appid" : "__UNI__A710C34",
     "description" : "",
     "versionName" : "1.0.0",
     "versionCode" : 100,
@@ -12,7 +12,7 @@
             "template" : {
                 //prompt取值为template时有效，用于配置模板提示框上显示的内容
                 "title" : "温馨提示",
-                "message" : "　　欢迎使用特能建MES系统，为保证正常使用，请将扫描模式调成【广播】。操作为：点击【扫描工具】->【应用设置】->【条码发送】->【广播】。如有任何问题，请联系所在公司的运维人员。<br/>",
+                "message" : "　　欢迎使用特能建AI系统，为保证正常使用，请将扫描模式调成【广播】。操作为：点击【扫描工具】->【应用设置】->【条码发送】->【广播】。如有任何问题，请联系所在公司的运维人员。<br/>",
                 "buttonAccept" : "已完成设置", //继续下一步，进入首页
                 "buttonRefuse" : "取消" //退出下载
             }
@@ -127,7 +127,7 @@
     },
     "vueVersion" : "2",
     "h5" : {
-        "title" : "HB_TNJ_MES",
+        "title" : "TNJ_AI",
         "devServer" : {
             "port" : 8046,
             "disableHostCheck" : true,
