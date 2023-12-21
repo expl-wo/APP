@@ -2,7 +2,7 @@
 	<view class="staging-root">
 		<!-- 头部tab -->
 		<view class="head-tab">
-			<view></view>
+			<view>{{ showType }} {{ JSON.stringify(cardList) }}</view>
 			<view v-for="(tab, index) in tabList" :class="['tab-item', activeIndex === index ? 'active' : undefined]"
 				:key="tab.label" @click="handleTabChange(tab, index)">
 				<span>{{ tab.label }}</span>

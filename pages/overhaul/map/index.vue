@@ -26,6 +26,7 @@
 						</view>
 					</view>
 				</view>
+				<view>{{ locationError }}</view>
 			</view>
 		</view>
 		<map id="map" class="map-container" :latitude="latitude" :longitude="longitude" :markers="markers">
@@ -75,6 +76,7 @@
 				selectProject: null,
 				address: '',
 				projectList: [],
+				locationError: null
 			}
 		},
 		computed: {
@@ -163,6 +165,7 @@
 						flag && this.moveToCenter();
 					},
 					fail: err => {
+						this.locationError = JSON.stringify(err);
 						console.log("获取定位失败", err);
 						uni.showToast({
 							title: '获取定位失败',
