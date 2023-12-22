@@ -3,7 +3,7 @@
 		<view class="top">
 			<view class="name">{{ dataInfo.toolName || '--' }}</view>
 			<view class="icon">
-				<u-icon name="edit-pen" color="#3a62d7" size="36rpx" @click="editNum"></u-icon>
+				<u-icon name="edit-pen" :color="isDisabled ? '#c4c6c9' : '#3a62d7'" size="36rpx" @click="editNum"></u-icon>
 			</view>
 		</view>
 		<view>
@@ -26,9 +26,15 @@
 				
 			};
 		},
+		computed: {
+			isDisabled() {
+				return [16, 17].includes(+uni.getStorageSync('ims_workOrder').orderStatus)
+			}
+		},
 		methods: {
 			// 编辑数量
 			editNum() {
+				if (this.isDisabled) return;
 				this.$emit('editNum', 'tool', this.dataInfo);
 			}
 		}
