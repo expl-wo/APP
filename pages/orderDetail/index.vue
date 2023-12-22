@@ -95,35 +95,52 @@
 						index: 0,
 						name: "工序列表",
 						cName: "ProcessList",
+						key: "ProcessList"
 					},
 					{
 						index: 1,
 						name: "拆解BOM",
 						cName: "Bom",
+						key: "BomList"
 					},
 					{
 						index: 2,
 						name: "返厂清单",
 						cName: "deviceList",
+						key: "ReturnList"
 					},
 					{
 						index: 3,
 						name: "设备清单",
-						cName: "deviceList"
+						cName: "deviceList",
+						key: "DeviceList"
 
 					},
 					{
 						index: 4,
 						name: "材料清单",
-						cName: "deviceList"
+						cName: "deviceList",
+						key: "MaterialList"
 					},
 					{
 						index: 5,
 						name: "工装工具清单",
-						cName: "deviceList"
+						cName: "deviceList",
+						key: "ToolList"
 					}
 				];
 				// 勘查工单没有返厂清单列表
+				if (this.routeParam.type === "workOrder") {
+					return list.slice(0, 1);
+				} else {
+					let ims_workOrder = uni.getStorageSync("ims_workOrder");
+					// 检修工单现场检修没有拆解BOM和返厂清单
+					if (!ims_workOrder.retFactory) {
+						return list.filter(item => item.index !== 1 && item.index !== 2);
+					} else {
+						return list;
+					}
+				}
 				return this.routeParam.type === "workOrder" ? list.slice(0, 1) : list;
 			},
 		},
@@ -182,8 +199,9 @@
 			 * @method handleTabChange tab切换
 			 **/
 			handleTabChange(item) {
+				debugger;
 				this.componentName = item.cName;
-				this.$store.commit('workOrder/updateActiveTab', item.index);
+				this.$store.commit('workOrder/updateActiveTab', item.key);
 			},
 			// 获取图片地址
 			getUrl(url) {

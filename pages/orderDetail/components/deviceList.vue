@@ -2,26 +2,26 @@
 <template>
 	<view class="full-content">
 		<scroll-view :scroll-top="scrollTop" :show-scrollbar="true" scroll-y="true" class="list-wrapper"
-			:style="{'height': activeTab === 2 ? 'calc(100% - 50px)' : '100%'}"
+			:style="{'height': activeTab === 'ReturnList' ? 'calc(100% - 50px)' : '100%'}"
 			:refresher-enabled="true" :refresher-threshold="80" :upper-threshold="50" :lower-threshold="30"
 			:refresher-triggered="refreshing" @refresherrefresh="getData('scrolltoupper')"
 			@scrolltolower="getData('scrolltolower')">
-			<template v-if="activeTab === 2">
+			<template v-if="activeTab === 'ReturnList'">
 				<return-item v-for="item in listData" :key="item.bomId" :dataInfo="item" @checkBom="checkBom" />
 			</template>
-			<template v-if="activeTab === 3">
-				<device-item v-for="(item, index) in listData" :dataInfo="item" :key="item.equipmentNumber" />
+			<template v-if="activeTab === 'DeviceList'">
+				<device-item v-for="item in listData" :dataInfo="item" :key="item.equipmentNumber" />
 			</template>
-			<template v-if="activeTab === 4">
+			<template v-if="activeTab === 'MaterialList'">
 				<material-item v-for="item in listData" :key="item.materialId" :dataInfo="item" @editNum="editNum" />
 			</template>
-			<template v-if="activeTab === 5">
+			<template v-if="activeTab === 'ToolList'">
 				<tool-item v-for="item in listData" :key="item.toolId" :dataInfo="item" @editNum="editNum" />
 			</template>
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 		</scroll-view>
 		<edit-num-modal :show="showModal" :num="num" @closeModal="closeModal" @modalConfirm="modalConfirm" />
-		<view v-if="activeTab === 2 && listData.length" class="btn-wrapper">
+		<view v-if="activeTab === 'ReturnList' && listData.length" class="btn-wrapper">
 			<u-button class="btn" type="primary" text="扫码复核" color="#243d8f" :loading="btnLoading" loadingText="操作中"
 				@click="checkBom" />
 		</view>
@@ -30,12 +30,7 @@
 
 <script>
 	
-	const apiMap = {
-		2: 'getReturnList',
-		3: 'getDeviceList',
-		4: 'getMaterialList',
-		5: 'getToolList'
-	}
+	const needSceneList = ['DeviceList', 'MaterialList', 'ToolList'];
 	
 	import {
 		getReturnList,
@@ -90,8 +85,11 @@
 			...mapState("workOrder", ["activeTab"]),
 		},
 		watch: {
-			activeTab(newVal, oldVal) {
-				this.reGetData();
+			activeTab: {
+				handler(newVal, oldVal) {
+					this.reGetData();
+				},
+				immediate: true
 			}
 		},
 		mounted() {
@@ -125,14 +123,16 @@
 					pageSize,
 					workCode: id
 				};
-				if (this.activeTab >= 2) {
+				if (needSceneList.includes(this.activeTab)) {
 					params.workOrderSceneType = retFactory ? 'OVER_HAUL_BACK_CHAI_JIE_SCENE' : 'OVER_HAUL_ON_THE_SPOT_SCENE'
+				} else {
+					delete params.workOrderSceneType
 				}
 				if (type !== 'scrolltoupper') {
 					this.status = 'loading';
 					this.showLoading = true;
 				}
-				this[apiMap[this.activeTab]](params)
+				this[`get${this.activeTab}`](params)
 				.then(res => {
 					if (res.success && res.data) {
 							let {
