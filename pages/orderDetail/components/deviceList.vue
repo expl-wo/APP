@@ -16,7 +16,7 @@
 				<material-item v-for="item in listData" :key="item.materialId" :dataInfo="item" @editNum="editNum" />
 			</template>
 			<template v-if="activeTab === 5">
-				<tool-item v-for="item in listData" :key="item.bomId" :dataInfo="item" @editNum="editNum" />
+				<tool-item v-for="item in listData" :key="item.toolId" :dataInfo="item" @editNum="editNum" />
 			</template>
 			<u-loadmore v-if="showLoading" :status="status" :nomoreText="nomoreText" />
 		</scroll-view>

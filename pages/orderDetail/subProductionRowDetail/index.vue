@@ -89,7 +89,8 @@
 		searchSignInfoApi,
 		searchTemplateList,
 		searchStandardById,
-		reportWork
+		reportWork,
+		isFirstTimeStart
 	} from "@/https/staging/index.js";
 	import {
 		SUB_PRODUCTION_MAP
@@ -401,8 +402,19 @@
 			beforeStartWork() {
 				// 开工前弹出安全须知提示
 				if (this.btnText === '开工') {
-					this.isStartWorkFlag = true;
-					this.showTip();
+					let params = {
+						workCode: this.commonParam.workCode,
+						userId: getUserInfo().username
+					}
+					isFirstTimeStart(params)
+					.then(res => {
+						if (res.success && res.data && !res.data.isStart) {
+							this.isStartWorkFlag = true;
+							this.showTip();
+						} else {
+							this.handleStarWork();
+						}
+					})
 				} else {
 					this.handleStarWork();
 				}

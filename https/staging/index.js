@@ -199,3 +199,11 @@ export function searchStandardById(data) {
 		data
 	})
 }
+// 查询是否首次开工
+export function isFirstTimeStart(params) {
+	return request({
+		url: `/evo-ims-overhaul/work-procedure/query-start-work`,
+		method: 'post',
+		data: params
+	})
+}
