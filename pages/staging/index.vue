@@ -2,7 +2,7 @@
 	<view class="staging-root">
 		<!-- 头部tab -->
 		<view class="head-tab">
-			<view>{{ showType }} {{ JSON.stringify(cardList) }}</view>
+			<view></view>
 			<view v-for="(tab, index) in tabList" :class="['tab-item', activeIndex === index ? 'active' : undefined]"
 				:key="tab.label" @click="handleTabChange(tab, index)">
 				<span>{{ tab.label }}</span>
@@ -19,8 +19,8 @@
 			<scroll-view v-if="cardList.length" class="card-list" :show-scrollbar="true" scroll-y="true"
 				:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
 				:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
-				@scrolltolower="getListData('scrolltolower')">
-				<view class="card-item" v-for="(item, index) in cardList" :key="index" @click="handleShowDetail(item)">
+				@scrolltolower="getListData('scrolltolower')" @refresherrestore="onRestore">
+				<view class="card-item" v-for="(item, index) in cardList" :key="item.id" @click="handleShowDetail(item)">
 					<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
 				</view>
 				<u-loadmore :status="status" v-if="cardList.length > 4" />
@@ -92,6 +92,7 @@
 				status: "nomore",
 				// 选中的工单状态
 				selectOrderStatus: '',
+				_freshing: false
 			};
 		},
 		computed: {
@@ -215,6 +216,7 @@
 								...item
 							}))
 							this.handleDataByType(listData, type)
+							
 						} else {
 							uni.$u.toast(res.errMsg || '暂无数据')
 						}
@@ -224,6 +226,10 @@
 					})
 				}
 
+			},
+			// 下拉刷新复位
+			onRestore() {
+				this.refreshing = false;
 			},
 			// 重置并获取数据
 			reGetData() {
@@ -237,7 +243,7 @@
 			 **/
 			handleDataByType(listData, type) {
 				if (type === 'search') {
-					this.cardList = listData
+					this.cardList = JSON.parse(JSON.stringify(listData))
 				}
 				if (this.cardList.length < this.total) {
 					this.cardList.push(...listData)
@@ -261,6 +267,7 @@
 				this.searchKey = '';
 				this.activeIndex = index;
 				this.showType = tab.code;
+				this.refreshing = false;
 			},
 			/**
 			 * @method handleShowDetail 点击卡片展示详情
@@ -291,6 +298,8 @@
 			handleConfirmFilter(action) {
 				this.selectOrderStatus = action.value;
 				this.cardList = [];
+				this.pageNum = 1;
+				this.total = 0;
 				this.getListData();
 			},
 		},

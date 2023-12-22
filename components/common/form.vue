@@ -57,6 +57,9 @@
 					<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
 						@afterRead="afterRead($event,index)" @beforeRead="beforeRead($event, 'image')"
 						@delete="deletePic($event,index)" name="1" multiple></u-upload>
+					<view slot="title" class="u-slot-title">
+					</view>
+					<!-- <u-icon name="photo" size="28px" @click="takePhotoAndVideo(item)" /> -->
 				</view>
 			</view>
 			<view class="save-btn">
@@ -627,6 +630,11 @@
 						console.log(contentInfo, 'contentInfo', this.submitFormData);
 					}
 				})
+			},
+			// 拍照录像
+			takePhotoAndVideo(item) {
+				console.log('form---takePhotoAndVideo', item);
+				this.$emit('takePhotoAndVideo');
 			}
 		}
 	}
