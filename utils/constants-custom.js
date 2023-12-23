@@ -76,10 +76,10 @@ const CARD_FIELD_MAP = {
 		label: "生产号",
 		iconName: "file-text-fill",
 	},
-	projManagerName: {
-		label: "项目经理",
-		iconName: "account-fill",
-	},
+	// projManagerName: {
+	// 	label: "项目经理",
+	// 	iconName: "account-fill",
+	// },
 	planStartTime: {
 		label: "计划开始时间",
 		iconName: "calendar",

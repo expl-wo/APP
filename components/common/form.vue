@@ -52,14 +52,11 @@
 				</u-form-item>
 
 				<!-- 图片上传 -->
-				<view class="photo">
+				<view class="photo" v-if="item.requireImageFile !== '0' || !item.requireImageFile">
 					<text class="tip">图片:</text>
 					<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
 						@afterRead="afterRead($event,index)" @beforeRead="beforeRead($event, 'image')"
 						@delete="deletePic($event,index)" name="1" multiple></u-upload>
-					<view slot="title" class="u-slot-title">
-					</view>
-					<!-- <u-icon name="photo" size="28px" @click="takePhotoAndVideo(item)" /> -->
 				</view>
 			</view>
 			<view class="save-btn">
@@ -281,6 +278,8 @@
 						} else if (item.executionFrequency === '1') {
 							const timeStr = (time.length && time[0].value) || ''
 							item.workPlanTime = this.showTimeList[index].date + " 23:59:59";
+						} else {
+							item.workPlanTime = ''
 						}
 						item.fileList.length && item.fileList.forEach(f => {
 							f.url = f.fileUrl || f.filePath;
@@ -509,7 +508,7 @@
 			},
 			// 日期时间选择确认-区别日期选择
 			handleDateTimePicker(dateObj) {
-				const date = moment(dateObj.value).format('YYYY-MM-DD HH:mm:ss')
+				const date = moment(dateObj.value).format('YYYY-MM-DD HH:mm')
 				const currentItem = this.submitFormData[this.currentIndex];
 				this.formData[currentItem.operationCode] = date;
 				this.$refs.uForm.validateField(currentItem.operationCode);
@@ -630,11 +629,6 @@
 						console.log(contentInfo, 'contentInfo', this.submitFormData);
 					}
 				})
-			},
-			// 拍照录像
-			takePhotoAndVideo(item) {
-				console.log('form---takePhotoAndVideo', item);
-				this.$emit('takePhotoAndVideo');
 			}
 		}
 	}

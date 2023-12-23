@@ -20,7 +20,7 @@
 				:refresher-enabled='true' :refresher-threshold='80' :upper-threshold='50' :lower-threshold='30'
 				:refresher-triggered='refreshing' @refresherrefresh="getListData('scrolltoupper')"
 				@scrolltolower="getListData('scrolltolower')" @refresherrestore="onRestore">
-				<view class="card-item" v-for="(item, index) in cardList" :key="item.id" @click="handleShowDetail(item)">
+				<view class="card-item" v-for="item in cardList" :key="item.id" @click="handleShowDetail(item)">
 					<Card title="title" :cardInfo="item" :fieldMapText="fieldMapText" />
 				</view>
 				<u-loadmore :status="status" v-if="cardList.length > 4" />
@@ -91,8 +91,7 @@
 				// 列表刷新状态
 				status: "nomore",
 				// 选中的工单状态
-				selectOrderStatus: '',
-				_freshing: false
+				selectOrderStatus: ''
 			};
 		},
 		computed: {
@@ -182,48 +181,48 @@
 				if (this.showType === "issue") {
 					param.pageNum = type === 'search' ? 1 : this.pageNum;
 					const ims_workOrder = uni.getStorageSync("ims_workOrder");
-					param.workCode = ims_workOrder.id;	
+					param.workCode = ims_workOrder.id;
 					param.searchKey = this.searchKey;
 					queryProcedureProblem(param)
-					.then(res => {
-						if (res.success && res.data && Array.isArray(res.data.pageList)) {
-							this.total = res.data.total;
-							listData = res.data.pageList.map(item => ({
-								...item,
-								title: item.problemProcedureOwn,
-								imgList: item.pictureUrl && item.pictureUrl.split('|'),
-								videoList: item.videoUrl && item.videoUrl.split("|"),
-							}))
-							this.handleDataByType(listData, type)
-						} else {
-							this.cardList = []
-							uni.$u.toast(res.errMsg || '暂无数据')
-						}
-					})
-					.finally(() => {
-						this.refreshing = false;
-					})
+						.then(res => {
+							if (res.success && res.data && Array.isArray(res.data.pageList)) {
+								this.total = res.data.total;
+								listData = res.data.pageList.map(item => ({
+									...item,
+									title: item.problemProcedureOwn,
+									imgList: item.pictureUrl && item.pictureUrl.split('|'),
+									videoList: item.videoUrl && item.videoUrl.split("|"),
+								}))
+								this.handleDataByType(listData, type)
+							} else {
+								this.cardList = []
+								uni.$u.toast(res.errMsg || '暂无数据')
+							}
+						})
+						.finally(() => {
+							this.refreshing = false;
+						})
 				} else {
 					param.projName = this.searchKey;
 					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
 					getWorkOrderPageData(param)
-					.then(res => {
-						if (res.success && res.data && Array.isArray(res.data.pageList)) {
-							this.total = res.data.total;
-							listData = res.data.pageList.map(item => ({
-								status: item.orderStatus,
-								title: item.projName,
-								...item
-							}))
-							this.handleDataByType(listData, type)
-							
-						} else {
-							uni.$u.toast(res.errMsg || '暂无数据')
-						}
-					})
-					.finally(() => {
-						this.refreshing = false;
-					})
+						.then(res => {
+							if (res.success && res.data && Array.isArray(res.data.pageList)) {
+								this.total = res.data.total;
+								listData = res.data.pageList.map(item => ({
+									status: item.orderStatus,
+									title: item.projName,
+									...item
+								}))
+								this.handleDataByType(listData, type)
+
+							} else {
+								uni.$u.toast(res.errMsg || '暂无数据')
+							}
+						})
+						.finally(() => {
+							this.refreshing = false;
+						})
 				}
 
 			},
@@ -258,6 +257,8 @@
 			handleRouterChange() {
 				this.showType = "issue";
 				this.cardList = [];
+				this.total = 0;
+				this.pageNum = 1;
 				this.getListData();
 			},
 			/**

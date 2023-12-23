@@ -240,10 +240,7 @@
 									uni.openDocument({
 										filePath: savedFilePath,
 										showMenu: true, // 是否可以分享
-										success: (res) => {
-											if (res) {
-
-											}
+										success: () => {
 											uni.hideLoading();
 										},
 										file: (e) => {
