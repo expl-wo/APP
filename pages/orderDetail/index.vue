@@ -136,7 +136,7 @@
 					let ims_workOrder = uni.getStorageSync("ims_workOrder");
 					// 检修工单现场检修没有拆解BOM和返厂清单
 					if (!ims_workOrder.retFactory) {
-						return list.filter(item => item.index !== 1 && item.index !== 2);
+						return list.filter(item => item.key !== 'BomList' && item.index !== 'ReturnList');
 					} else {
 						return list;
 					}
@@ -199,7 +199,6 @@
 			 * @method handleTabChange tab切换
 			 **/
 			handleTabChange(item) {
-				debugger;
 				this.componentName = item.cName;
 				this.$store.commit('workOrder/updateActiveTab', item.key);
 			},
