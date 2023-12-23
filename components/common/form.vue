@@ -15,18 +15,20 @@
 									<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">
 										<u-icon name="arrow-down"></u-icon>
 									</text>
-									<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+									<text class="time-type"
+										@click="showTimeActionSheet(item,index,'day')">{{showTimeList[index] && showTimeList[index].date}}</text>
 									<text class="btn-link" @click="showTimeActionSheet(item,index,'hour')">
 										<u-icon name="arrow-down"></u-icon>
 									</text>
-									<text
-										class="time-type">{{ showTimeList[index] && showTimeList[index].hourTime}}</text>
+									<text class="time-type"
+										@click="showTimeActionSheet(item,index,'hour')">{{ showTimeList[index] && showTimeList[index].hourTime}}</text>
 								</view>
 								<view class="time-select-box" v-else-if="item.executionFrequency === '1'">
 									<text class="btn-link" @click="showTimeActionSheet(item,index,'day')">
 										<u-icon name="arrow-down"></u-icon>
 									</text>
-									<text class="time-type">{{showTimeList[index] && showTimeList[index].date}}</text>
+									<text class="time-type"
+										@click="showTimeActionSheet(item,index,'day')">{{showTimeList[index] && showTimeList[index].date}}</text>
 								</view>
 							</view>
 						</view>
@@ -72,8 +74,8 @@
 			@customSheetConfirm='customSheetConfirm'>
 		</CustomSheet>
 		<u-calendar confirmDisabledText="请选择日期" :formatter="formatter" :show="isShowCalendar" :maxDate="maxDate"
-			:minDate='minDate' :closeOnClickOverlay='true' @confirm="confirmCalendar" ref="calendar"
-			@close='isShowCalendar = false'>
+			:minDate='minDate' :closeOnClickOverlay='true' :defaultDate='defaultDate' @confirm="confirmCalendar"
+			ref="calendar" @close='isShowCalendar = false'>
 		</u-calendar>
 		<u-datetime-picker :show="isShowDatePicker" v-model="dateValue" mode="datetime" :closeOnClickOverlay='true'
 			@close='isShowDatePicker = false' @cancel='isShowDatePicker = false'
@@ -123,14 +125,14 @@
 				handler(val) {
 					if (val.length) {
 						// 表单回显
-						this.submitFormData = JSON.parse(JSON.stringify(val))
 						this.$nextTick(() => {
 							// 初始化表单数据
 							this.initFormData()
+							this.submitFormData = JSON.parse(JSON.stringify(val))
 						})
 					}
 				},
-				deep: true,
+				// deep: true,
 				immediate: true
 			},
 		},
@@ -144,13 +146,16 @@
 
 			const selectHours = [];
 			for (let i = 0; i < 24; i++) {
-				selectHours.push({
+				const tempObj = {
 					num: i,
 					value: `${i>9?i:'0'+ i}:00:00`,
 					label: `${i}:00~${i+1}:00`,
-					// label: `${i}~${i+1}`,
 					isCheck: false
-				})
+				}
+				if (i === 23) {
+					tempObj.value = `${i>9?i:'0'+ i}:59:59`
+				}
+				selectHours.push(tempObj)
 			};
 			return {
 				// 表单数据
@@ -189,11 +194,14 @@
 				isShowDatePicker: false,
 				// 日期值
 				dateValue: Number(new Date()),
+				// 日历默认值
+				defaultDate: [moment().format('YYYY-MM-DD')]
 			}
 		},
 		methods: {
 			// 初始化表单数据
 			initFormData() {
+				this.showTimeList = [];
 				this.formList.forEach((item, index) => {
 					if (item.operationType === '1') {
 						this.formData[item.operationCode] = item.contentInfo || item.lowerLimit || '';
@@ -205,9 +213,9 @@
 						})
 						this.formData[item.operationCode] = item.contentInfo || '';
 					} else if (item.operationType === '4') {
-						const list = item.contentInfo.split(',')
+						const list = item.contentInfo && item.contentInfo.split(',')
 						const nameList = []
-						item.dictionaryContent.forEach(d => {
+						list && list.length && item.dictionaryContent.forEach(d => {
 							if (list.includes(d.code)) {
 								nameList.push(d.name)
 							}
@@ -239,14 +247,14 @@
 					}
 					this.showTimeList.push(tempObj);
 				})
-				console.log(this.formData, 'formData')
 				// 设置验证规则
 				this.setRules()
+				console.log(this.formData, 'formData111111111', this.showTimeList)
 			},
 			// 根据数据生成表单验证规则
 			setRules() {
 				this.formList.forEach(item => {
-					if (item.isRequired === '1') {
+					if (item.isRequired) {
 						const tempObj = {
 							type: 'string',
 							required: true,
@@ -290,7 +298,7 @@
 								0]
 							item.contentInfo = obj && obj.code
 						} else if (item.operationType === '4') {
-							const nameList = item.contentInfo.split(',');
+							const nameList = item.contentInfo && item.contentInfo.split(',');
 							const codeList = []
 							item.dictionaryContent.forEach(d => {
 								if (nameList.includes(d.name)) {
@@ -418,7 +426,9 @@
 					operationCode: item.operationCode,
 				}
 				if (type === 'day') {
-					param.endTime = moment().format('YYYY-MM-DD HH:mm:ss');
+					const date = this.showTimeList[this.currentIndex].date;
+					this.defaultDate = [date];
+					param.endTime = moment().format('YYYY-MM-DD') + ' ' + '23:59:59';
 					param.beginTime = moment().startOf('month').format('YYYY-MM-DD HH:mm:ss');
 					const results = await queryHistoryRecordByTime(param);
 					this.selectedDateList = results.data.value || []
@@ -491,16 +501,18 @@
 					this.actions = item.dictionaryContent
 				} else if (item.operationType === '4') {
 					if (item.dictionaryContent && item.dictionaryContent.length) {
+						const selectedList = (item.contentInfo && item.contentInfo.split(',')) || []
 						const list = [];
 						item.dictionaryContent.forEach(item => {
+							let checkFlag = selectedList.includes(item.name);
 							list.push({
 								value: item.code,
 								label: item.name,
-								isCheck: false
+								isCheck: checkFlag
 							})
 						})
+						this.isHourSelect = false;
 						this.selects = list;
-						console.log(this.selects, 'selects')
 						this.customSheetTitle = item.operationName + '选择';
 						this.isShowCustomSheet = true;
 					}
@@ -525,6 +537,7 @@
 			customSheetConfirm(list) {
 				const currentItem = this.submitFormData[this.currentIndex];
 				const contentInfo = list.map(item => item.label).join(',');
+				this.$set(this.submitFormData[this.currentIndex], 'contentInfo', contentInfo);
 				this.formData[currentItem.operationCode] = contentInfo;
 				this.$refs.uForm.validateField(currentItem.operationCode);
 				this.isShowCustomSheet = false;
@@ -611,10 +624,10 @@
 								}
 							})
 						} else if (item.operationType === '4') {
-							const list = record.contentInfo.split(',')
+							const list = record.contentInfo && record.contentInfo.split(',')
 							const nameList = []
 							item.dictionaryContent.forEach(d => {
-								if (list.includes(d.code)) {
+								if (list && list.length && list.includes(d.code)) {
 									nameList.push(d.name)
 								}
 							})
@@ -744,6 +757,12 @@
 			.u-form-item__body {
 				margin: 0 20rpx;
 			}
+		}
+
+		/deep/ .uni-input-input {
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
 		}
 	}
 </style>

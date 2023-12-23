@@ -65,6 +65,9 @@
 			},
 			handleConfirm() {
 				const selectedList = this.showList.filter(item => item.isCheck)
+				if (!selectedList.length) {
+					uni.$u.toast('请至少选择一项！')
+				}
 				if (this.isHourSelect) {
 					this.$emit('selectHourConfirm', selectedList)
 				} else {
@@ -80,15 +83,12 @@
 		max-height: 400px;
 		overflow-y: auto;
 		display: flex;
-		justify-content: space-around;
 		flex-wrap: wrap;
 
 		.select-item {
-			width: 25%;
-			height: 30px;
 			position: relative;
-			line-height: 30px;
 			margin: 10rpx;
+			padding: 10rpx;
 			border: 1px solid #3a62d7;
 			border-radius: 10rpx;
 
