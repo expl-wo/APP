@@ -249,7 +249,6 @@
 				})
 				// 设置验证规则
 				this.setRules()
-				console.log(this.formData, 'formData111111111', this.showTimeList)
 			},
 			// 根据数据生成表单验证规则
 			setRules() {
@@ -265,12 +264,10 @@
 						this.rules[item.operationCode] = tempObj
 					}
 				})
-				console.log(this.rules, 'setRules')
 				this.$refs.uForm.setRules(this.rules)
 			},
 			// 表单保存
 			submit() {
-				console.log(this.formData, 'formData', this.submitFormData)
 				this.$refs.uForm.validate().then(res => {
 					this.submitFormData.forEach((item, index) => {
 						if (item.operationType === "1") {
@@ -323,7 +320,6 @@
 						}
 					})
 				}).catch(errors => {
-					console.log(errors, 'errors')
 					uni.$u.toast('校验失败')
 				})
 			},
@@ -387,7 +383,6 @@
 							}
 						})
 						this.submitFormData[index].fileList.push(...uploadedList);
-						console.log(this.submitFormData, 'submitForData')
 					})
 			},
 			// 上传图片接口
@@ -416,7 +411,6 @@
 
 			// 展示时间选择（执行频率选择）
 			async showTimeActionSheet(item, index, type) {
-				console.log(item.executionFrequency, 'form-item')
 				this.currentIndex = index;
 
 				const param = {
@@ -449,7 +443,6 @@
 							}
 						})
 					})
-					console.log(this.selectHours, 'selectHours')
 					this.selects = this.selectHours;
 					this.isHourSelect = true;
 					// 小时显示单选picker
@@ -491,7 +484,6 @@
 			// 展示选择操作面板
 			showAction(item, index) {
 				this.currentIndex = index;
-				console.log(item.operationType, 'showAction')
 				if (item.operationType === '0' || item.operationType === '1') {
 					return
 				} else if (item.operationType === '2') {
@@ -544,7 +536,6 @@
 			},
 			// 小时确认框
 			selectHourConfirm(selectedList) {
-				console.log(selectedList, 'selectedList')
 				this.$set(this.showTimeList[this.currentIndex], 'hourTime', selectedList[0].label);
 				let beginTime = moment().format('YYYY-MM-DD') + " " + selectedList[0].value;
 				if (this.showTimeList[this.currentIndex].date) {
@@ -619,8 +610,8 @@
 							contentInfo = record.contentInfo || record.lowerLimit || '';
 						} else if (item.operationType === '3') {
 							item.dictionaryContent.forEach(d => {
-								if (d.code === record.contentInfo) {
-									contentInfo = d.name
+								if (d.code === record.contentInfo || d.name === record.contentInfo) {
+									contentInfo = d.name;
 								}
 							})
 						} else if (item.operationType === '4') {
@@ -636,10 +627,10 @@
 						}
 						this.$set(this.submitFormData[this.currentIndex], 'contentInfo', contentInfo);
 						this.$set(this.submitFormData[this.currentIndex], 'id', record.id);
-						this.submitFormData[this.currentIndex].fileList = fileList;
-						this.formData[operationCode] = contentInfo;
+						this.$set(this.submitFormData[this.currentIndex], 'fileList', fileList);
+						this.$set(this.formData, operationCode, contentInfo);
 						this.$refs.uForm.validateField(operationCode);
-						console.log(contentInfo, 'contentInfo', this.submitFormData);
+						this.$forceUpdate(); // 强制更新页面，解决单选时不更新页面问题
 					}
 				})
 			}

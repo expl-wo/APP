@@ -375,6 +375,7 @@
 		}
 
 		.btn-wrapper {
+			position: relative;
 			height: 32px;
 			display: flex;
 			align-items: center;
