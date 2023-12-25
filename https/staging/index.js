@@ -80,7 +80,10 @@ export function queryBatchRecord(data) {
 	return request({
 		url: "/evo-ims-overhaul/work-content/query-batch",
 		method: 'post',
-		data
+		// data
+		data: {
+			queryList: data
+		}
 	})
 }
 // 上报工作内容

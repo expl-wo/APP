@@ -353,7 +353,7 @@
 			}
 
 			100% {
-				height: 180px;
+				height: 150px;
 				opacity: 1;
 			}
 		}
@@ -361,7 +361,7 @@
 		@keyframes showLess {
 			0% {
 				opacity: 1;
-				height: 180px;
+				height: 150px;
 			}
 
 			1% {
@@ -399,15 +399,15 @@
 		}
 
 		.more-content {
-			height: calc(100% - 72px);
+			height: calc(100% - 42px);
 		}
 
 		.less-content {
-			height: calc(100% - 252px);
+			height: calc(100% - 222px);
 		}
 
 		.comp-wrapper {
-			height: calc(100% - 50px);
+			height: calc(100% - 20px);
 		}
 	}
 

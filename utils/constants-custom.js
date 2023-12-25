@@ -105,11 +105,11 @@ const ISSUE_FILED_MAP = {
 		iconName: "account-fill",
 	},
 	reporterName: {
-		label: "问题处理人",
+		label: "处理人",
 		iconName: "account-fill",
 	},
 	reporterDate: {
-		label: "问题提交时间",
+		label: "提交时间",
 		iconName: "calendar",
 	},
 	problemDesc: {
@@ -123,10 +123,10 @@ const ORDER_DETAIL_FIELD_MAP = {
 		label: "生产号",
 		iconName: "file-text-fill",
 	},
-	projManagerName: {
-		label: "项目经理",
-		iconName: "account-fill",
-	},
+	// projManagerName: {
+	// 	label: "项目经理",
+	// 	iconName: "account-fill",
+	// },
 	prodCategoryName: {
 		label: "产品大类",
 		iconName: "list",

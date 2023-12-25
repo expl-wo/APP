@@ -15,7 +15,9 @@
 						<u-icon :name="getIconByKey(key)" v-if="getIconByKey(key)" color="#2979ff" size="24"
 							class="icon"></u-icon>
 						<span class="label">{{ getLabelByKey(key)}}:</span>
+						<!-- <uni-tooltip :content='item' placement='top'> -->
 						<span class="value">{{ item || '--'}}</span>
+						<!-- </uni-tooltip> -->
 					</view>
 				</view>
 			</template>
@@ -23,16 +25,15 @@
 				<!-- 图片列表 -->
 				<view class="img-box" v-if="cardInfo['imgList']">
 					<view class="img-item" v-for="img in cardInfo['imgList']" :key="img">
-						<u--image :showLoading="true" :src="getUrl(img)" width="80px" height="80px"
+						<u--image :showLoading="true" :src="getUrl(img)" width="70px" height="70px"
 							@click="previewImage(img,'img')"></u--image>
 					</view>
 				</view>
 				<!-- 视频列表 -->
-				<view class="img-box" v-if="isShowMore && cardInfo['videoList']">
-					<view class="img-item" v-for="(video,index) in cardInfo['videoList']" :key="video">
-						<video :src="getUrl(video)" controls style="widht:80px;height: 80px;" :id='video'
-							@play="playVideo($event,video)" @fullscreenchange="fullscreenchange($event,video)"></video>
-					</view>
+				<view class="img-box">
+					<u--image :showLoading="true" :src="defaultVideoImg" width="70px" height="70px"
+						v-for="(video,index) in cardInfo['videoList']" :key="video"
+						@click="playVideo(video)"></u--image>
 				</view>
 			</view>
 			<view v-if="Object.keys(fieldMapText).length > 4" class="show-more-icon" :title="isShowMore ? '收起' : '展开'"
@@ -41,14 +42,21 @@
 			</view>
 		</view>
 		<slot></slot>
+		<PreviewModal :src='videoSrc' :show="isShowVideo" @closeModal='closeVideoModal' />
 	</view>
 </template>
 
 <script>
 	import {
 		ORDER_STATUS_MAP
-	} from '@/utils/constants-custom.js'
+	} from '@/utils/constants-custom.js';
+	import defaultVideoImg from '@/static/img/default_video.png'
+	import PreviewModal from './previewModal.vue'
 	export default {
+		name: 'Card',
+		components: {
+			PreviewModal
+		},
 		props: {
 			// 卡片展示字段信息
 			cardInfo: {
@@ -78,7 +86,13 @@
 				// 视频弹窗
 				isShowModal: false,
 				// 视频文本
-				videoContext: null
+				videoContext: null,
+				// 视频默认图片
+				defaultVideoImg,
+				// 视频路径
+				videoSrc: '',
+				// 是否展示视频弹窗
+				isShowVideo: false
 			};
 		},
 		methods: {
@@ -133,14 +147,13 @@
 					}
 				});
 			},
-			fullscreenchange(e, id) {
-				if (!e.detail.fullScreen) {
-					uni.createVideoContext(id, this).pause()
-				}
+			playVideo(src) {
+				this.videoSrc = this.getUrl(src);
+				this.isShowVideo = true;
 			},
-			playVideo(index, id) {
-				this.videoContext = uni.createVideoContext(id, this);
-				this.videoContext.requestFullScreen()
+			closeVideoModal() {
+				this.videoSrc = '';
+				this.isShowVideo = false;
 			}
 		},
 	};
@@ -199,6 +212,8 @@
 			font-size: $minFontSize;
 
 			.info-item {
+				// height: 28px;
+
 				&:not(:last-child) {
 					margin-bottom: 10rpx;
 				}
@@ -208,11 +223,16 @@
 					align-items: center;
 
 					.label {
+						word-break: keep-all;
 						margin: 0 10rpx;
 					}
 
 					.icon {
 						display: inline-block;
+					}
+
+					.value {
+						word-break: break-all
 					}
 				}
 			}
@@ -231,13 +251,15 @@
 				margin-bottom: 10rpx;
 
 				.img-box {
+					display: flex;
+
 					.img-item {
 						margin-right: 10px;
 					}
 
 					/deep/ .uni-video-container {
-						width: 80px;
-						height: 80px;
+						width: 70px;
+						height: 70px;
 					}
 				}
 			}
@@ -245,12 +267,12 @@
 
 		.show-more {
 			// 用max-height可以高度使自适应，设置高度要大于实际元素高度
-			max-height: 320px;
+			max-height: 820px;
 		}
 
 		.show-less {
 			// 展示四个字段的高度
-			max-height: 134px;
+			max-height: 126px;
 		}
 
 		.video-box {

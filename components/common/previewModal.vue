@@ -18,17 +18,6 @@
 				default: ''
 			}
 		},
-		data() {
-			return {
-				videoContext: null,
-			}
-		},
-		watch: {
-			show(newVal) {
-				this.videoContext = uni.createVideoContext('previewVideo', this);
-				newVal && this.videoContext && this.videoContext.play();
-			}
-		},
 		methods: {
 			// 关闭
 			confirm() {

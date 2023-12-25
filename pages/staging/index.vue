@@ -378,7 +378,7 @@
 	}
 
 	/deep/.u-action-sheet__item-wrap {
-		max-height: 220px;
+		max-height: 420px;
 		overflow-y: auto;
 	}
 </style>

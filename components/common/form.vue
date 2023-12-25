@@ -152,9 +152,6 @@
 					label: `${i}:00~${i+1}:00`,
 					isCheck: false
 				}
-				if (i === 23) {
-					tempObj.value = `${i>9?i:'0'+ i}:59:59`
-				}
 				selectHours.push(tempObj)
 			};
 			return {

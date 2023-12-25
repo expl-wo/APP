@@ -651,6 +651,7 @@
 				.btn {
 					width: 160rpx;
 					height: 60rpx;
+					margin: 0 5px;
 					line-height: 60rpx;
 					background-color: #3a62d7;
 					border-radius: 16rpx;
