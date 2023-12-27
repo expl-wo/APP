@@ -220,8 +220,10 @@ const BOM_STATUS = {
 	1: "已入库",
 };
 const MESSAGE_TYPE = {
-	1: "任务通知",
-	2: "超时通知",
+	1: '指派任务通知',
+	2: '派工任务通知',
+	3: '复核任务通知',
+	4: '超时通知'
 };
 const CLOCKIN_STATUS = [{
 		name: "在公司",

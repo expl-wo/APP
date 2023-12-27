@@ -61,7 +61,7 @@
 						@delete="deletePic($event,index)" name="1" multiple></u-upload>
 					<view slot="title" class="u-slot-title">
 					</view> -->
-					<u-icon name="photo" size="28px" @click="takePhotoAndVideo(item, index)" />
+					<u-icon name="camera-fill" size="28px" color="#243d8f" @click="takePhotoAndVideo(item, index)" />
 				</view>
 				<view class="image-photo-list" v-for="(el, idx) in item.aiAppendixDTOList" :key="idx">
 					<view v-if="['jpg', 'jpeg', 'png', 'mp4'].includes(el.type)" class="el-item">
@@ -101,8 +101,8 @@
 				</view>
 			</view>
 			<view class="save-btn">
-				<u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button>
-<!-- 				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button> -->
+				<!-- <u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button> -->
+				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
