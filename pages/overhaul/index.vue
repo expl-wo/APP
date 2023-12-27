@@ -83,11 +83,13 @@
 		7: '日'
 	}
 	const messageTypeMap = {
-		1: '任务通知',
-		2: '超时通知'
+		1: '指派任务通知',
+		2: '派工任务通知',
+		3: '复核任务通知',
+		4: '超时通知'
 	}
 	import UserInfo from '@/components/common/user-info.vue';
-	
+
 	import {
 		getSignInData,
 		getMessageList,
@@ -96,7 +98,9 @@
 	import {
 		getUserInfo
 	} from '@/utils/auth.js';
-	import { MESSAGE_TYPE } from '@/utils/constants-custom';
+	import {
+		MESSAGE_TYPE
+	} from '@/utils/constants-custom';
 	import moment from 'moment';
 	export default {
 		components: {
@@ -112,7 +116,13 @@
 				activeIndex: 0,
 				activeIndex_c: 0,
 				// 签到信息列表
-				signList: new Array(7).fill([{time: '', label: '签入'}, {time: '', label: '签出'}]),
+				signList: new Array(7).fill([{
+					time: '',
+					label: '签入'
+				}, {
+					time: '',
+					label: '签出'
+				}]),
 				scrollTop: 0,
 				searchKey: '',
 				status: 'nomore',
@@ -321,6 +331,7 @@
 						// background-color: #fff;
 						background: url("@/assets/imgs/overhaul/home-sign-bg.png") no-repeat center;
 						color: #3a62d7;
+
 						&:after {
 							content: "";
 							display: block;

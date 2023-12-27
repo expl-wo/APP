@@ -39,7 +39,7 @@
 					</view>
 				</view>
 				<!-- 表单项 -->
-				<u-form-item :prop="item.operationCode" :ref="`item${index}`" @click="showAction(item,index)">
+				<u-form-item :prop="item.operationCode" :ref="`item${index}`" @click="showAction(item, index)">
 					<text class="description">填写内容:</text>
 					<u--textarea v-model="formData[item.operationCode]" placeholder="请输入内容"
 						v-if="item.operationType==='0'" :maxlength='item.maximumContentLength'></u--textarea>
@@ -56,13 +56,53 @@
 				<!-- 图片上传 -->
 				<view class="photo" v-if="item.requireImageFile !== '0' || !item.requireImageFile">
 					<text class="tip">图片:</text>
-					<u-upload :fileList="item.fileList" :maxCount="3" :previewFullImage="true"
+<!-- 					<u-upload :aiAppendixDTOList="item.aiAppendixDTOList" :maxCount="3" :previewFullImage="true"
 						@afterRead="afterRead($event,index)" @beforeRead="beforeRead($event, 'image')"
 						@delete="deletePic($event,index)" name="1" multiple></u-upload>
+					<view slot="title" class="u-slot-title">
+					</view> -->
+					<u-icon name="photo" size="28px" @click="takePhotoAndVideo(item, index)" />
+				</view>
+				<view class="image-photo-list" v-for="(el, idx) in item.aiAppendixDTOList" :key="idx">
+					<view v-if="['jpg', 'jpeg', 'png', 'mp4'].includes(el.type)" class="el-item">
+						<view class="left">
+							<u--image v-if="el.type === 'mp4'" src="/static/img/default_video.png" width="60px" height="60px" @click="preview(el)" />
+							<u--image v-if="['jpg', 'jpeg', 'png'].includes(el.type)" :src="getImgSrc(el.filePath)" width="60px" height="60px" @click="preview(el)" />
+							<view class="delete-icon">
+								<u-icon name="close" size="20px" @click="deleteFile(el, idx, index)"></u-icon>
+							</view>
+							<view v-if="['jpg', 'jpeg', 'png'].includes(el.type)" class="extra-info">
+								<u-icon name="error-circle" size="28px" color="#ff0000"></u-icon>
+							</view>
+						</view>
+
+						<view class="right">
+							<view class="channel-name">图片来源：{{ el.channelName || '本地上传图片' }}</view>
+							<view>
+								<u-radio-group
+									v-model="el.flag"
+									placement="row"
+								>
+									<u-radio
+										v-for="item in checkboxOptions"
+										class="mr10"
+										:key="item.value"
+										:label="item.name"
+										:name="item.value"
+									/>
+								</u-radio-group>
+							</view>
+							<view v-if="el.flag">
+								<u--textarea v-model="el.flagDesc" placeholder="请输入内容" height="60px" />
+							</view>
+						</view>
+					</view>
+					
 				</view>
 			</view>
 			<view class="save-btn">
-				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button>
+				<u-button @click="submit" text="保存" color="#3a62d7" class="btn"></u-button>
+<!-- 				<u-button @click="submit" text="保存" :disabled="saveBtnDisabled" color="#3a62d7" class="btn"></u-button> -->
 			</view>
 		</u--form>
 		<!-- 操作面板 -->
@@ -80,16 +120,25 @@
 		<u-datetime-picker :show="isShowDatePicker" v-model="dateValue" mode="datetime" :closeOnClickOverlay='true'
 			@close='isShowDatePicker = false' @cancel='isShowDatePicker = false'
 			@confirm='handleDateTimePicker'></u-datetime-picker>
+		<photo-and-video :show="showFlag" @closeModal="closeModal" />
+		<preview-modal :show="showPreview" :src="videoSrc" @closeModal="closePreviewModal" />
 	</view>
 </template>
 
 <script>
-	import CustomSheet from '@/components/common/customSheet.vue'
+	
+	const acceptImage = ['jpg', 'jpeg', 'png'];
+	
+	import CustomSheet from '@/components/common/customSheet.vue';
+	import PhotoAndVideo from '@/components/common/photoAndVideo.vue';
+	import PreviewModal from '@/components/common/previewModal.vue';
 	import moment from 'moment'
 	import {
 		reportWorkContent,
 		queryHistoryRecordByTime,
-		queryBatchRecord
+		queryBatchRecord,
+		getRecord,
+		deleteRecord
 	} from "@/https/staging/index.js";
 	import uploadHttp from '@/https/_public/upload';
 	import {
@@ -101,7 +150,9 @@
 	export default {
 		name: "From",
 		components: {
-			CustomSheet
+			CustomSheet,
+			PhotoAndVideo,
+			PreviewModal
 		},
 		props: {
 			// 表单列表数据
@@ -152,9 +203,15 @@
 					label: `${i}:00~${i+1}:00`,
 					isCheck: false
 				}
+				if (i === 23) {
+					tempObj.value = `${i>9?i:'0'+ i}:59:59`
+				}
 				selectHours.push(tempObj)
 			};
+			const checkboxOptions = [{ name: '正常', value: 0, disabled: false }, {name: '异常', value: 1, disabled: false }];
 			return {
+				// 选择项
+				checkboxOptions: Object.freeze(checkboxOptions),
 				// 表单数据
 				formData: {},
 				// 单选操作面板数据
@@ -192,7 +249,19 @@
 				// 日期值
 				dateValue: Number(new Date()),
 				// 日历默认值
-				defaultDate: [moment().format('YYYY-MM-DD')]
+				defaultDate: [moment().format('YYYY-MM-DD')],
+				// 视频拍照框
+				showFlag: false,
+				checkboxValue1: 0,
+				// 当前索引
+				currentOperationIndex: null,
+				// 图片视频预览
+				showPreview: false,
+				// 预览内容
+				previewInfo: {},
+				// 视频默认的图片
+				defaultImgSrc: '/static/img/default_video.png',
+				videoSrc: ''
 			}
 		},
 		methods: {
@@ -266,6 +335,7 @@
 			// 表单保存
 			submit() {
 				this.$refs.uForm.validate().then(res => {
+					console.log('----', this.submitFormData)
 					this.submitFormData.forEach((item, index) => {
 						if (item.operationType === "1") {
 							item.contentInfo = this.formData[item.operationCode] || item.lowerLimit || '';
@@ -283,9 +353,12 @@
 						} else {
 							item.workPlanTime = ''
 						}
-						item.fileList.length && item.fileList.forEach(f => {
+						item.aiAppendixDTOList.length && item.aiAppendixDTOList.forEach(f => {
+							debugger;
 							f.url = f.fileUrl || f.filePath;
+							
 						})
+						item.aiAppendixList = item.aiAppendixDTOList;
 						if (item.operationType === '3') {
 							const obj = item.dictionaryContent.filter(d => d.name === item
 								.contentInfo)[
@@ -305,7 +378,7 @@
 					const param = {
 						...this.commonParam,
 						craftCode: this.commonParam.craftId,
-						list: this.submitFormData
+						list: this.submitFormData,
 					}
 					reportWorkContent(param).then(res => {
 						if (res.success) {
@@ -322,7 +395,7 @@
 			},
 			// 删除图片
 			deletePic(event, index) {
-				this.submitFormData[index].fileList.splice(event.index, 1)
+				this.submitFormData[index].aiAppendixDTOList.splice(event.index, 1)
 			},
 			// 判断是否图片是否超出限制
 			isOverSize(size, type) {
@@ -371,15 +444,17 @@
 							});
 						}
 						let uploadedList = successList.map(item => {
+							let temp = item.fileName.split('.');
+							let fileExt = temp[temp.length - 1];
 							return {
 								url: `http://10.16.9.128:9000/${item.filePath}`,
 								filePath: item.filePath,
 								fileName: item.fileName,
 								name: item.fileName,
-								type: item.fileName && item.fileName.split(".")[1].toLocaleLowerCase(),
+								type: fileExt.toLocaleLowerCase()
 							}
 						})
-						this.submitFormData[index].fileList.push(...uploadedList);
+						this.submitFormData[index].aiAppendixDTOList.push(...uploadedList);
 					})
 			},
 			// 上传图片接口
@@ -592,8 +667,8 @@
 				queryBatchRecord(params).then(res => {
 					if (res.success && res.data && Array.isArray(res.data.value)) {
 						const record = res.data.value[0] || {}
-						const fileList = record.fileList || [];
-						fileList.forEach(img => {
+						const aiAppendixDTOList = record.aiAppendixDTOList || [];
+						aiAppendixDTOList.forEach(img => {
 							img.url =
 								`http://10.16.9.128:9000/${img.fileUrl}`;
 							img.type = img.fileType || "";
@@ -624,11 +699,108 @@
 						}
 						this.$set(this.submitFormData[this.currentIndex], 'contentInfo', contentInfo);
 						this.$set(this.submitFormData[this.currentIndex], 'id', record.id);
-						this.$set(this.submitFormData[this.currentIndex], 'fileList', fileList);
+						this.$set(this.submitFormData[this.currentIndex], 'aiAppendixDTOList', aiAppendixDTOList);
 						this.$set(this.formData, operationCode, contentInfo);
 						this.$refs.uForm.validateField(operationCode);
 						this.$forceUpdate(); // 强制更新页面，解决单选时不更新页面问题
 					}
+				})
+			},
+			// 拍照录像
+			takePhotoAndVideo(item, index) {
+				uni.setStorageSync('ims_currentWorkProcedure', item);
+				this.currentOperationIndex = index;
+				this.showFlag = true;
+			},
+			// 关闭视频与图片弹框
+			closeModal(flag) {
+				this.showFlag = false;
+				if(flag) {
+					let temp = JSON.parse(uni.getStorageSync('ims_uploadOperation'));
+					let oldData = this.submitFormData[this.currentOperationIndex].aiAppendixDTOList;
+					console.log('-------', oldData);
+					let oldDataIdList = oldData.map(item => item.id);
+					console.log('oldDataIdList-------', oldDataIdList);
+					let params = {
+						operationCode: temp.operationCode,
+						workCode: this.commonParam.workCode,
+						workScene: this.commonParam.workScene
+					}
+					getRecord(params)
+					.then(res => {
+						if (res.success && res.data) {
+							let revData = res.data.value || [];
+							let newData = [];
+							revData.map((item, index) => {
+								if (!oldDataIdList.includes(item.id)) {
+									let temp = item.appendixUrl.split('.');
+									newData.push({
+										...item,
+										url: `http://10.16.9.128:9000/${item.appendixUrl}`,
+										filePath: item.appendixUrl,
+										type: temp[temp.length - 1]
+									});
+								}
+							})
+							// this.submitFormData[this.currentOperationIndex].aiAppendixDTOList = [...oldData, ...newData];
+							
+							this.$set(this.submitFormData[this.currentOperationIndex], 'aiAppendixDTOList', [...oldData, ...newData]);
+							console.log('After Add', this.submitFormData[this.currentOperationIndex].aiAppendixDTOList)
+
+								this.$forceUpdate();
+							this.showFlag = false;
+						}
+
+					})
+				} else {
+					this.showFlag = false;
+				}
+
+				// this.showFlag = false;
+				// if (!testData || !testData.length) return;
+				// // 查询数据信息
+				// let newData = testData.map(item => {
+				// 	return {
+				// 	...item,
+				// 	isNormal: 1,
+				// 	note: ''
+				// 	}
+				// })
+				// this.submitFormData[this.currentOperationIndex].aiAppendixDTOList.push(...newData);
+				// console.log(this.submitFormData[this.currentOperationIndex].aiAppendixDTOList)
+				
+			},
+			// 获 取图片地址
+			getImgSrc(src) {
+				return `http://10.16.9.128:9000/${src}`;
+			},
+			// 预览图片和视频
+			preview(info) {
+				if (acceptImage.includes(info.type)) {
+					uni.previewImage({
+						current: 0,
+						urls: [this.getImgSrc(info.filePath)]
+					});
+					return;
+				}
+				if (info.type === 'mp4') {
+					this.showPreview = true;
+					this.videoSrc = info.url;
+				}
+			},
+			// 关闭预览框
+			closePreviewModal() {
+				this.showPreview = false;
+			},
+			// 删除
+			deleteFile(item, idx, index) {
+				deleteRecord(item.id)
+				.then(res => {
+					if (res.success) {
+						
+						this.submitFormData[index].aiAppendixDTOList.splice(idx, 1);
+						console.log('After delete----', this.submitFormData[index].aiAppendixDTOList)
+					} 
 				})
 			}
 		}
@@ -751,6 +923,56 @@
 			white-space: nowrap;
 			text-overflow: ellipsis;
 			overflow: hidden;
+		}
+		.image-photo-list {
+			.el-item {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				box-sizing: border-box;
+				margin: 10px;
+				.left {
+					position: relative;
+					width: 60px;
+					height: 60px;
+					.delete-icon {
+						position: absolute;
+						top: 0;
+						right: 0;
+					}
+					.extra-info {
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						transform: translate(-50%, -50%);
+					}
+				}
+
+				.right {
+					flex: 1;
+					box-sizing: border-box;
+					margin-left: 10px;
+					.channel-name {
+						height: 24px;
+						line-height: 24px;
+						font-size: 14px;
+					}
+					/deep/ .u-radio-group {
+						height: 24px;
+					}
+					/deep/ .u-textarea__field {
+						font-size: 14px;
+					}
+				}
+			}
+		}
+		.mr10 {
+			margin-right: 10px;
+		}
+		.error-1 {
+			top: 50%;
+			left: 50%;
+			transform: (-50%, -50%);
 		}
 	}
 </style>

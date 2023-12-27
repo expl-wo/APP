@@ -22,7 +22,7 @@
 			</view>
 		</view>
 		<!-- 自定义表单 -->
-		<CustomForm :formList='formList' :saveBtnDisabled='disableReportBtn' :isStart='isStart'
+		<CustomForm ref="custForm" :formList='formList' :saveBtnDisabled='disableReportBtn' :isStart='isStart'
 			:commonParam='commonParam' @getBatchRecord='getBatchRecord' @reload='initData'
 			@takePhotoAndVideo="takePhotoAndVideo" v-if="formList.length" />
 		<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png" v-else>
@@ -59,7 +59,6 @@
 				</DragProgress>
 			</view>
 		</u-modal>
-		<photo-and-video :show="showFlag" @closeModal="closeModal" />
 	</view>
 </template>
 
@@ -68,7 +67,6 @@
 	import CustomForm from '@/components/common/form.vue';
 	import UserInfo from '@/components/common/user-info.vue';
 	import Notice from '@/components/common/notice.vue';
-	import PhotoAndVideo from '@/components/common/photoAndVideo.vue';
 	import DragProgress from '@/components/bestjhh-movable-area/bestjhh-movable-area.vue';
 	import moment from 'moment'
 	import {
@@ -102,7 +100,6 @@
 			CustomForm,
 			UserInfo,
 			Notice,
-			PhotoAndVideo,
 			DragProgress // 可拖动进度条
 		},
 		computed: {
@@ -163,8 +160,6 @@
 				disableReportBtn: false,
 				// 开工完工按钮是否可用
 				disableStartWorkBtn: false,
-				// 视频拍照框
-				showFlag: false,
 				// 是否是开工时出发的安全须知
 				isStartWorkFlag: false
 			};
@@ -241,7 +236,7 @@
 						res.data.value.forEach((item, index) => {
 							// 筛选图片，暂不支持文件
 							const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img', 'gif']
-							item.fileList = item.fileList ? item.fileList.filter(f => whiteList.includes(f
+							item.aiAppendixDTOList = item.aiAppendixDTOList ? item.aiAppendixDTOList.filter(f => whiteList.includes(f
 								.fileType)) : [];
 							item.upperLimit = item.upperLimit || undefined;
 						})
@@ -263,20 +258,20 @@
 								list.forEach(item => {
 									if (item.operationCode === f.operationCode) {
 										// 筛选图片，暂不支持文件
-										const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img',
-											'gif'
-										]
-										item.fileList = f.fileList ? f.fileList.filter(file =>
-											whiteList.includes(file
-												.fileType.toLocaleLowerCase())) : [];
-										item.fileList.forEach(img => {
+										// const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img',
+										// 	'gif', 'mp4'
+										// ]
+										item.aiAppendixDTOList = f.aiAppendixDTOList ? f.aiAppendixDTOList.filter(file => file.appendixType === 1 || file.appendixType === 2) : [];
+										item.aiAppendixDTOList.forEach(img => {
 											img.url =
-												`http://10.16.9.128:9000/${img.fileUrl}`;
-											img.type = img.fileType || "";
-											img.name = img.fileName || '';
-											img.filePath = img.fileUrl;
+												`http://10.16.9.128:9000/${img.appendixUrl}`;
+											let temp = img.appendixUrl.split('.');
+											img.type = (temp[temp.length - 1]).toLowerCase();
+											img.name = img.appendixName || '';
+											img.filePath = img.appendixUrl;
+											img.flag = img.flag === 0 ? 0 : 1;
 										})
-										item.fileList = f.fileList;
+										// item.aiAppendixDTOList = f.aiAppendixDTOList;
 										item.contentInfo = f.contentInfo;
 										item.id = f.id;
 									}

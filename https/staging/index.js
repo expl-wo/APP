@@ -210,3 +210,43 @@ export function isFirstTimeStart(params) {
 		data: params
 	})
 }
+// 视频方案新增接口
+// 本地设备图片、视频上传
+export function uploadLocalFile(params) {
+	return request({
+		url: `/evo-ims-link/ai/local-upload`,
+		method: 'post',
+		data: params
+	})
+}
+// 相机设备图片、视频上传
+export function uploadRemoteFile(params) {
+	return request({
+		url: `/evo-ims-link/ai/station`,
+		method: 'post',
+		data: params
+	})
+}
+// 删除
+export function deleteRecord(id) {
+	return request({
+		url: `/evo-ims-link/ai/delete/${id}`,
+		method: 'post'
+	})
+}
+// 获取记录
+export function getRecord(params) {
+	return request({
+		url: `/evo-ims-link/ai/list`,
+		method: 'post',
+		data: params
+	})
+}
+// 查询绑定的视频通道信息
+export function getBindDevice(params) {
+	return request({
+		url: `/evo-ims-overhaul/work-procedure/dev-channel-info`,
+		method: 'post',
+		data: params
+	})
+}

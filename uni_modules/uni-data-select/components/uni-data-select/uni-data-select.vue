@@ -233,13 +233,13 @@
 				if (!item.disable) {
 					this.showSelector = false
 					this.current = this.formatItemName(item)
-					this.emit(item.value)
+					this.emit(item.value, item)
 				}
 			},
-			emit(val) {
+			emit(val, item) {
 				this.$emit('input', val)
 				this.$emit('update:modelValue', val)
-				this.$emit('change', val)
+				this.$emit('change', val, item)
 				if (this.collection) {
 					this.setCache(val);
 				}

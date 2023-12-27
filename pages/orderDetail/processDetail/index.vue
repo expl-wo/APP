@@ -132,12 +132,13 @@
 				workProcedureType,
 				title,
 				workProcedureCode,
-				workOrderSceneType
+				workOrderSceneType,
+				mesStandardProcedureCode
 			} = uni.getStorageSync('ims_standardProcess');
 			this.workProcedureType = workProcedureType;
 			this.workProcedureCode = workProcedureCode;
 			this.processName = title;
-			this.processDetailInfo.code = workProcedureCode;
+			this.processDetailInfo.code = mesStandardProcedureCode;
 			this.workOrderSceneType = workOrderSceneType;
 			this.getData();
 		},

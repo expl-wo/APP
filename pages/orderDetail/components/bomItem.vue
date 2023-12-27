@@ -10,7 +10,7 @@
 							<view class="icon">
 								<u-icon name="tags" class="mr10" color="#3a62d7" size="36rpx"
 									@click.native.stop="scanQrCode('stationCode')" />
-								<u-icon name="scan" class="mr10" color="#3a62d7" size="36rpx"
+								<u-icon name="scan" class="mr10" :color="dataInfo.bomExamine ? '#909399' : '#3a62d7'" size="36rpx"
 									@click.native.stop="scanQrCode('serialCode')" />
 								<u-icon name="photo-fill" color="#3a62d7" size="36rpx"
 									@click.native.stop="takePhoto($event)" />
@@ -84,6 +84,7 @@
 			},
 			// 扫码
 			scanQrCode(type) {
+				if (type === 'serialCode' && this.dataInfo.bomExamine) return;
 				this.$emit('scanQrCode', this.dataInfo, type);
 			},
 		}

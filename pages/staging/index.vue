@@ -91,7 +91,7 @@
 				// 列表刷新状态
 				status: "nomore",
 				// 选中的工单状态
-				selectOrderStatus: ''
+				selectOrderStatus: '',
 			};
 		},
 		computed: {
@@ -206,23 +206,22 @@
 					param.projName = this.searchKey;
 					param.workOrderType = this.showType === "workOrder" ? 1 : 2;
 					getWorkOrderPageData(param)
-						.then(res => {
-							if (res.success && res.data && Array.isArray(res.data.pageList)) {
-								this.total = res.data.total;
-								listData = res.data.pageList.map(item => ({
-									status: item.orderStatus,
-									title: item.projName,
-									...item
-								}))
-								this.handleDataByType(listData, type)
-
-							} else {
-								uni.$u.toast(res.errMsg || '暂无数据')
-							}
-						})
-						.finally(() => {
-							this.refreshing = false;
-						})
+					.then(res => {
+						if (res.success && res.data && Array.isArray(res.data.pageList)) {
+							this.total = res.data.total;
+							listData = res.data.pageList.map(item => ({
+								status: item.orderStatus,
+								title: item.projName,
+								...item
+							}))
+							this.handleDataByType(listData, type)
+						} else {
+							uni.$u.toast(res.errMsg || '暂无数据')
+						}
+					})
+					.finally(() => {
+						this.refreshing = false;
+					})
 				}
 
 			},
