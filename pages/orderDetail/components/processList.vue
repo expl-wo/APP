@@ -97,7 +97,7 @@
 						title: '返厂检修-现场拆解',
 						code: "OVER_HAUL_BACK_CHAI_JIE_SCENE"
 					}, {
-						title: '返厂检修-场内拆解',
+						title: '返厂检修-厂内拆解',
 						code: "OVER_HAUL_BACK_INNER_CHAI_JIE_SCENE"
 					}, {
 						title: '返厂检修-厂内生产',
