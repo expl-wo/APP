@@ -23,6 +23,9 @@
 	} from '@/https/overhaul/bom';
 	import uploadHttp from '@/https/_public/upload';
 	import {
+		getFileServerUrl
+	} from "@/utils/config";
+	import {
 		getToken,
 		setToken
 	} from '@/utils/auth.js';
@@ -61,7 +64,7 @@
 				if (newVal && this.bomInfo) {
 					this.imageList = this.bomInfo.imgList.filter(item => item.imgType === this.imgType).map(item => {
 						return {
-							url: `http://10.16.9.128:9000/${item.imgPath}`,
+							url: `${getFileServerUrl()}${item.imgPath}`,
 							filePath: item.imgPath,
 							fileName: item.imgName
 						}
@@ -112,7 +115,7 @@
 					}
 					let uploadedList = successList.map(item => {
 						return {
-							url: `http://10.16.9.128:9000/${item.filePath}`,
+							url: `${getFileServerUrl()}${item.filePath}`,
 							filePath: item.filePath,
 							fileName: item.fileName
 						}

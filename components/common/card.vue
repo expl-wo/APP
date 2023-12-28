@@ -52,6 +52,7 @@
 	} from '@/utils/constants-custom.js';
 	import defaultVideoImg from '@/static/img/default_video.png'
 	import PreviewModal from './previewModal.vue'
+	import { getFileServerUrl } from '@/utils/config'
 	export default {
 		name: 'Card',
 		components: {
@@ -135,7 +136,7 @@
 				return ORDER_STATUS_MAP[status - 1].backgroundColor
 			},
 			getUrl(img) {
-				return 'http://10.16.9.128:9000/' + img;
+				return `${getFileServerUrl()}img`;
 			},
 			// 预览图片
 			previewImage(item) {

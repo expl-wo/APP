@@ -59,8 +59,8 @@
 				<u-form-item label="操作:" borderBottom>
 					<view class="btn-wrapper">
 						<u-button type="primary" class="btn mr20" color="#243d8f" :text="getImageBtnText"
-							:loading="photoLoading" @click="takePhoto" />
-						<u-button type="primary" class="btn" color="#243d8f" :loading="videoLoading" :text="getBtnText"
+							:loading="photoLoading" :disabled="btnDisabled" @click="takePhoto" />
+						<u-button type="primary" class="btn" color="#243d8f" :disabled="btnDisabled" :loading="videoLoading" :text="getBtnText"
 							@click="takeVideo" />
 					</view>
 				</u-form-item>
@@ -90,7 +90,7 @@
 	} from '@/utils/auth.js';
 	import {
 		getFileServerUrl
-	} from "../../utils/config";
+	} from "@/utils/config";
 
 	const radioOptions = [{
 			label: '固定工位',
@@ -163,6 +163,9 @@
 				let { workOrderType } = uni.getStorageSync('ims_workOrder');
 				let temp = radioOptions.filter(item => item.value === 3);
 				return workOrderType === 1 ? temp : radioOptions;
+			},
+			btnDisabled() {
+				return this.form.type === 1 && !this.form.channelCode
 			}
 		},
 		watch: {
@@ -289,7 +292,7 @@
 							let temp = item.fileName.split('.');
 							let fileExt = temp[temp.length - 1];
 							return {
-								url: `http://10.16.9.128:9000/${item.filePath}`,
+								url: `${getFileServerUrl()}${item.filePath}`,
 								filePath: item.filePath,
 								fileName: item.fileName,
 								type: fileExt.toLocaleLowerCase()

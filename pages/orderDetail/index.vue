@@ -62,6 +62,9 @@
 		getIssuePageList,
 	} from "@/https/staging/index.js";
 	import {
+		getFileServerUrl
+	} from "@/utils/config";
+	import {
 		mapState
 	} from "vuex";
 	export default {
@@ -204,7 +207,7 @@
 			},
 			// 获取图片地址
 			getUrl(url) {
-				return "http://10.16.9.128:9000/" + url;
+				return getFileServerUrl() + url;
 			},
 			// 获取工单状态
 			getStatusStr(status) {

@@ -67,6 +67,9 @@
 	import {
 		getToken
 	} from '@/utils/auth.js';
+	import {
+		getFileServerUrl
+	} from "@/utils/config";
 	export default {
 		data() {
 			return {
@@ -232,7 +235,7 @@
 						}
 						let uploadedList = successList.map(item => {
 							return {
-								url: `http://10.16.9.128:9000/${item.filePath}`,
+								url: `${getFileServerUrl()}${item.filePath}`,
 								filePath: item.filePath,
 								fileName: item.fileName
 							}
