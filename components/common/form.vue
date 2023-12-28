@@ -336,7 +336,6 @@
 			// 表单保存
 			submit() {
 				this.$refs.uForm.validate().then(res => {
-					console.log('----', this.submitFormData)
 					this.submitFormData.forEach((item, index) => {
 						if (item.operationType === "1") {
 							item.contentInfo = this.formData[item.operationCode] || item.lowerLimit || '';
@@ -355,8 +354,8 @@
 							item.workPlanTime = ''
 						}
 						item.aiAppendixDTOList.length && item.aiAppendixDTOList.forEach(f => {
-							debugger;
 							f.url = f.fileUrl || f.filePath;
+							f.workPlanTime = item.workPlanTime;
 							
 						})
 						item.aiAppendixList = item.aiAppendixDTOList;
@@ -711,6 +710,17 @@
 			// 拍照录像
 			takePhotoAndVideo(item, index) {
 				if(this.saveBtnDisabled) return;
+				const time = this.selectHours.filter(item => item.label == this.showTimeList[index]
+					.hourTime);
+				const timeStr = (time.length && time[0].value) || '';
+				if (item.executionFrequency === '0') {
+					item.workPlanTime = this.showTimeList[index].date + " " + timeStr;
+				} else if (item.executionFrequency === '1') {
+					const timeStr = (time.length && time[0].value) || '';
+					item.workPlanTime = this.showTimeList[index].date + " 23:59:59";
+				} else {
+					item.workPlanTime = '';
+				}
 				uni.setStorageSync('ims_currentWorkProcedure', item);
 				this.currentOperationIndex = index;
 				this.showFlag = true;
@@ -720,11 +730,15 @@
 				this.showFlag = false;
 				if(flag) {
 					let temp = JSON.parse(uni.getStorageSync('ims_uploadOperation'));
+					let {
+						workPlanTime
+					} = uni.getStorageSync('ims_currentWorkProcedure');
 					let oldData = this.submitFormData[this.currentOperationIndex].aiAppendixDTOList;
 					console.log('-------', oldData);
 					let oldDataIdList = oldData.map(item => item.id);
 					console.log('oldDataIdList-------', oldDataIdList);
 					let params = {
+						workPlanTime,
 						operationCode: temp.operationCode,
 						workCode: this.commonParam.workCode,
 						workScene: this.commonParam.workScene

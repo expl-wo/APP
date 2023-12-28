@@ -306,7 +306,8 @@
 							} = uni.getStorageSync('ims_workOrder');
 							let {
 								id,
-								operationCode
+								operationCode,
+								workPlanTime
 							} = uni.getStorageSync('ims_currentWorkProcedure');
 							let { workOrderSceneType } = uni.getStorageSync('ims_workStep');
 							let params = {
@@ -316,6 +317,7 @@
 								prodNumber,
 								operationId: id,
 								operationCode,
+								workPlanTime,
 								appendixType: fileType === 'image' ? 2 : 1,
 								appendixUrl: uploadedList[0].filePath
 							}
@@ -389,7 +391,8 @@
 				} = uni.getStorageSync('ims_workOrder');
 				let {
 					id,
-					operationCode
+					operationCode,
+					workPlanTime
 				} = uni.getStorageSync('ims_currentWorkProcedure');
 				let {
 					channelCode,
@@ -405,7 +408,8 @@
 					operationCode,
 					appendixType: fileType === 'image' ? 2 : 1,
 					channelCode,
-					channelName
+					channelName,
+					workPlanTime
 				}
 				if (fileType === 'video') {
 					params.videoStartTime = this.startTime;
