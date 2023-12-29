@@ -49,8 +49,9 @@
 			</view>
 		</view>
 		<!-- 复核面板 -->
-		<u-picker title='是否合入问题库' :show="isShowProvePicker" :columns="proveColumns" :closeOnClickOverlay='true'
-			@close='isShowProvePicker=false' @cancel='isShowProvePicker=false' @confirm='proveConfirm'></u-picker>
+		<u-picker title='复核-是否合入问题库' :show="isShowProvePicker" ref="uPicker" :columns="proveColumns"
+			:closeOnClickOverlay='true' @close='isShowProvePicker=false' @cancel='isShowProvePicker=false'
+			@confirm='proveConfirm' @change="changeHandler"></u-picker>
 		<Notice :show="isShowTip" title="工序要求" :content="tip" @closeNotice="closeNotice" />
 		<u-modal :show="showReportProgress" title="选择进度" width='360px' @cancel='showReportProgress=false'
 			:closeOnClickOverlay='true' @confirm='handleReport' @close='showReportProgress=false'>
@@ -130,8 +131,12 @@
 				isShowProvePicker: false,
 				// 问题审核
 				proveColumns: [
+					['不通过', '通过'],
+					[]
+				],
+				columnData: [
+					[],
 					['否', '是'],
-					['不通过', '通过']
 				],
 				isShowTip: false,
 				// 工序标准
@@ -161,7 +166,8 @@
 				// 开工完工按钮是否可用
 				disableStartWorkBtn: false,
 				// 是否是开工时出发的安全须知
-				isStartWorkFlag: false
+				isStartWorkFlag: false,
+
 			};
 		},
 		watch: {
@@ -236,8 +242,9 @@
 						res.data.value.forEach((item, index) => {
 							// 筛选图片，暂不支持文件
 							const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img', 'gif']
-							item.aiAppendixDTOList = item.aiAppendixDTOList ? item.aiAppendixDTOList.filter(f => whiteList.includes(f
-								.fileType)) : [];
+							item.aiAppendixDTOList = item.aiAppendixDTOList ? item.aiAppendixDTOList
+								.filter(f => whiteList.includes(f
+									.fileType)) : [];
 							item.upperLimit = item.upperLimit || undefined;
 						})
 						this.showList = res.data.value || [];
@@ -261,12 +268,15 @@
 										// const whiteList = ['jpg', 'png', 'jepg', 'jpeg', 'img',
 										// 	'gif', 'mp4'
 										// ]
-										item.aiAppendixDTOList = f.aiAppendixDTOList ? f.aiAppendixDTOList.filter(file => file.appendixType === 1 || file.appendixType === 2) : [];
+										item.aiAppendixDTOList = f.aiAppendixDTOList ? f
+											.aiAppendixDTOList.filter(file => file.appendixType ===
+												1 || file.appendixType === 2) : [];
 										item.aiAppendixDTOList.forEach(img => {
 											img.url =
 												`http://10.16.9.128:9000/${img.appendixUrl}`;
 											let temp = img.appendixUrl.split('.');
-											img.type = (temp[temp.length - 1]).toLowerCase();
+											img.type = (temp[temp.length - 1])
+												.toLowerCase();
 											img.name = img.appendixName || '';
 											img.filePath = img.appendixUrl;
 											img.flag = img.flag === 0 ? 0 : 1;
@@ -332,8 +342,8 @@
 				const param = {
 					...this.commonParam,
 					craftId: this.commonParam.craftId || "",
-					pass: value.indexs[1], // 0：复核不通过，1：复核通过
-					isProblem: value.indexs[0] // 0:不加入 1:加入
+					pass: value.indexs[0], // 0：复核不通过，1：复核通过
+					isProblem: value.indexs[1] // 0:不加入 1:加入
 				}
 				proveConfirmApi(param).then((res) => {
 					if (res.success) {
@@ -402,14 +412,14 @@
 						userId: getUserInfo().username
 					}
 					isFirstTimeStart(params)
-					.then(res => {
-						if (res.success && res.data && !res.data.isStart) {
-							this.isStartWorkFlag = true;
-							this.showTip();
-						} else {
-							this.handleStarWork();
-						}
-					})
+						.then(res => {
+							if (res.success && res.data && !res.data.isStart) {
+								this.isStartWorkFlag = true;
+								this.showTip();
+							} else {
+								this.handleStarWork();
+							}
+						})
 				} else {
 					this.handleStarWork();
 				}
@@ -514,6 +524,21 @@
 				if (this.isStartWorkFlag) {
 					this.isStartWorkFlag = false;
 					this.handleStarWork();
+				}
+			},
+			changeHandler(e) {
+				const {
+					columnIndex,
+					value,
+					values, // values为当前变化列的数组内容
+					index,
+					// 微信小程序无法将picker实例传出来，只能通过ref操作
+					picker = this.$refs.uPicker
+				} = e
+				// 当第一列值发生变化时，变化第二列(后一列)对应的选项
+				if (columnIndex === 0) {
+					// picker为选择器this实例，变化第二列对应的选项
+					picker.setColumnValues(1, this.columnData[index])
 				}
 			}
 		},
