@@ -94,6 +94,9 @@
 	import {
 		SUB_PRODUCTION_MAP
 	} from '@/utils/constants-custom.js'
+	import {
+		getFileServerUrl
+	} from "@/utils/config";
 	export default {
 		name: "ProcessDetail",
 		components: {
@@ -273,7 +276,7 @@
 												1 || file.appendixType === 2) : [];
 										item.aiAppendixDTOList.forEach(img => {
 											img.url =
-												`http://10.16.9.128:9000/${img.appendixUrl}`;
+												`${getFileServerUrl()}${img.appendixUrl}`;
 											let temp = img.appendixUrl.split('.');
 											img.type = (temp[temp.length - 1])
 												.toLowerCase();

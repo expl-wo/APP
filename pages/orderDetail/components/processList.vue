@@ -126,6 +126,7 @@
 					pageNum: this.pageNum,
 					workCode: this.orderInfo.id,
 					workProcedureType: 0, // 0-根节点, 1-标准工序,2-中工序,3-工步,4-内容工序,
+					workOrderSceneType: 'SURVEY_SCENE'
 				};
 				getProcessList(param).then(res => {
 					if (res.success && res.data && res.data.pageList) {

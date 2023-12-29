@@ -82,12 +82,6 @@
 		6: '六',
 		7: '日'
 	}
-	const messageTypeMap = {
-		1: '指派任务通知',
-		2: '派工任务通知',
-		3: '复核任务通知',
-		4: '超时通知'
-	}
 	import UserInfo from '@/components/common/user-info.vue';
 
 	import {
